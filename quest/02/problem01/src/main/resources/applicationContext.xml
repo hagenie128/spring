@@ -35,5 +35,37 @@
       힌트: <property name="menu" ref="menuBean"/>
     ====================================================================
     -->
-
+   <!--
+		menuBean은 컬렉션 주입 연습용 Bean입니다.
+		문자열 값(category), List(items), Map(prices)을 XML에서 넣어 봅니다.
+	-->
+	<bean id="menuBean" class="com.spring.problem01.MenuBean">
+		<property name="category" value="한식"></property>
+		<property name="items">
+			<!-- <list>는 순서가 있는 여러 값을 하나의 프로퍼티에 넣을 때 사용합니다. -->
+			<list>
+				<value>비빔밥</value>
+				<value>불고기</value>
+				<value>된장찌개</value>
+			</list>
+		</property>
+		<property name="prices">
+			<!-- <map>은 key-value 쌍으로 값을 넣을 때 사용합니다. -->
+			<map>
+				<entry key="비빔밥" value="9000"/>
+				<entry key="불고기" value="12000"/>
+				<entry key="된장찌개" value="8000"/>
+			</map>			
+		</property>
+	
+	</bean>
+	
+	<!--
+		restaurantBean의 menu 프로퍼티에는 value가 아니라 ref를 사용합니다.
+		ref="menuBean"은 위에서 만든 menuBean 객체 자체를 연결한다는 뜻입니다.
+	-->
+	<bean id="restaurantBean" class="com.spring.problem01.RestaurantBean">
+		<property name="name" value="한국의 맛"/>
+		<property name="menu" ref="menuBean"/>
+	</bean>	
 </beans>

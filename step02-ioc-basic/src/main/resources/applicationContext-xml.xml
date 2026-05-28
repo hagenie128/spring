@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+        <!--
+            book1은 setter 주입 예제입니다.
+            Spring이 BookBean 기본 생성자로 객체를 만든 뒤,
+            setTitle(), setAuthor(), setPrice()를 호출해 값을 넣습니다.
+        -->
+        <bean id="book1" class="xml.BookBean">
+            <property name="title" value="스프링 입문"/>
+            <property name="author" value="홍길동"/>
+            <property name="price" value="30000"/>
+        </bean>
+
+        <!--
+            book2는 생성자 주입 예제입니다.
+            <constructor-arg> 값들이 BookBean(String, String, int) 생성자 인자로 전달됩니다.
+        -->
+        <bean id="book2" class="xml.BookBean">
+            <constructor-arg value="스프링 부트 프로젝트 만들기"/>
+            <constructor-arg value="김철수"/>
+            <constructor-arg value="25000"/>
+        </bean>
+
+        <!--
+            libraryBean은 다양한 주입 방법을 함께 보여줍니다.
+            - value: 문자열 같은 단순 값 주입
+            - ref: 이미 등록된 다른 Bean을 참조
+            - list/map: 여러 값을 컬렉션으로 주입
+        -->
+        <bean id="libraryBean" class="xml.LibraryBean">
+            <property name="libraryName" value="서울 도서관"/>
+            <property name="featuredBook" ref="book1"/>
+            <property name="genres">
+                <list>
+                    <value>프로그래밍</value>
+                    <value>데이터베이스</value>
+                    <value>네트워크</value>
+                </list>
+            </property>
+               <property name="bookPrices">
+                   <map>
+                       <entry key="객체지향프로그래밍 입문" value="35000"/>
+                       <entry key="딥러닝 기초" value="25000"/>
+                   </map>
+               </property>
+        </bean>
+
+</beans>

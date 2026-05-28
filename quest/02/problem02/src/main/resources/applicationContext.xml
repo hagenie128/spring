@@ -19,5 +19,11 @@
         <context:component-scan base-package="패키지명"/>
     ====================================================================
     -->
+    	<!--
+		component-scan은 지정한 패키지에서 @Component, @Service, @Repository가 붙은
+		클래스를 찾아 Spring Bean으로 자동 등록합니다.
+		이 설정 덕분에 Java 클래스마다 XML <bean>을 직접 작성하지 않아도 됩니다.
+	-->
+    <context:component-scan base-package="com.spring.problem02"/>
 
 </beans>

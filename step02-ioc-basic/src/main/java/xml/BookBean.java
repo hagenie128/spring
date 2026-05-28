@@ -1,4 +1,4 @@
-package com.spring.day02.xml;
+package xml;
 
 public class BookBean {
 

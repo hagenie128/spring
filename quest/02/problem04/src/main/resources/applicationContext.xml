@@ -31,5 +31,24 @@
       base-package: com.spring.problem04
     ====================================================================
     -->
-
+	<bean id="americano" class="com.spring.problem04.CoffeeItem">
+		<property name="name" value="아메리카노"/>
+		<property name="price" value="4500"/>
+		<property name="size" value="Large"/>
+	</bean>
+	<bean id="latteCoffee" class="com.spring.problem04.CoffeeItem">
+		<property name="name" value="카페라떼"/>
+		<property name="price" value="5000"/>
+		<property name="size" value="Medium"/>
+	</bean>
+	<bean id="vanillaLatte" class="com.spring.problem04.CoffeeItem">
+		<property name="name" value="바닐라라떼"/>
+		<property name="price" value="5500"/>
+		<property name="size" value="Medium"/>
+	</bean>
+		<!--
+		CafeService(@Service)와 CoffeeMenu(@Component)는 아래 component-scan으로 자동 등록됩니다.
+		즉, 이 두 클래스는 XML에 <bean>을 따로 적지 않아도 사용할 수 있습니다.
+	-->
+	<context:component-scan base-package="com.spring.problem04"/>
 </beans>

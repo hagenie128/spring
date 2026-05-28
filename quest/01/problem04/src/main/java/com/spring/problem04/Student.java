@@ -19,9 +19,8 @@ package com.spring.problem04;
  */
 public class Student {
 
-    // TODO 1: 필드를 선언하세요.
 	private String name;
-	private String age;
+	private int age;
 	private String major;
 
     // TODO 2: 기본 생성자를 작성하세요.
@@ -29,7 +28,7 @@ public class Student {
 	}
 	
     // TODO 2: 전체 필드 생성자를 작성하세요.
-	public Student(String name, String age, String major) {
+	public Student(String name, int age, String major) {
 		super();
 		this.name = name;
 		this.age = age;
@@ -45,11 +44,11 @@ public class Student {
 		this.name = name;
 	}
 
-	public String getAge() {
+	public int getAge() {
 		return age;
 	}
 
-	public void setAge(String age) {
+	public void setAge(int age) {
 		this.age = age;
 	}
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+        
+        <!--
+	        component-scan은 지정한 패키지 아래 클래스를 훑어봅니다.
+	        그중 @Component, @Service, @Repository 같은 어노테이션이 붙은 클래스를
+	        개발자가 <bean>으로 직접 등록하지 않아도 Spring Bean으로 자동 등록합니다.
+	    -->
+        <context:component-scan base-package="annotiation"/>
+        
+</beans>

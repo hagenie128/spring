@@ -1,4 +1,4 @@
-package com.spring.day02.singleton;
+package singleton;
 
 public class TemporaryBean {
 

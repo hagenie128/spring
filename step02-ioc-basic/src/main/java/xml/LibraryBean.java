@@ -1,4 +1,4 @@
-package com.spring.day02.xml;
+package xml;
 
 import java.util.List;
 import java.util.Map;

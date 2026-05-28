@@ -1,4 +1,4 @@
-package com.spring.day02.singleton;
+package singleton;
 
 public class CounterBean {
 
@@ -10,5 +10,9 @@ public class CounterBean {
 
     public int getCount() {
         return count;
+    }
+    
+    public void onDestroy() {
+    	System.out.println("CounterBean 소멸");
     }
 }
