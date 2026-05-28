@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 이 파일은 수정하지 않아도 됩니다. ProblemMain.java 만 완성하세요. -->
+    <bean id="coffeeBean" class="com.spring.problem03.CoffeeBean">
+        <property name="name"   value="카페라떼"/>
+        <property name="price"  value="5000"/>
+        <property name="origin" value="에티오피아"/>
+    </bean>
+
+</beans>

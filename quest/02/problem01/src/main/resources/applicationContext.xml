@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+    ====================================================================
+    TODO [문제 1-1] menuBean을 등록하세요.
+
+      id    : menuBean
+      class : com.spring.problem01.MenuBean
+      프로퍼티:
+        - category : "한식"
+        - items    : 리스트 ["비빔밥", "불고기", "된장찌개"]
+        - prices   : 맵 {비빔밥=9000, 불고기=12000, 된장찌개=8000}
+
+      힌트:
+        <property name="items">
+          <list> <value>...</value> ... </list>
+        </property>
+        <property name="prices">
+          <map> <entry key="..." value="..."/> ... </map>
+        </property>
+    ====================================================================
+
+    TODO [문제 1-2] restaurantBean을 등록하세요.
+
+      id    : restaurantBean
+      class : com.spring.problem01.RestaurantBean
+      프로퍼티:
+        - name : "한국의 맛"
+        - menu : menuBean 참조 (ref 사용)
+
+      힌트: <property name="menu" ref="menuBean"/>
+    ====================================================================
+    -->
+
+</beans>

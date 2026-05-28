@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+    =====================================================================
+    TODO [문제 2] 아래 두 개의 Bean을 등록하세요.
+
+    ① id="productBean", class=com.spring.problem02.ProductBean
+       - name  프로퍼티 값: "아메리카노"
+       - price 프로퍼티 값: 4500
+       힌트: <property name="필드명" value="값"/>
+
+    ② id="cartBean", class=com.spring.problem02.CartBean
+       - 프로퍼티 없음 (기본 생성자만 사용)
+
+    완성하면 ProblemMain.java 실행 시 아래가 출력되어야 합니다.
+      [ProductBean] 상품명: 아메리카노, 가격: 4500원
+      [CartBean] 장바구니가 준비되었습니다.
+    =====================================================================
+    -->
+	<bean id="productBean" class="com.spring.problem02.ProductBean">
+		<property name="name" value="아메리카노"/>
+		<property name="price" value="4500"/>
+	</bean>
+	<bean id="cartBean" class="com.spring.problem02.CartBean"/>
+</beans>
