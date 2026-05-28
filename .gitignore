@@ -1,0 +1,23 @@
+.metadata/
+
+# Java / Spring build output
+target/
+build/
+out/
+*.class
+
+# IDE files
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
