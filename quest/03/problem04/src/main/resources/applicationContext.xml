@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+        ConnectionPool Bean.
+        poolSize 를 setter injection 으로 5 로 설정한다.
+        InitializingBean / DisposableBean 인터페이스를 구현했으므로
+        init-method / destroy-method 속성 없이도 Spring이 자동으로 콜백을 호출한다.
+    -->
+    <bean id="connectionPool"
+          class="com.spring.problem04.ConnectionPool">
+        <property name="poolSize" value="5"/>
+    </bean>
+
+</beans>

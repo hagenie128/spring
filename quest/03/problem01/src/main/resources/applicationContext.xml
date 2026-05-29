@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+        TODO: fileHandler Bean에 init-method, destroy-method 속성을 추가하세요.
+              초기화 메서드: openDirectory
+              소멸  메서드: cleanUp
+
+        힌트:
+          <bean id="fileHandler"
+                class="com.spring.problem01.FileHandler"
+                init-method="???"
+                destroy-method="???">
+    -->
+    <bean id="fileHandler"
+          class="com.spring.problem01.FileHandler"
+          init-method="openDirectory" destroy-method="cleanUp">
+        <property name="workDir" value="/tmp/work"/>
+    </bean>
+
+</beans>

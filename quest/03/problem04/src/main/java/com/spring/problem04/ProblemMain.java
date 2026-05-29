@@ -1,0 +1,21 @@
+package com.spring.problem04;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class ProblemMain {
+
+    public static void main(String[] args) {
+        ClassPathXmlApplicationContext context =
+                new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        ConnectionPool pool = context.getBean("connectionPool", ConnectionPool.class);
+
+        String c1 = pool.getConnection();
+        String c2 = pool.getConnection();
+
+        pool.releaseConnection(c1);
+
+        System.out.println("\n▶ 컨테이너 종료");
+        context.close();
+    }
+}
