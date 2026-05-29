@@ -15,7 +15,8 @@ public class ProblemMain {
          *               new AnnotationConfigApplicationContext(???.class);
          */
         // TODO 4: context 생성 코드 작성
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class); // 이 줄을 수정하세요
+        AnnotationConfigApplicationContext context = 
+        		new AnnotationConfigApplicationContext(AppConfig.class); // 이 줄을 수정하세요
 
         /**
          * TODO 5: context 에서 "memberService" Bean을 가져와

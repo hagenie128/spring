@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- TODO 1: orderRepository Bean을 등록하세요. -->
+	<bean id="orderRepository" class="com.spring.problem01.OrderRepository"/>
+    <!-- TODO 2: pointPolicy Bean을 등록하고 생성자 인자로 5를 주입하세요. -->
+	<bean id="pointPolicy" class="com.spring.problem01.PointPolicy">
+		<constructor-arg value="5"/>
+	</bean>
+    <!-- TODO 3: orderService Bean을 등록하고 orderRepository, pointPolicy를 생성자 주입하세요. -->
+	<bean id="orderService" class="com.spring.problem01.OrderService">
+		<constructor-arg ref="orderRepository"/>	
+		<constructor-arg ref="pointPolicy"/>	
+	</bean>
+</beans>

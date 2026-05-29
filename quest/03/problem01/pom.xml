@@ -24,10 +24,10 @@
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.5.6</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 </project>

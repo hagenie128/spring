@@ -43,33 +43,28 @@ public class ConnectionPool implements InitializingBean, DisposableBean{
     }
 
     // TODO 2: afterPropertiesSet() 구현
-    // @Override
-    // public void afterPropertiesSet() throws Exception { ... }
     @Override
     public void afterPropertiesSet() throws Exception {
         for (int i = 1; i <= poolSize; i++) {
-            String connId = "conn-" + i;
-        	availableConnections.addLast(connId);
-            allConnections.add(connId);
+        	availableConnections.add("conn-" + i);
+            allConnections.add("conn-" + i);
         }
-    	System.out.println("[ConnectionPool] afterPropertiesSet() — 커넥션 "+poolSize+"개 생성: [conn-1, ..., conn-"+poolSize+"]");
+    	System.out.println("[ConnectionPool] afterPropertiesSet() — 커넥션 "+poolSize+"개 생성: "
+        +allConnections);
     }
 
     // TODO 3: destroy() 구현
-    // @Override
-    // public void destroy() throws Exception { ... }
     @Override
     public void destroy() throws Exception{
-    	for(String connId : allConnections) {
-    		System.out.println("[ConnectionPool] destroy() — " + connId + " 닫기");
-    	}
     	System.out.println("[ConnectionPool] destroy() — 커넥션 " + allConnections.size() + "개 닫기 완료");
+    	allConnections.clear();
+    	availableConnections.clear();
     }
 
     // TODO 4: getConnection() 구현
     public String getConnection() {
         if(availableConnections.isEmpty()){
-        	System.out.println("풀 고갈");
+        	System.out.println("[ConnectionPool] 풀 고갈 - 사용 가능한 커넥션이 없음");
         	return null;
         }else {
             String connId = availableConnections.pollFirst();

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- TODO 1: couponRepository Bean을 등록하세요. -->
+	<bean id="couponRepository" class="com.spring.problem02.CouponRepository"/>
+    <!-- TODO 2: couponService Bean을 등록하세요. -->
+    <bean id="couponService" class="com.spring.problem02.CouponService">
+    <!-- TODO 3: couponPrefix에 KIOSK 값을 Setter 주입하세요. -->
+    	<property name="couponPrefix" value="KIOSK"/>
+    <!-- TODO 4: couponRepository를 Setter 주입하세요. -->
+		<property name="couponRepository" ref="couponRepository"/>    	
+    </bean>
+
+</beans>
