@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/mvc
+           https://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/context
+           https://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<!-- @Controller, @Component,... 자동 스캔 -->
+	<context:component-scan base-package="com.spring.controller"/>
+	
+	<!-- 어노테이션 기반 MVC 활성화 -->
+	<!-- RequestHandlerMapping, RequestMappingHandlerAdapter ... 자동등록 -->
+	<mvc:annotation-driven/>
+	
+	<!-- 정적 자원 처리(CSS, JS, 이미지...) -->
+	<mvc:resources location="/resources" mapping="/resources/**"/>
+
+	<!-- ViewResolver : prefix + 파일명 + suffix = 실제 jsp 파일 경로 -->
+	<!-- /WEB-INF/views/home.jsp -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+</beans>

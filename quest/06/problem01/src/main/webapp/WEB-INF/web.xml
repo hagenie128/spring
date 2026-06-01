@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <!--
+    ===================================================
+    TODO 1: DispatcherServlet을 'dispatcher'라는 이름으로 등록하라.
+      - servlet-class: org.springframework.web.servlet.DispatcherServlet
+      - init-param: contextConfigLocation = /WEB-INF/spring/dispatcher-context.xml
+      - load-on-startup: 1
+    ===================================================
+    -->
+    <servlet>
+        <servlet-name>dispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/spring/dispatcher-context.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!--
+    ===================================================
+    TODO 2: 위에서 등록한 dispatcher 서블릿이 모든 요청(/)을 처리하도록 매핑하라.
+    ===================================================
+    -->
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+
+    <!--
+    ===================================================
+    TODO 3: CharacterEncodingFilter를 등록하여 UTF-8 인코딩을 적용하라.
+      - filter-name: encodingFilter
+      - filter-class: org.springframework.web.filter.CharacterEncodingFilter
+      - init-param: encoding=UTF-8, forceEncoding=true
+      - url-pattern: /*
+    ===================================================
+    -->
+    
+        <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+</web-app>
