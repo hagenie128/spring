@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- @Component, @Service가 붙은 클래스를 자동으로 bean 등록한다. -->
+    <context:component-scan base-package="com.spring.review"/>
+
+    <!-- Step01/02 복습: XML로 직접 bean 등록 -->
+    <bean id="orderRepository" class="com.spring.review.OrderRepository"/>
+
+    <!-- value는 단순 값 주입이다. FixedDiscountPolicy(int fixedAmount)에 1000을 전달한다. -->
+    <bean id="fixedDiscountPolicy" class="com.spring.review.FixedDiscountPolicy">
+        <constructor-arg value="1000"/>
+    </bean>
+
+    <!-- 생성자 주입: ref는 다른 bean 객체를 주입한다. -->
+    <bean id="orderService" class="com.spring.review.OrderService">
+        <constructor-arg ref="orderRepository"/>
+        <constructor-arg ref="fixedDiscountPolicy"/>
+        <constructor-arg ref="notificationService"/>
+    </bean>
+
+    <!-- setter 주입: bean 생성 후 setMenuRepository(), setStoreName()이 호출된다. -->
+    <bean id="menuRepository" class="com.spring.review.MenuRepository"/>
+    <bean id="menuService" class="com.spring.review.MenuService">
+        <property name="menuRepository" ref="menuRepository"/>
+        <property name="storeName" value="Spring Cafe"/>
+    </bean>
+
+    <!-- XML init-method / destroy-method 방식의 생명주기 callback -->
+    <bean id="systemMonitor"
+          class="com.spring.review.SystemMonitor"
+          init-method="start"
+          destroy-method="stop"/>
+</beans>
