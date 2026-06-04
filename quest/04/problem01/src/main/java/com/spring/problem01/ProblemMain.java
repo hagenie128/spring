@@ -8,5 +8,6 @@ public class ProblemMain {
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
         OrderService orderService = context.getBean("orderService", OrderService.class);
         orderService.order("김치볶음밥", 9000);
+        ((ClassPathXmlApplicationContext) context).close();
     }
 }

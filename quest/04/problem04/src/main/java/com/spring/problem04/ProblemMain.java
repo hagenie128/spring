@@ -8,5 +8,6 @@ public class ProblemMain {
         		= new AnnotationConfigApplicationContext(AppConfig.class);
         MemberService memberService = context.getBean("memberService", MemberService.class);
         memberService.join("user01", "1234");
+        ((AnnotationConfigApplicationContext) context).close();
     }
 }

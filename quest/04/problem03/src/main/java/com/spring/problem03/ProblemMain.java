@@ -8,5 +8,6 @@ public class ProblemMain {
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
         MessageService messageService = context.getBean("messageService", MessageService.class);
         messageService.sendPickupMessage();
+        ((ClassPathXmlApplicationContext) context).close();
     }
 }

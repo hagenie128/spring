@@ -8,5 +8,6 @@ public class ProblemMain {
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
         CouponService couponService = context.getBean("couponService", CouponService.class);
         couponService.issueWelcomeCoupon();
+        ((ClassPathXmlApplicationContext) context).close();
     }
 }

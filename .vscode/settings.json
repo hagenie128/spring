@@ -1,0 +1,11 @@
+{
+  "java.jdt.ls.vmargs": "-Xms256m -Xmx2G -XX:+UseG1GC -XX:+UseStringDeduplication",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "C:\\java\\zulu21.50.19-ca-jdk21.0.11-win_x64",
+      "default": true
+    }
+  ],
+  "java.compile.nullAnalysis.mode": "disabled"
+}

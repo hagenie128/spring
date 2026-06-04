@@ -1,7 +1,5 @@
 package com.spring.problem03;
 
-import org.springframework.stereotype.Component;
-
 public class DiscountCalculator {
 
     public int calculate(int price, int rate) {

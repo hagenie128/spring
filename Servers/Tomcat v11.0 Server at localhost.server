@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<server auto-publish-setting="2" auto-publish-time="1" configuration-id="/Servers/Tomcat v11.0 Server at localhost-config" deployDir="C:\java\apache-tomcat-11.0.22\webapps" hostname="localhost" id="Tomcat v11.0 Server at localhost" name="Tomcat v11.0 Server at localhost" runtime-id="Tomcat v11.0" serveModulesWithoutPublish="true" server-type="org.eclipse.jst.server.tomcat.110" server-type-id="org.eclipse.jst.server.tomcat.110" start-timeout="60" stop-timeout="15" testEnvironment="false" timestamp="18">
+  <list key="modules" value0="step07-mvc-form::org.eclipse.jst.jee.server:step07-mvc-form::jst.web::6.0"/>
+</server>
