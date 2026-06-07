@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- [완성된 파일 — 수정 불필요] KioskController의 TODO 5를 완성해야 동작합니다. -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>키오스크 - 주문 완료</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 30px auto; }
+        h2 { color: #0066cc; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px 14px; text-align: left; }
+        th { background: #f0f0f0; width: 120px; }
+        .total { font-size: 1.2em; font-weight: bold; color: #cc3300; }
+        .actions { display: flex; gap: 12px; }
+        a.btn { padding: 8px 16px; background: #0066cc; color: #fff;
+                text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h2>주문이 완료되었습니다!</h2>
+
+    <table>
+        <tr>
+            <th>고객명</th>
+            <td th:text="${orderForm.customerName}"></td>
+        </tr>
+        <tr>
+            <th>메뉴명</th>
+            <td th:text="${menu.name}"></td>
+        </tr>
+        <tr>
+            <th>카테고리</th>
+            <td th:text="${menu.category}"></td>
+        </tr>
+        <tr>
+            <th>단가</th>
+            <td th:text="${menu.price + '원'}"></td>
+        </tr>
+        <tr>
+            <th>수량</th>
+            <td th:text="${orderForm.quantity}"></td>
+        </tr>
+        <tr>
+            <th>요청사항</th>
+            <td th:text="${orderForm.requestMessage != null and !#strings.isEmpty(orderForm.requestMessage)
+                           ? orderForm.requestMessage : '없음'}"></td>
+        </tr>
+        <tr>
+            <th>총 금액</th>
+            <td class="total" th:text="${totalPrice + '원'}"></td>
+        </tr>
+    </table>
+
+    <div class="actions">
+        <a class="btn" th:href="@{/kiosk/menus}">메뉴 목록으로</a>
+        <a class="btn" th:href="@{/kiosk/orders/new}">새 주문</a>
+    </div>
+</body>
+</html>

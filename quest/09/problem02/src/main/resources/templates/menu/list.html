@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!--
+  [문제 2] menu/list.html
+  =====================================================================
+  TODO 4: th:each를 사용하여 menus 리스트를 반복 출력하세요.
+  TODO 5: 메뉴명 클릭 시 /menu/{id}로 이동하는 th:href를 추가하세요.
+          th:href="@{/menu/{id}(id=${menu.id})}" 형식을 사용합니다.
+
+  힌트:
+  - th:each="menu : ${menus}"  → menus 리스트의 각 원소를 menu 변수로 받음
+  - th:text="${menu.id}"       → menu의 id 출력
+  - th:text="${menu.name}"     → menu의 이름 출력
+  - th:text="${menu.category}" → menu의 카테고리 출력
+  - th:text="${menu.price + '원'}" → menu의 가격 + '원' 출력
+  =====================================================================
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 목록</title>
+</head>
+<body>
+    <h2>메뉴 목록</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>메뉴명</th>
+                <th>카테고리</th>
+                <th>가격</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- TODO 4: th:each 속성을 이 <tr> 태그에 추가하여 menus를 반복하세요 -->
+            <tr th:each="menu : ${menus}">
+                <!-- TODO 4: th:text로 menu.id 출력 -->
+                <td th:text="${menu.id}">ID</td>
+                <!-- TODO 5: <a> 태그에 th:href와 th:text를 추가하세요 -->
+                <td><a  th:text="${menu.name}" th:href="@{/menu/{id}(id=${menu.id})}">메뉴명</a></td>
+                <!-- TODO 4: th:text로 menu.category 출력 -->
+                <td th:text="${menu.category}">카테고리</td>
+                <!-- TODO 4: th:text로 menu.price + '원' 출력 -->
+                <td th:text="${menu.price+'원'}">가격</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/}">홈으로</a>
+</body>
+</html>

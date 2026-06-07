@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<<<<<<< HEAD
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Spring MVC + Thymeleaf 예제</h1>
+	
+	<p> 서버시간 : 
+		<span th:text="${#temporals.format(serverTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+		<hr>
+		<span>[[${#temporals.format(serverTime,'yyyy-MM-dd HH:mm:ss')}]]</span>
+	</p>
+	<ul>
+		<li><a th:href="@{/menu/list}">메뉴목록</a></li>
+		<li><a th:href="@{/menu/search}">메뉴검색</a></li>
+		<li><a th:href="@{/order/new}">주문하기</a></li>
+	</ul>
+</body>
+</html>
