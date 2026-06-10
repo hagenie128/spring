@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- [완성된 파일 — 수정 불필요] KioskController의 TODO 1, 3을 완성해야 동작합니다. -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>키오스크 - 메뉴 목록</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: 30px auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background: #f0f0f0; }
+        a { color: #0066cc; }
+        .search-bar { margin-bottom: 16px; }
+        .empty { color: #888; padding: 12px 0; }
+    </style>
+</head>
+<body>
+    <h2>키오스크 메뉴</h2>
+
+    <!-- 검색 폼 -->
+    <div class="search-bar">
+        <form th:action="@{/kiosk/menus/search}" method="get">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="메뉴명 또는 카테고리 검색">
+            <button type="submit">검색</button>
+            <a th:href="@{/kiosk/menus}">전체보기</a>
+        </form>
+    </div>
+
+    <!-- 검색 결과 없음 -->
+    <p class="empty" th:if="${#lists.isEmpty(menus)}">검색 결과가 없습니다.</p>
+
+    <!-- 메뉴 목록 테이블 -->
+    <table th:unless="${#lists.isEmpty(menus)}">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>메뉴명</th>
+                <th>카테고리</th>
+                <th>가격</th>
+                <th>상세 / 주문</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="menu : ${menus}">
+                <td th:text="${menu.id}"></td>
+                <td>
+                    <a th:href="@{/kiosk/menus/{id}(id=${menu.id})}"
+                       th:text="${menu.name}"></a>
+                </td>
+                <td th:text="${menu.category}"></td>
+                <td th:text="${menu.price + '원'}"></td>
+                <td>
+                    <a th:href="@{/kiosk/orders/new(menuId=${menu.id})}">주문하기</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+  [문제 2] menu/detail.html
+  =====================================================================
+  TODO 6: th:text를 사용하여 menu의 각 필드를 출력하세요.
+          - menu.name     → 메뉴명
+          - menu.category → 카테고리
+          - menu.price    → 가격
+
+  TODO 7: 목록으로 돌아가기 링크를 완성하세요.
+          th:href="@{/menu}" 형식을 사용합니다.
+
+  힌트:
+  - th:text="${menu.name}"     → menu 객체의 name 필드 값 출력
+  - th:href="@{/menu}"        → /menu 경로로 이동하는 링크 생성
+  =====================================================================
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 상세</title>
+</head>
+<body>
+    <h2>메뉴 상세 정보</h2>
+    <table border="1">
+        <tr>
+            <th>메뉴명</th>
+            <!-- TODO 6: th:text로 menu.name 출력 -->
+            <td th:text="${menu.name}">메뉴명</td>
+        </tr>
+        <tr>
+            <th>카테고리</th>
+            <!-- TODO 6: th:text로 menu.category 출력 -->
+            <td th:text="${menu.category}">카테고리</td>
+        </tr>
+        <tr>
+            <th>가격</th>
+            <!-- TODO 6: th:text로 menu.price + '원' 출력 -->
+            <td th:text="${menu.price+'원'}">가격</td>
+        </tr>
+    </table>
+
+    <br>
+    <!-- TODO 7: th:href="@{/menu}" 속성을 추가하세요 -->
+    <a th:href="@{/menu}">목록으로 돌아가기</a>
+</body>
+</html>

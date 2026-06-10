@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+  [문제 3] order/form.html
+  =====================================================================
+  TODO 9:  <form> 태그에 th:action="@{/orders}"와 th:object="${orderForm}"을 추가하세요.
+           - th:action : 폼 제출 URL을 Thymeleaf 표현식으로 지정
+           - th:object : 이 폼과 바인딩할 모델 객체를 지정 (이후 *{...} 사용 가능)
+
+  TODO 10: 고객명 <input>에 th:field="*{customerName}"을 추가하세요.
+           - th:field는 id, name, value 속성을 자동으로 생성합니다.
+
+  TODO 11: 메뉴 <select>에 th:field="*{menuName}"을 추가하고,
+           th:each로 menus를 반복하여 <option>을 생성하세요.
+           예) <option th:each="menu : ${menus}" th:value="${menu}" th:text="${menu}">
+
+  TODO 12: 수량 <input>에 th:field="*{quantity}"를 추가하세요.
+
+  TODO 13: 요청사항 <input>에 th:field="*{requestMessage}"를 추가하세요.
+  =====================================================================
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문하기</title>
+</head>
+<body>
+    <h2>주문 입력</h2>
+
+    <!-- TODO 9: th:action과 th:object를 추가하세요 -->
+    <form method="post" th:action="@{/orders}" th:object="${orderForm}">
+
+        <div>
+            <!-- TODO 10: th:field="*{customerName}" 추가 -->
+            <label>고객명: <input type="text" th:field="*{customerName}" placeholder="고객명"></label>
+        </div>
+
+        <div>
+            <label>메뉴:
+                <!-- TODO 11: th:field="*{menuName}" 추가, th:each로 menus 반복하여 option 생성 -->
+                <select th:field="*{menuName}">
+                    <!-- TODO 11: th:each로 option 반복 생성 -->
+                    <option th:each="menu : ${menus}" th:value="${menu}" th:text="${menu}" >선택하세요</option>
+                </select>
+            </label>
+        </div>
+
+        <div>
+            <!-- TODO 12: th:field="*{quantity}" 추가 -->
+            <label>수량: <input type="number" th:field="*{quantity}" value="1" min="1"></label>
+        </div>
+
+        <div>
+            <!-- TODO 13: th:field="*{requestMessage}" 추가 -->
+            <label>요청사항: <input type="text" th:field="*{requestMessage}" placeholder="요청사항 (선택)"></label>
+        </div>
+
+        <br>
+        <button type="submit">주문하기</button>
+    </form>
+</body>
+</html>

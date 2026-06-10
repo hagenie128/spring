@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>메뉴 상세</h1>
+    <p>번호: [[${menu.id}]]</p>
+    <p>메뉴명: [[${menu.name}]]</p>
+    <p>카테고리: [[${menu.category}]]</p>
+    <p>가격: [[${menu.price} + '원']]</p>
+    
+    <p>
+        <a th:href="@{/orders/new(menuId=${menu.id})}">이 메뉴 주문하기</a>
+        <a th:href="@{/menu/list}">목록으로</a>
+    </p>
+</body>
+</html>
+
+

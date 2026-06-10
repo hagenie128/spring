@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<!-- [완성된 파일 — 수정 불필요] -->
+<!-- dispatcher-context.xml의 TODO 1~3을 완성하면 이 템플릿이 렌더링됩니다. -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>환영합니다</title>
+</head>
+<body>
+    <h1 th:text="${message}">환영 메시지</h1>
+    <p th:text="'안녕하세요, ' + ${studentName} + '님!'">안녕하세요!</p>
+    <p th:text="|현재 시각: ${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}|">시각</p>
+</body>
+</html>

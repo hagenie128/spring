@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--
+  [문제 3] order/result.html
+  =====================================================================
+  TODO 14: th:text를 사용하여 주문 결과를 출력하세요.
+           컨트롤러에서 model에 추가된 값들:
+           - ${orderForm.customerName}  → 고객명
+           - ${orderForm.menuName}      → 메뉴명
+           - ${orderForm.quantity}      → 수량
+           - ${orderForm.requestMessage}→ 요청사항
+           - ${unitPrice}               → 단가 (원)
+           - ${totalPrice}              → 총 금액 (원)
+
+  힌트:
+  - th:text="${orderForm.customerName}"
+  - th:text="${unitPrice + '원'}"
+  =====================================================================
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 완료</title>
+</head>
+<body>
+    <h2>주문 완료</h2>
+    <table border="1">
+        <tr>
+            <th>고객명</th>
+            <!-- TODO 14: th:text로 orderForm.customerName 출력 -->
+            <td th:text="${orderForm.customerName}">고객명</td>
+        </tr>
+        <tr>
+            <th>메뉴명</th>
+            <!-- TODO 14: th:text로 orderForm.menuName 출력 -->
+            <td th:text="${orderForm.menuName}">메뉴명</td>
+        </tr>
+        <tr>
+            <th>수량</th>
+            <!-- TODO 14: th:text로 orderForm.quantity 출력 -->
+            <td th:text="${orderForm.quantity}">수량</td>
+        </tr>
+        <tr>
+            <th>요청사항</th>
+            <!-- TODO 14: th:text로 orderForm.requestMessage 출력 -->
+            <td th:text="${orderForm.requestMessage}">요청사항</td>
+        </tr>
+        <tr>
+            <th>단가</th>
+            <!-- TODO 14: th:text로 unitPrice + '원' 출력 -->
+            <td th:text="${unitPrice+ '원'}">단가</td>
+        </tr>
+        <tr>
+            <th>총 금액</th>
+            <!-- TODO 14: th:text로 totalPrice + '원' 출력 -->
+            <td th:text="${totalPrice+ '원'}">총 금액</td>
+        </tr>
+    </table>
+
+    <br>
+    <a th:href="@{/orders/new}">다시 주문하기</a>
+</body>
+</html>

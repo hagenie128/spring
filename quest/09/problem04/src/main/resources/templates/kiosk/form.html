@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- [완성된 파일 — 수정 불필요] KioskController의 TODO 4, 5를 완성해야 동작합니다. -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>키오스크 - 주문하기</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 30px auto; }
+        div { margin-bottom: 12px; }
+        label { display: inline-block; width: 90px; font-weight: bold; }
+        input, select { padding: 6px 10px; width: 240px; }
+        button { padding: 8px 20px; background: #0066cc; color: #fff;
+                 border: none; border-radius: 4px; cursor: pointer; }
+        a { color: #888; margin-left: 12px; }
+    </style>
+</head>
+<body>
+    <h2>주문 입력</h2>
+
+    <form th:action="@{/kiosk/orders}" th:object="${orderForm}" method="post">
+
+        <div>
+            <label>고객명</label>
+            <input type="text" th:field="*{customerName}" placeholder="고객명을 입력하세요">
+        </div>
+
+        <div>
+            <label>메뉴 선택</label>
+            <select th:field="*{menuId}">
+                <option value="">-- 선택하세요 --</option>
+                <!--
+                  selectedMenuId가 있으면 해당 메뉴가 기본 선택됩니다.
+                  th:selected를 직접 쓰지 않아도 th:field가 menuId 값과
+                  일치하는 option을 자동으로 selected 처리합니다.
+                  (단, orderForm.menuId에 selectedMenuId를 미리 세팅해두어야 합니다)
+                -->
+                <option th:each="menu : ${menus}"
+                        th:value="${menu.id}"
+                        th:text="${menu.name + ' (' + menu.price + '원)'}">
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <label>수량</label>
+            <input type="number" th:field="*{quantity}" min="1" value="1">
+        </div>
+
+        <div>
+            <label>요청사항</label>
+            <input type="text" th:field="*{requestMessage}" placeholder="요청사항 (선택)">
+        </div>
+
+        <br>
+        <button type="submit">주문하기</button>
+        <a th:href="@{/kiosk/menus}">취소</a>
+    </form>
+</body>
+</html>
