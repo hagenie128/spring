@@ -14,25 +14,34 @@
     </nav>
     <div class="container">
         <div class="form-card">
+            <!--
+                menu.id 값의 유무에 따라 제목을 '등록' 또는 '수정'으로 동적 변경
+            -->
             <h2 class="form-title" th:text="${menu.id == null} ? '메뉴 등록' : '메뉴 수정'"></h2>
             <!--
-                th:action: 폼 전송 경로 결정 (ID가 없으면 등록(/menus), 있으면 수정(/menus/{id}/edit))
-                th:object: 컨트롤러에서 전달한 'menu' 객체와 폼을 바인딩
+                th:action: 폼 전송 경로 결정
+                - ID가 없으면 새 메뉴 등록(/menus)
+                - ID가 있으면 기존 메뉴 수정(/menus/{id}/edit)
+                th:object: 컨트롤러에서 전달받은 'menu' 객체와 폼 필드를 연결(바인딩)
                 method="post": 데이터 전송 방식 (POST)
             -->
             <form th:action="${menu.id == null} ? @{/menus} : @{/menus/{id}/edit(id=${menu.id})}" th:object="${menu}" method="post">
 
                 <div class="form-group">
                     <label for="name">메뉴명</label>
-                    <!-- th:field="*{name}": id="name", name="name", value="..." 속성을 자동 생성해줌 -->
+                    <!--
+                        th:field="*{name}":
+                        객체의 'name' 필드와 연결하여 id, name, value 속성을 자동 생성
+                    -->
                     <input type="text" id="name" th:field="*{name}" placeholder="메뉴명을 입력하세요">
+                    <!-- 유효성 검사 에러가 있을 경우 에러 메시지 출력 -->
                     <p class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
                 </div>
 
                 <div class="form-group">
                     <label for="category">카테고리</label>
                     <select id="category" th:field="*{category}">
-                        <!-- categories 리스트를 순회하며 옵션 생성 -->
+                        <!-- 컨트롤러에서 넘겨준 categories 리스트를 순회하며 <option> 생성 -->
                         <option th:each="cat : ${categories}"
                                 th:text="${cat}"
                                 th:value="${cat}"
@@ -52,13 +61,14 @@
                 </div>
 
                 <div class="form-check">
+                    <!-- 체크박스 상태와 boolean 필드 연결 -->
                     <input type="checkbox" id="available" th:field="*{available}">
                     <label for="available">판매 가능 여부</label>
                 </div>
 
                 <div class="form-actions">
                     <a th:href="@{/menus}" class="btn-cancel">취소</a>
-                    <!-- ID 유무에 따라 버튼 글자 변경 -->
+                    <!-- 제목과 마찬가지로 ID 유무에 따라 버튼 텍스트 변경 -->
                     <button type="submit" class="btn-submit" th:text="${menu.id == null} ? '등록하기' : '수정하기'"></button>
                 </div>
             </form>
