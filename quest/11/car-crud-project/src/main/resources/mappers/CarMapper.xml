@@ -16,7 +16,7 @@
         SELECT <include refid="carColumns" /> FROM cars WHERE car_id = #{carId}
     </select>
     
-    <insert id="save" parameterType="car">
+    <insert id="save" parameterType="car" useGeneratedKeys="true" keyProperty="carId">
         INSERT INTO cars (brand, model, year, mileage, price)
         VALUES (#{brand}, #{model}, #{year}, #{mileage}, #{price})
     </insert>

@@ -20,7 +20,7 @@ public class CarService {
         return mapper.findAll();
     }
 
-    public void save(@Valid CarDTO car) {
+    public void save(CarDTO car) {
         mapper.save(car);
     }
 

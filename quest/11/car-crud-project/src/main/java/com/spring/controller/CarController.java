@@ -47,7 +47,7 @@ public class CarController {
             return "form";
         }
 
-        return "redirect:/cars";
+        return "redirect:/cars"+car.getCarId();
     }
 
     @GetMapping("/{id}")
@@ -78,8 +78,9 @@ public class CarController {
         return view;
     }
 
-    @PostMapping("/{id}")
-    public String update(@Valid @PathVariable Integer id, @ModelAttribute("car") CarDTO car, BindingResult bindingResult,
+    @PostMapping("/{id}/edit")
+    public String update(@Valid @PathVariable Integer id, @ModelAttribute("car") CarDTO car,
+                         BindingResult bindingResult,
                          RedirectAttributes redirectAttributes, Model model) {
         try {
             if (bindingResult.hasErrors()) {

@@ -12,7 +12,7 @@
 </nav>
 <div class="container">
     <div class="detail-box">
-        <form th:object="${car}" th:action="@{/cars/{id}(id=${car.carId})}" method="post">
+        <form th:object="${car}" th:action="@{/cars/{id}/edit(id=${car.carId})}" method="post">
             <input type="hidden" name="_method" value="put">
             <div class="form-group">
                 <label for="brand">브랜드</label>

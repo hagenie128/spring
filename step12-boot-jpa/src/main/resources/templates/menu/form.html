@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키오스크 관리 - 메뉴 등록/수정</title>
+    <link rel="stylesheet" th:href="@{/css/form.css}">
+</head>
+<body>
+    <nav>
+        <h1>키오스크 관리</h1>
+        <a th:href="@{/menus}">메뉴 목록</a>
+        <a th:href="@{/menus/new}">메뉴 등록</a>
+    </nav>
+    <div class="container">
+        <div class="form-card">
+            <h2 class="form-title" th:text="${menu.id == null} ? '메뉴 등록' : '메뉴 수정'"></h2>
+            <!--
+                th:action: 폼 전송 경로 결정 (ID가 없으면 등록(/menus), 있으면 수정(/menus/{id}/edit))
+                th:object: 컨트롤러에서 전달한 'menu' 객체와 폼을 바인딩
+                method="post": 데이터 전송 방식 (POST)
+            -->
+            <form th:action="${menu.id == null} ? @{/menus} : @{/menus/{id}/edit(id=${menu.id})}" th:object="${menu}" method="post">
+
+                <div class="form-group">
+                    <label for="name">메뉴명</label>
+                    <!-- th:field="*{name}": id="name", name="name", value="..." 속성을 자동 생성해줌 -->
+                    <input type="text" id="name" th:field="*{name}" placeholder="메뉴명을 입력하세요">
+                    <p class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">카테고리</label>
+                    <select id="category" th:field="*{category}">
+                        <!-- categories 리스트를 순회하며 옵션 생성 -->
+                        <option th:each="cat : ${categories}"
+                                th:text="${cat}"
+                                th:value="${cat}"
+                                th:selected="${menu.category == cat}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">가격 (원)</label>
+                    <input type="number" id="price" th:field="*{price}" placeholder="가격을 입력하세요" min="0">
+                    <p class="error-msg" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">설명</label>
+                    <textarea id="description" th:field="*{description}" placeholder="메뉴 설명을 입력하세요"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" id="available" th:field="*{available}">
+                    <label for="available">판매 가능 여부</label>
+                </div>
+
+                <div class="form-actions">
+                    <a th:href="@{/menus}" class="btn-cancel">취소</a>
+                    <!-- ID 유무에 따라 버튼 글자 변경 -->
+                    <button type="submit" class="btn-submit" th:text="${menu.id == null} ? '등록하기' : '수정하기'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
