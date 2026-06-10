@@ -2,6 +2,7 @@ package com.spring.service;
 
 import com.spring.dto.CarDTO;
 import com.spring.mapper.CarMapper;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,18 @@ public class CarService {
 
     public List<CarDTO> findAll() {
         return mapper.findAll();
+    }
+
+    public void save(@Valid CarDTO car) {
+        mapper.save(car);
+    }
+
+    public Object findById(Integer id) {
+        return mapper.findById(id);
+    }
+
+    public void delete(Integer id) {
+        mapper.delete(id);
     }
 }
 

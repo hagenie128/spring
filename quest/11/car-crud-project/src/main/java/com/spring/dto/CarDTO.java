@@ -19,6 +19,8 @@ public class CarDTO {
     private String brand;
     @NotBlank(message = "모델명을 반드시 입력하세요")
     private String model;
+    @NotNull(message = "연식을 반드시 입력하세요")
+    @Min(value = 1900, message = "연식은 1900년 이후여야 합니다")
     private Integer year;
     private Integer mileage;
     @NotNull(message = "가격을 반드시 입력하세요")

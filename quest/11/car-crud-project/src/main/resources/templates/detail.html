@@ -1,10 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>차량 상세</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
+<nav>
+    <h1>차량 상세</h1>
+    <a th:href="@{/cars}">목록</a>
+</nav>
+<div class="container">
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td th:text="${car.carId}"></td>
+            </tr>
+            <tr>
+                <th>브랜드</th>
+                <td th:text="${car.brand}"></td>
+            </tr>
+            <tr>
+                <th>모델명</th>
+                <td th:text="${car.model}"></td>
+            </tr>
+            <tr>
+                <th>연식</th>
+                <td th:text="${car.year}"></td>
+            </tr>
+            <tr>
+                <th>주행거리 (km)</th>
+                <td th:text="${car.mileage}"></td>
+            </tr>
+            <tr>
+                <th>가격 (원)</th>
+                <td th:text="${car.price}"></td>
+            </tr>
+            <tr>
+                <th>등록일</th>
+                <td th:text="${car.registeredAt}"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <a th:href="@{/cars/edit/{id}(id=${car.carId})}" class="btn btn-primary">수정</a>
+                    <a th:href="@{/cars/delete/{id}(id=${car.carId})}" class="btn btn-danger">삭제</a>
+                    <a ovClick="history.back()" class="btn btn-secondary">이전 페이지</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

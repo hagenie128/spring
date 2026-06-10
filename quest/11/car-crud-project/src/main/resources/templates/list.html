@@ -35,6 +35,9 @@
             </tbody>
 
         </table>
+        <div class="empty-box" th:if="${#lists.isEmpty(cars)}">
+            등록된 차량이 없습니다.
+        </div>
 
     </div>
 
