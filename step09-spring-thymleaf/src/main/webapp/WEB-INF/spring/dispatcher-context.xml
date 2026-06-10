@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/mvc
+           https://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/context
+           https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- @Controller 등 어노테이션 스캔 -->
+	<context:component-scan	base-package="com.spring" />
+
+	<!-- MVC 어노테이션(@RequestMapping 등) 활성화 -->
+	<mvc:annotation-driven />
+
+	<!-- 정적 자원(CSS, JS 등) 처리 -->
+	<mvc:resources location="/resources" mapping="/resources/**" />
+
+	<!-- Thymeleaf 설정: 3개 Bean (JSP의 InternalResourceViewResolver 1개를 대체) -->
+	<!-- Bean 1: TemplateResolver — 템플릿 파일 위치와 형식 지정 -->
+	<bean id="templateResolver"
+		class="org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver">
+		<property name="prefix" value="classpath:/templates/" />
+		<!-- classpath: → src/main/resources/templates/ 디렉터리 -->
+		<property name="suffix" value=".html" />
+		<property name="templateMode" value="HTML" />
+		<property name="characterEncoding" value="UTF-8" />
+		<property name="cacheable" value="false" />
+		<!-- cacheable=false: 개발 시 false, 운영 배포 시 true로 변경 -->
+	</bean>
+
+	<!-- Bean 2: TemplateEngine — 템플릿을 HTML로 변환하는 엔진 -->
+	<bean id="templateEngine"
+		class="org.thymeleaf.spring6.SpringTemplateEngine">
+		<property name="templateResolver" ref="templateResolver" />
+		<property name="enableSpringELCompiler" value="true" />
+		<!-- enableSpringELCompiler: Spring EL 컴파일러 활성화 → 성능 개선 -->
+	</bean>
+
+	<!-- Bean 3: ThymeleafViewResolver — 뷰 이름 → Thymeleaf 뷰 매핑 -->
+	<bean class="org.thymeleaf.spring6.view.ThymeleafViewResolver">
+		<property name="templateEngine" ref="templateEngine" />
+		<property name="characterEncoding" value="UTF-8" />
+	</bean>
+
+
+</beans>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.mapper.MenuMapper">
+    <!-- 공통 컬럼 목록 -->
+    <sql id="columns">
+        id, name, price, category, description, available, created_at
+    </sql>
+
+    <select id="findAll" resultType="menu">
+        SELECT 
+        <include refid="columns" />
+        FROM menu_item
+    </select>
+
+    <select id="search" resultType="menu">
+         SELECT 
+        <include refid="columns" />
+        FROM menu_item
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="available != null">
+                AND available = #{available}
+            </if>
+        </where>
+        order by created_at desc
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM menu_item WHERE id = #{id}
+    </delete>
+
+    <select id="findById" resultType="menu">
+        SELECT 
+        <include refid="columns" />
+        FROM menu_item
+        WHERE id = #{id}
+    </select>
+
+    <insert id="save">
+        INSERT INTO menu_item (name, price, category, description, available)
+        VALUES (#{name}, #{price}, #{category}, #{description}, #{available})
+    </insert>
+
+    <update id="update">
+        UPDATE menu_item
+        SET name = #{name},
+            price = #{price},
+            category = #{category},
+            description = #{description},
+            available = #{available}
+        WHERE id = #{id}
+    </update>
+</mapper>
+
+
+
+
+

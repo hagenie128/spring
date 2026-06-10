@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 목록</title>
+</head>
+<body>
+    <h1>키오스크 관리 페이지 - 메뉴 목록</h1>
+    <nav>
+        <a th:href="@{/menus}">메뉴목록</a>
+        <a th:href="@{/menus/new}">메뉴 등록</a>
+    </nav>
+    <div class="container">
+    
+    <!-- 메뉴명으로 검색 폼 -->
+    <form th:action="@{/menus}" method="get">
+        <!-- th:value="${keyword}": 이전에 입력한 검색어를 그대로 보여줌 -->
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="메뉴명으로 검색">
+        <button>검색</button>
+        <a th:href="@{/menus}">전체보기</a>
+    </form>
+    <hr>
+    
+        <!-- 작업 성공 메시지 알림 (삭제, 수정, 등록 후 표시) -->
+        <div th:if="${successMessage}" th:text="${successMessage}"
+             id="success-alert-box"
+             style="padding:15px; background-color: #d4edda; color: #155724; border:1px solid #c3e6cd; border-radius: 5px; margin:10px; opacity: 1; transition: opacity 2s ease-in-out">
+        </div>
+
+        <!-- 알림창 자동 삭제 스크립트 -->
+        <script th:inline="javascript" th:if="${successMessage}">
+            setTimeout(function() {
+                const box = document.querySelector('#success-alert-box');
+                if(box) box.style.opacity = '0'; // 서서히 사라지게 함
+            }, 5000);
+            setTimeout(function() {
+                const box = document.querySelector('#success-alert-box');
+                if(box) box.style.display = 'none'; // 완전히 제거
+            }, 7500);
+        </script>
+
+        <!-- 메뉴 목록이 없을 경우 표시 -->
+        <p th:if="${#lists.isEmpty(menus)}">등록된 메뉴가 없습니다.</p>
+        
+        <!-- 메뉴 목록 테이블 (데이터가 있을 때만 표시) -->
+        <table th:if="${!#lists.isEmpty(menus)}" border="1">
+            <thead>
+                <tr>
+                    <th>메뉴번호</th>
+                    <th>메뉴명</th>
+                    <th>카테고리</th>
+                    <th>가격</th>
+                    <th>판매상태</th>
+                    <th>작업</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- th:each: menus 리스트를 하나씩 꺼내서 menu 변수에 담아 반복 출력 -->
+                <tr th:each="menu : ${menus}">
+                    <td th:text="${menu.id}">1</td>
+                    <td th:text="${menu.name}">아메리카노</td>
+                    <td th:text="${menu.category}">커피</td>
+                    <td th:text="${menu.price}">3000</td>
+                    <td>
+                        <span th:if="${menu.available}" style="color:blue;">판매중</span>
+                        <span th:if="${!menu.available}" style="color:red;">품절</span>
+                    </td>
+                    <td>
+                        <!-- 수정 및 삭제 링크 (ID를 포함한 경로 생성) -->
+                        <a th:href="@{/menus/{id}/edit(id=${menu.id})}">수정</a>
+                        <a th:href="@{/menus/{id}/delete(id=${menu.id})}" 
+                           onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

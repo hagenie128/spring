@@ -1,0 +1,179 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+}
+
+/* ── Nav ── */
+nav {
+    background-color: #2c3e50;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+nav h1 {
+    color: #ecf0f1;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-right: auto;
+}
+
+nav a {
+    color: #bdc3c7;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+nav a:hover {
+    background-color: #3d5166;
+    color: #ecf0f1;
+}
+
+/* ── Container ── */
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+/* ── Form Card ── */
+.form-card {
+    background-color: #fff;
+    border: 1px solid #dfe6e9;
+    border-radius: 10px;
+    padding: 32px 36px;
+}
+
+.form-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+/* ── Form Group ── */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1px solid #b2bec3;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background-color: #fff;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.12);
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+/* ── Error Message ── */
+.error-msg {
+    color: #c0392b;
+    font-size: 0.82rem;
+    margin-top: 5px;
+}
+
+/* ── Checkbox Group ── */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.form-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #3498db;
+    cursor: pointer;
+}
+
+.form-check label {
+    font-size: 0.9rem;
+    color: #495057;
+    cursor: pointer;
+}
+
+/* ── Buttons ── */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-submit {
+    padding: 9px 24px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: #2980b9;
+}
+
+.btn-cancel {
+    padding: 9px 20px;
+    background-color: #fff;
+    color: #7f8c8d;
+    border: 1px solid #b2bec3;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}

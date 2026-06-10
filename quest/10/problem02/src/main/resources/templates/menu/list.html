@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 목록 — 조건부 출력</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: 40px auto; }
+        h1 { color: #e74c3c; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 14px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f8f8; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-success  { background: #27ae60; color: white; }
+        .badge-danger   { background: #e74c3c; color: white; }
+        .badge-best     { background: #f39c12; color: white; }
+        .badge-new      { background: #3498db; color: white; }
+    </style>
+</head>
+<body>
+    <h1>메뉴 목록</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>순번</th>
+                <th>메뉴명</th>
+                <th>가격</th>
+                <th>판매 여부</th>
+                <th>등급</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="menu, stat : ${menus}">
+
+                <!-- TODO 1: 순번을 stat.count로 출력하세요. -->
+                <td th:text="${stat.count}">?</td>
+
+                <!-- TODO 2: menu.name을 출력하세요. -->
+                <td th:text="${menu.name}">메뉴명</td>
+
+                <!--
+                    TODO 3: menu.price를 출력하되
+                            #numbers.formatInteger(menu.price, 1, 'COMMA') + '원' 형식으로 출력하세요.
+                            힌트: |${...}원| 리터럴 치환 사용
+                -->
+                <td th:text="${#numbers.formatInteger(menu.price, 1, 'COMMA')} + '원'"  >가격</td>
+
+                <!--
+                    TODO 4: th:if / th:unless를 사용해
+                            available=true  → 초록 뱃지 "판매중"
+                            available=false → 빨간 뱃지 "품절"
+                            을 출력하세요.
+                -->
+                <td>
+                    <span class="badge" th:if="${menu.available}" th:classappend="'badge-success'" th:text="'판매중'"></span>
+                    <span class="badge" th:unless="${menu.available}" th:classappend="'badge-danger'" th:text="'품절'"></span>
+                </td>
+
+                <!--
+                    TODO 5: th:switch / th:case를 사용해
+                            grade="BEST"   → 주황 뱃지 "BEST"
+                            grade="NEW"    → 파랑 뱃지 "NEW"
+                            그 외(*)       → 텍스트만 "-"
+                            을 출력하세요.
+                -->
+                <td>
+                    <span th:switch="${menu.grade}">
+                        <span th:case="'BEST'" class="badge badge-best">BEST</span>
+                        <span th:case="'NEW'" class="badge badge-new">NEW</span>
+                        <span th:case="*">-</span>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

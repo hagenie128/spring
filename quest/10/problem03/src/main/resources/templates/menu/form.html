@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 등록</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 40px auto; }
+        h1 { color: #e74c3c; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; }
+        .error { color: #e74c3c; font-size: 0.82rem; margin-top: 3px; }
+        .btn { padding: 8px 20px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+    <h1>메뉴 등록</h1>
+
+    <!--
+        TODO 3: form 태그에
+                th:action="@{/menus}" 과
+                th:object="${form}"
+                method="post" 을 설정하세요.
+    -->
+    <form method="post" th:action="@{/menus}" th:object="${form}">
+
+        <!-- 메뉴명 -->
+        <div class="form-group">
+            <label for="name">메뉴명 *</label>
+            <!--
+                TODO 4: th:field="*{name}"을 추가하고
+                        th:if="${#fields.hasErrors('name')}"로 오류 메시지를 표시하세요.
+            -->
+            <input type="text" id="name" placeholder="메뉴명" th:field="*{name}">
+            <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">오류 메시지</div>
+        </div>
+
+        <!-- 카테고리 -->
+        <div class="form-group">
+            <label for="category">카테고리</label>
+            <!--
+                TODO 5: th:field="*{category}"를 추가하고
+                        th:each로 categories 목록을 option으로 출력하세요.
+            -->
+            <select id="category" th:field="*{category}">
+                <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
+            </select>
+        </div>
+
+        <!-- 가격 -->
+        <div class="form-group">
+            <label for="price">가격 (원) *</label>
+            <!--
+                TODO 6: th:field="*{price}"를 추가하고
+                        오류 메시지도 표시하세요.
+            -->
+            <input type="number" id="price" placeholder="0" th:field="*{price}">
+            <div class="error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">등록</button>
+
+    </form>
+</body>
+</html>

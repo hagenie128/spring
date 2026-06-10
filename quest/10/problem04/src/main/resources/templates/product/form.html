@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- TODO 28: product.id가 null이면 "상품 등록", 아니면 "상품 수정" -->
+    <title>상품 폼</title>
+    <style>
+        body{font-family:sans-serif;max-width:480px;margin:40px auto;}
+        h1{color:#e74c3c;margin-bottom:20px;}
+        .form-group{margin-bottom:14px;}
+        label{display:block;font-weight:600;margin-bottom:4px;}
+        input,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;}
+        .error{color:#e74c3c;font-size:0.82rem;margin-top:2px;}
+        .btn{padding:8px 18px;border-radius:4px;border:none;cursor:pointer;font-size:0.9rem;text-decoration:none;margin-right:6px;}
+        .btn-primary{background:#e74c3c;color:white;}
+        .btn-secondary{background:#7f8c8d;color:white;}
+    </style>
+</head>
+<body>
+    <!-- TODO 29: h1에 "등록" 또는 "수정" 동적 출력 -->
+    <h1>상품 폼</h1>
+
+    <!--
+        TODO 30: form 태그에
+                 th:action — 신규면 /products, 수정이면 /products/{id}/edit
+                 th:object — ${product}
+                 method="post"
+                 설정
+    -->
+    <form>
+
+        <div class="form-group">
+            <label>상품명 *</label>
+            <!-- TODO 31: th:field="*{name}" + 오류 메시지 표시 -->
+            <input type="text" placeholder="상품명">
+            <div class="error">오류</div>
+        </div>
+
+        <div class="form-group">
+            <label>가격 (원) *</label>
+            <!-- TODO 32: th:field="*{price}" + 오류 메시지 표시 -->
+            <input type="number" placeholder="0" min="0">
+            <div class="error">오류</div>
+        </div>
+
+        <div class="form-group">
+            <label>설명</label>
+            <!-- TODO 33: th:field="*{description}" -->
+            <textarea rows="3" placeholder="설명"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">저장</button>
+        <!-- TODO 34: th:href로 /products 링크 설정 -->
+        <a href="#" class="btn btn-secondary">취소</a>
+    </form>
+</body>
+</html>

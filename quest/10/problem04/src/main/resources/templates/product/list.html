@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><title>상품 목록</title>
+    <style>
+        body{font-family:sans-serif;max-width:800px;margin:40px auto;}
+        h1{color:#e74c3c;margin-bottom:16px;}
+        table{width:100%;border-collapse:collapse;}
+        th,td{padding:10px 14px;border-bottom:1px solid #eee;text-align:left;}
+        th{background:#f8f8f8;}
+        .btn{display:inline-block;padding:5px 12px;border-radius:4px;border:none;
+             cursor:pointer;font-size:0.82rem;text-decoration:none;}
+        .btn-primary{background:#e74c3c;color:white;}
+        .btn-warning{background:#f39c12;color:white;}
+        .btn-danger{background:#c0392b;color:white;}
+        .alert{background:#d4edda;color:#155724;border:1px solid #c3e6cb;
+               padding:12px;border-radius:4px;margin-bottom:16px;}
+        .empty{text-align:center;padding:30px 0;color:#888;}
+    </style>
+</head>
+<body>
+    <h1>상품 목록</h1>
+
+    <!-- TODO 19: successMessage가 있을 때만 알림 박스 출력 (th:if) -->
+    <div th:if="${successMessage}" class="alert">
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div style="margin-bottom:16px;">
+        <!-- TODO 20: th:href로 /products/new 링크 설정 -->
+        <a href="/products/new" class="btn btn-primary">+ 상품 등록</a>
+    </div>
+
+    <!-- TODO 21: products 리스트가 비었을 때 "등록된 상품이 없습니다." 출력 -->
+    <div th:if="${#lists.isEmpty(products)}" class="empty">등록된 상품이 없습니다.</div>
+
+    <!-- TODO 22: th:each로 products 반복 출력
+                 순번(stat.count), name, price(숫자 포맷), 상세/수정/삭제 링크 포함 -->
+    <table>
+        <thead>
+            <tr><th>#</th><th>상품명</th><th>가격</th><th>관리</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="product, stat : ${products}">
+                <td th:text="${stat.count}"></td>
+                <td><a href="#" th:text="${product.name}"></a></td>
+                <td th:text="${#numbers.formatCurrency(product.price)}"></td>
+                <td>
+                    <a href="#" class="btn btn-warning">수정</a>
+                    <form style="display:inline;" onsubmit="return confirm('삭제?')">
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

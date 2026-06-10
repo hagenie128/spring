@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>차량 관리 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <h1>차량 관리</h1>
+        <a href="/cars/new">차량 등록</a>
+    </nav>
+    <div class="container">
+        <table th:unless="${#lists.isEmpty(cars)}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>브랜드</th>
+                    <th>모델명</th>
+                    <th>연식</th>
+                    <th>주행</th>
+                    <th>가격</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="car : ${cars}">
+                    <td th:text="${car.carId}"></td>
+                    <td th:text="${car.brand}"></td>
+                    <td><a th:text="${car.model}" th:href="@{/cars/{id}(id=${car.carId})}"></a></td>
+                    <td th:text="${car.year}"></td>
+                    <td th:text="${car.mileage}"></td>
+                    <td th:text="${car.price}"></td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- TODO 23: title을 product.name으로 동적 설정 -->
+    <title th:text="${product.name} + ' - 상품 상세'">상품 상세</title>
+    <style>
+        body{font-family:sans-serif;max-width:500px;margin:40px auto;}
+        h1{color:#e74c3c;}
+        .row{display:flex;padding:10px 0;border-bottom:1px solid #eee;}
+        .label{width:80px;font-weight:600;color:#555;}
+        .btn{display:inline-block;padding:7px 14px;border-radius:4px;border:none;cursor:pointer;font-size:0.9rem;text-decoration:none;margin-top:20px;margin-right:6px;}
+        .btn-warning{background:#f39c12;color:white;}
+        .btn-danger{background:#c0392b;color:white;}
+        .btn-secondary{background:#7f8c8d;color:white;}
+    </style>
+</head>
+<body>
+    <!-- TODO 24: product.name을 h1에 출력 -->
+    <h1 th:text="${product.name}">상품명</h1>
+
+    <div class="row">
+        <span class="label">가격</span>
+        <!-- TODO 25: product.price를 #numbers.formatInteger로 포맷해 출력 -->
+        <span th:text="${#numbers.formatCurrency(product.price)}">0원</span>
+    </div>
+    <div class="row">
+        <span class="label">설명</span>
+        <!-- TODO 26: product.description이 null이면 '-' 출력 (엘비스 연산자 ?:) -->
+        <span th:text="${product.description ?: '-'}">-</span>
+    </div>
+
+    <!-- TODO 27: 수정/삭제/목록으로 버튼 링크 설정 -->
+    <a href="#" class="btn btn-warning">수정</a>
+    <form style="display:inline;" onsubmit="return confirm('삭제?')">
+        <button type="submit" class="btn btn-danger">삭제</button>
+    </form>
+    <a href="#" class="btn btn-secondary">목록으로</a>
+</body>
+</html>

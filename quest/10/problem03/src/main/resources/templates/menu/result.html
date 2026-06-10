@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>등록 완료</title>
+<style>body{font-family:sans-serif;max-width:500px;margin:60px auto;text-align:center;}
+.msg{background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:20px;border-radius:8px;margin-bottom:20px;}
+a{color:#e74c3c;}</style>
+</head>
+<body>
+    <div class="msg" th:if="${successMessage}" th:text="${successMessage}">등록 완료!</div>
+    <div class="msg" th:unless="${successMessage}">등록 완료!</div>
+    <a href="/menus/new">다시 등록</a>
+</body>
+</html>
