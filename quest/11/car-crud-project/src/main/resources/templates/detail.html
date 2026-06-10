@@ -43,8 +43,8 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <a th:href="@{/cars/edit/{id}(id=${car.carId})}" class="btn btn-primary">수정</a>
-                    <a th:href="@{/cars/delete/{id}(id=${car.carId})}" class="btn btn-danger">삭제</a>
+                    <a th:href="@{/cars/{id}/edit(id=${car.carId})}" class="btn btn-primary">수정</a>
+                    <a th:href="@{/cars/{id}/delete(id=${car.carId})}" class="btn btn-danger">삭제</a>
                     <a ovClick="history.back()" class="btn btn-secondary">이전 페이지</a>
                 </td>
             </tr>

@@ -21,7 +21,17 @@
         VALUES (#{brand}, #{model}, #{year}, #{mileage}, #{price})
     </insert>
 
-    <delete id="delete" parameterType="int">
+    <delete id="deleteById" parameterType="int">
         DELETE FROM cars WHERE car_id = #{carId}
     </delete>
+
+    <update id="update" parameterType="car">
+        UPDATE cars
+        SET brand = #{brand},
+            model = #{model},
+            year = #{year},
+            mileage = #{mileage},
+            price = #{price}
+        WHERE car_id = #{carId}
+    </update>
 </mapper>

@@ -14,5 +14,7 @@ public interface CarMapper {
 
     Object findById(Integer id);
 
-    void delete(Integer id);
+    int deleteById(Integer id);
+
+    int update(CarDTO car);
 }

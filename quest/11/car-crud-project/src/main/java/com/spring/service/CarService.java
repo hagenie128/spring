@@ -28,8 +28,12 @@ public class CarService {
         return mapper.findById(id);
     }
 
-    public void delete(Integer id) {
-        mapper.delete(id);
+    public int deleteById(Integer id) {
+       return mapper.deleteById(id);
+    }
+
+    public int update(CarDTO car) {
+        return mapper.update(car);
     }
 }
 
