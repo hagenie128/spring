@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>차량 관리 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <h1>차량 관리</h1>
+        <a href="/cars/new">차량 등록</a>
+    </nav>
+    <div class="container">
+        <!-- RedirectAttributes로 전달된 성공/실패 메시지가 있을 때만 출력합니다. -->
+        <div th:if="${successMessage}" th:text="${successMessage}" id="sucess-message-box"></div>
+        <div th:if="${errorMessage}" th:text="${errorMessage}" id="error-message-box"></div>
+        <!-- cars 리스트가 비어 있지 않을 때만 테이블을 보여줍니다. -->
+        <table th:unless="${#lists.isEmpty(cars)}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>브랜드</th>
+                    <th>모델명</th>
+                    <th>연식</th>
+                    <th>주행</th>
+                    <th>가격</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Controller에서 전달한 cars 리스트를 반복해 차량 행을 생성합니다. -->
+                <tr th:each="car : ${cars}">
+                    <td th:text="${car.carId}"></td>
+                    <td th:text="${car.brand}"></td>
+                    <!-- 모델명을 클릭하면 해당 차량 상세 페이지로 이동합니다. -->
+                    <td><a th:text="${car.model}" th:href="@{/cars/{id}(id=${car.carId})}"></a></td>
+                    <td th:text="${car.year}"></td>
+                    <td th:text="${car.mileage}"></td>
+                    <td th:text="${car.price}"></td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+<script>
+    // flash 메시지를 5초 뒤 자연스럽게 사라지게 합니다.
+    function fadeOutAfterDelay(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.addEventListener('transitionend', () => el.remove(), { once: true });
+        }, 5000);
+    }
+    fadeOutAfterDelay('sucess-message-box');
+    fadeOutAfterDelay('error-message-box');
+</script>
+</body>
+</html>

@@ -53,6 +53,7 @@ public class MenuDTO {
 	@Column(length = 500)
 	private String description;
 	
+	// 판매 가능 여부입니다. 새 메뉴는 기본값으로 판매 가능(true) 상태가 됩니다.
 	@Column
 	private boolean available=true;
 	

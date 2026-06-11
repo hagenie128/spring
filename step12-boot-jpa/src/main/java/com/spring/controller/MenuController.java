@@ -48,10 +48,12 @@ public class MenuController {
 			@RequestParam(name = "keyword", required = false) String keyword,
 			@RequestParam(name = "category", required = false) String category,
 			@RequestParam(name = "available", required = false) Boolean available) {
+		// 검색 후에도 입력값이 화면에 남아 있도록 요청 파라미터를 다시 Model에 담습니다.
 		model.addAttribute("keyword", keyword);
 		model.addAttribute("category", category);
 		model.addAttribute("available", available);
 		model.addAttribute("categories", List.of("버거","사이드","음료"));
+		// 검색 조건 조합에 따라 Service의 다른 조회 메서드를 호출합니다.
 		if ((keyword != null && !keyword.isEmpty()) && available != null)
 			// 이름 검색 (available 조건 포함)
 			model.addAttribute("menus", menuService.findByNameContaining(keyword, available));
@@ -128,6 +130,7 @@ public class MenuController {
 	@GetMapping("/new")
 	public String saveView(Model model) {
 		model.addAttribute("categories", List.of("버거","사이드","음료"));
+		// 등록 폼에서 th:object="${menu}"가 null이 되지 않도록 빈 객체를 전달합니다.
 		model.addAttribute("menu", new MenuDTO(null, null, null, null, true));
 		return "menu/form";
 	}

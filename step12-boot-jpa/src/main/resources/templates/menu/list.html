@@ -28,6 +28,7 @@
             <form th:action="@{/menus}" method="get">
                 <!-- 입력한 검색어 유지 -->
                 <input type="text" name="keyword" placeholder="메뉴명 검색" th:value="${keyword}">
+                <!-- Boolean 파라미터로 전달되어 Controller의 available 조건으로 사용됨 -->
                 <select name="available" id="available">
                     <option value="">판매여부</option>
                     <option value="true" th:selected="${available == 'true'}">판매중</option>
@@ -41,6 +42,7 @@
         <!-- 카테고리 퀵 필터 버튼들 -->
         <div class="category-filter-area">
             <a th:href="@{/menus}">전체</a>
+            <!-- categories 리스트를 버튼으로 출력하고, 클릭 시 category 파라미터로 필터링 -->
             <a th:each="cat : ${categories}" th:href="@{/menus(category=${cat})}" th:text="${cat}"></a>
         </div>
 

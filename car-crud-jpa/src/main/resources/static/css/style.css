@@ -1,0 +1,271 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+nav {
+    background-color: #2c3e50;
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+nav a {
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+nav a:hover {
+    background-color: #2980b9;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+thead {
+    background-color: #2c3e50;
+    color: white;
+}
+
+thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+tbody tr {
+    border-bottom: 1px solid #ecf0f1;
+    transition: background-color 0.15s;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background-color: #f0f4f8;
+}
+
+tbody td {
+    padding: 13px 18px;
+    font-size: 0.92rem;
+}
+
+tbody td a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+tbody td a:hover {
+    text-decoration: underline;
+}
+
+/* ── Form ── */
+.form-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 36px 40px;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.form-card h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.form-group input {
+    padding: 10px 12px;
+    border: 1px solid #dce1e7;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    color: #333;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #ecf0f1;
+    color: #555;
+}
+
+.btn-secondary:hover {
+    background-color: #dce1e7;
+}
+
+.error-msg {
+    font-size: 0.82rem;
+    color: #e74c3c;
+    margin-top: 4px;
+}
+
+/* ── Flash Messages ── */
+#sucess-message-box,
+#error-message-box {
+    padding: 14px 20px;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+#sucess-message-box {
+    background-color: #eafaf1;
+    color: #1e8449;
+    border: 1px solid #a9dfbf;
+}
+
+#error-message-box {
+    background-color: #fdedec;
+    color: #c0392b;
+    border: 1px solid #f5b7b1;
+}
+
+/* ── Detail ── */
+.detail-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 36px 40px;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.detail-card h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.detail-card table {
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.detail-card tbody tr {
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.detail-card tbody tr:last-child {
+    border-bottom: none;
+}
+
+.detail-card tbody th {
+    width: 35%;
+    padding: 12px 4px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #555;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.detail-card tbody td {
+    padding: 12px 4px;
+    font-size: 0.95rem;
+    color: #333;
+    vertical-align: middle;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}

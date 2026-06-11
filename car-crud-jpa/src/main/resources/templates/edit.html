@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>차량 등록</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav>
+    <h1>차량 관리</h1>
+    <a href="/cars/new">차량 등록</a>
+</nav>
+<div class="container">
+    <div class="form-card">
+        <h2>차량 수정</h2>
+        <!-- URL의 id 값을 포함해 수정 요청을 /cars/{id}/edit으로 전송합니다. -->
+        <form th:object="${car}" th:action="@{/cars/{id}/edit(id=${car.carId})}" method="post">
+            <div class="form-group">
+                <label for="brand">브랜드</label>
+                <input type="text" id="brand" th:field="*{brand}" placeholder="예: Hyundai" required>
+            </div>
+            <div class="form-group">
+                <label for="model">모델명</label>
+                <input type="text" id="model" th:field="*{model}" placeholder="예: Avante">
+                <!-- 검증 실패 시 Controller가 다시 edit 화면을 반환하고 에러 메시지를 표시합니다. -->
+                <p class="error-msg" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></p>
+            </div>
+            <div class="form-group">
+                <label for="year">연식</label>
+                <input type="number" min="1900" id="year" th:field="*{year}" placeholder="예: 2023" required>
+                <p class="error-msg" th:if="${#fields.hasErrors('year')}" th:errors="*{year}"></p>
+            </div>
+            <div class="form-group">
+                <label for="mileage">주행거리 (km)</label>
+                <input type="number" id="mileage" th:field="*{mileage}" placeholder="예: 15000" required>
+            </div>
+            <div class="form-group">
+                <label for="price">가격 (원)</label>
+                <input type="number" id="price" th:field="*{price}" placeholder="예: 25000000" required>
+                <p class="error-msg" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">수정</button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">이전 페이지</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

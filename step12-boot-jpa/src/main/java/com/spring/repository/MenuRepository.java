@@ -29,6 +29,8 @@ public interface MenuRepository extends JpaRepository<MenuDTO, Long> {
     List<MenuDTO> findByNameContaining(String keyword);
 
     // 이름 포함 검색 + 판매 여부 필터링
+    // 예: findByNameContainingAndAvailable("버거", true)
+    // -> name like '%버거%' and available = true 조건으로 조회합니다.
     List<MenuDTO> findByNameContainingAndAvailable(String keyword,boolean available);
 
 }

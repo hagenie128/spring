@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>차량 상세</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav>
+    <h1>차량 관리</h1>
+    <a href="/cars/new">차량 등록</a>
+</nav>
+<div class="container">
+    <div class="detail-card">
+        <h2>차량 정보</h2>
+        <!-- Controller가 전달한 car 객체의 각 필드를 화면에 출력합니다. -->
+        <table>
+            <tbody>
+                <tr>
+                    <th>차량 ID</th>
+                    <td th:text="${car.carId}"></td>
+                </tr>
+                <tr>
+                    <th>브랜드</th>
+                    <td th:text="${car.brand}"></td>
+                </tr>
+                <tr>
+                    <th>연식</th>
+                    <td th:text="${car.year}"></td>
+                </tr>
+                <tr>
+                    <th>주행거리</th>
+                    <td th:text="${car.mileage}"></td>
+                </tr>
+                <tr>
+                    <th>가격</th>
+                    <td th:text="${car.price}"></td>
+                </tr>
+                <tr>
+                    <th>등록일</th>
+                    <td th:text="${car.registeredAt}"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="detail-actions">
+            <!-- 현재 차량 ID를 경로 변수로 넣어 수정/삭제 요청 주소를 만듭니다. -->
+            <a th:href="@{/cars/{id}/edit(id=${car.carId})}" class="btn btn-primary">수정</a>
+            <a th:href="@{/cars/{id}/delete(id=${car.carId})}" class="btn btn-danger">삭제</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

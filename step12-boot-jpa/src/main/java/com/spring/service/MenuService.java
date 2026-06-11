@@ -68,6 +68,7 @@ public class MenuService {
 	 */
 	@Transactional
 	public MenuDTO save(MenuDTO menu) {
+		// save()는 id가 없으면 INSERT, id가 있으면 UPDATE로 동작합니다.
 		return menuRepository.save(menu);
 	}
 
@@ -91,6 +92,7 @@ public class MenuService {
 	 * 메뉴명 포함 검색
 	 */
 	public List<MenuDTO> findByNameContaining(String keyword) {
+		// Repository의 쿼리 메서드 이름을 기반으로 LIKE 검색 SQL이 자동 생성됩니다.
 		return menuRepository.findByNameContaining(keyword);
 	}
 
