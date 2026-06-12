@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Step13BootJpaJoinApplication<step13-boot-jpa-join>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.spring.Step13BootJpaJoinApplication",
+            "projectName": "step13-boot-jpa-join",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

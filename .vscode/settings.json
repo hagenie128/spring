@@ -8,6 +8,8 @@
     }
   ],
   "java.compile.nullAnalysis.mode": "disabled",
+  "java.jdt.ls.lombokSupport.enabled": true,
+  "java.symbols.includeGeneratedCode": true,
   "java.project.sourcePaths": [
     "car-crup-jpa/src/main/java/com/spring/dto"
   ]

@@ -45,10 +45,11 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
 	// 검색 조건이 null이면 해당 조건을 무시하고, 값이 있으면 필터로 사용합니다.
 	@Query("select o from Order o join fetch o.member m "
 			+ "where (:memberId IS NULL or m.id = :memberId) "
-			+ "and (:status is null or o.status = :status) "
+			+ "and (:status IS NULL or o.status = :status) "
 			+ "order by o.orderDate desc")
 	List<Order> search(@Param("memberId") Long memberId, 
 			@Param("status") OrderStatus status);
+
 }
 
 

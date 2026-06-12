@@ -1,8 +1,12 @@
 package com.spring.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.spring.entity.Order;
+import com.spring.entity.OrderStatus;
 import com.spring.repository.MemberRepository;
 import com.spring.repository.MenuItemRepository;
 import com.spring.repository.OrderRepository;
@@ -23,6 +27,11 @@ public class OrderService {
 		this.memberRepository = memberRepository;
 		this.menuItemRepository = menuItemRepository;
 	}
+
+    public List<Order> search(Long memberId, OrderStatus status) {
+        return orderRepository.search(memberId, status);
+    }
+	
 	
 	
 	
