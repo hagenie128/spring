@@ -1,24 +1,18 @@
 # 문제 1 — 연관관계 & JOIN FETCH (★★☆☆)
 
-**실행:** `gradlew.bat bootRun` → `Problem01Application`  
+**실행:** [Problem01Application](src/main/java/com/spring/Problem01Application.java)  
 **URL:** http://localhost:8080/loans
 
-## 수정할 파일 — TODO 순서대로
+| TODO | 열어볼 파일 | 할 일 |
+|------|------------|-------|
+| TODO 1 | [LoanItem.java](src/main/java/com/spring/entity/LoanItem.java) | Loan 연관관계 |
+| TODO 2 | [Loan.java](src/main/java/com/spring/entity/Loan.java) | LoanItem 목록 연관관계 |
+| TODO 3 | [Loan.java](src/main/java/com/spring/entity/Loan.java) | addLoanItem |
+| TODO 4 | [Loan.java](src/main/java/com/spring/entity/Loan.java) | 대출일 자동 설정 |
+| TODO 5 | [LoanRepository.java](src/main/java/com/spring/repository/LoanRepository.java) | JOIN FETCH 쿼리 |
+| TODO 6 | [LoanService.java](src/main/java/com/spring/service/LoanService.java) | 목록 조회 |
+| TODO 7 | [LoanController.java](src/main/java/com/spring/controller/LoanController.java) | GET /loans |
+| TODO 8 | [list.html](src/main/resources/templates/loan/list.html) | 목록 반복 |
+| TODO 9 | [list.html](src/main/resources/templates/loan/list.html) | 컬럼 출력 |
 
-| TODO | 수정 파일 | 내용 |
-|------|-----------|------|
-| TODO 1 | `entity/LoanItem.java` | `loan` 필드 `@ManyToOne(LAZY)` + `@JoinColumn(name="loan_id")` |
-| TODO 2 | `entity/Loan.java` | `loanItems` `@OneToMany(mappedBy, cascade, orphanRemoval)` |
-| TODO 3 | `entity/Loan.java` | `addLoanItem()` 양방향 편의 메서드 |
-| TODO 4 | `entity/Loan.java` | `@PrePersist` → `loanDate` 자동 설정 |
-| TODO 5 | `repository/LoanRepository.java` | `join fetch l.student` JPQL |
-| TODO 6 | `service/LoanService.java` | `findAllWithStudent()` 구현 |
-| TODO 7 | `controller/LoanController.java` | `GET /loans` — model + view |
-| TODO 8 | `templates/loan/list.html` | `th:each` 목록 반복 |
-| TODO 9 | `templates/loan/list.html` | 학생명·권수·대출일 출력 |
-
-> 경로 기준: `src/main/java/com/spring/` / `src/main/resources/`
-
-**건드리지 않아도 되는 파일:** `Student.java`, `Book.java`, `LoanStatus.java`, `DataInitializer.java`
-
-**완성 기준:** `GET /loans` 대출 3건 + N+1 없음
+**참고:** [step13 Order.java](../../../step13-boot-jpa-join/src/main/java/com/spring/entity/Order.java)

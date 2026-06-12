@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>동네 마켓</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --carrot: #ff6f0f; }
+        .navbar-brand { color: var(--carrot) !important; font-weight: 700; }
+        .btn-carrot { background: var(--carrot); color: #fff; border: none; }
+        .btn-carrot:hover { background: #e8640c; color: #fff; }
+        .listing-card { border: none; box-shadow: 0 1px 4px rgba(0,0,0,.08); transition: transform .15s; }
+        .listing-card:hover { transform: translateY(-2px); }
+        .price { color: var(--carrot); font-weight: 700; }
+        .status-badge { font-size: .75rem; }
+        .thumb { height: 140px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 2rem; }
+    </style>
+</head>
+<body class="bg-light">
+<nav class="navbar bg-white border-bottom mb-3">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/listings}">🥕 동네 마켓</a>
+        <a class="btn btn-carrot btn-sm" th:href="@{/listings/new}">+ 판매하기</a>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <p class="text-muted small mb-3">quest/13 problem01 — 중고거래 피드 + 페이징·검색</p>
+
+    <!-- ━━ 그룹 C: TODO 10 ━━ -->
+    <form method="get" th:action="@{/listings}" class="row g-2 mb-4 p-3 bg-white rounded shadow-sm">
+        <div class="col-md-3">
+            <input type="text" name="keyword" class="form-control" placeholder="검색어"
+                   th:value="${keyword}">
+        </div>
+        <div class="col-md-2">
+            <!-- TODO 10-1: categories 로 option, th:selected 로 category 유지 -->
+            <select name="category" class="form-select">
+                <option value="">카테고리 전체</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <!-- TODO 10-2: districts -->
+            <select name="district" class="form-select">
+                <option value="">동네 전체</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <!-- TODO 10-3: saleStatuses -->
+            <select name="saleStatus" class="form-select">
+                <option value="">상태 전체</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <input type="number" name="minPrice" class="form-control" placeholder="최소"
+                   th:value="${minPrice}">
+        </div>
+        <div class="col-md-1">
+            <input type="number" name="maxPrice" class="form-control" placeholder="최대"
+                   th:value="${maxPrice}">
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-carrot w-100">검색</button>
+        </div>
+    </form>
+
+    <!-- ━━ TODO 11: 카드 그리드 피드 ━━ -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+        <!--
+          TODO 11:
+          - div.col 에 th:each="item : ${page.content}"
+          - a.card.listing-card → th:href="@{/listings/{id}(id=${item.id})}"
+          - 제목, 가격(원), district.label, saleStatus.label, sellerNickname
+          - thumb: item.thumbnailEmoji (없으면 📷)
+        -->
+        <div class="col">
+            <div class="card listing-card h-100">
+                <div class="thumb">📷</div>
+                <div class="card-body p-2">
+                    <div class="small text-muted">?</div>
+                    <div class="fw-semibold text-truncate">?</div>
+                    <div class="price">?원</div>
+                    <span class="badge bg-secondary status-badge">?</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p th:if="${page != null and page.empty}" class="text-center text-muted mt-5">
+        등록된 판매글이 없습니다. (그룹 A~B TODO를 먼저 완성했는지 확인하세요)
+    </p>
+
+    <!-- ━━ TODO 12: 페이징 ━━ -->
+    <nav class="mt-4" th:if="${page != null and page.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <!-- TODO 12: page.number, page.totalPages 로 이전·다음·번호 링크 (검색 파라미터 유지) -->
+        </ul>
+    </nav>
+</div>
+</body>
+</html>
