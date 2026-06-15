@@ -12,5 +12,6 @@
   "java.symbols.includeGeneratedCode": true,
   "java.project.sourcePaths": [
     "car-crup-jpa/src/main/java/com/spring/dto"
-  ]
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

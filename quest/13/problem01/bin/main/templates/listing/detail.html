@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 상세</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --carrot: #ff6f0f; }
+        .price { color: var(--carrot); font-size: 1.5rem; font-weight: 700; }
+        .photo-box { height: 280px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc; border-radius: 8px; }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container py-4" style="max-width: 640px;">
+    <a th:href="@{/listings}" class="text-decoration-none small">← 목록으로</a>
+
+    <!-- ━━ TODO 15 ━━ -->
+    <div class="bg-white rounded shadow-sm p-4 mt-2" th:object="${listing}">
+        <div class="photo-box mb-3">📷</div><!-- TODO 15: listing.thumbnailEmoji -->
+        <!--
+          TODO 15: listing 필드 출력
+          - title, price(원), category.label, district.label
+          - saleStatus.label (뱃지)
+          - sellerNickname, createdAt
+          - description (pre-wrap)
+        -->
+        <h4>?</h4>
+        <div class="price mb-2">?원</div>
+        <div class="text-muted small mb-3">? · ? · ?</div>
+        <p class="mb-4">?</p>
+
+        <div class="d-flex gap-2">
+            <a th:href="@{/listings/{id}/edit(id=${listing.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+            <!-- TODO 9: 삭제 form POST -->
+            <form th:action="@{/listings/{id}/delete(id=${listing.id})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('삭제할까요?')">삭제</button>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-muted small mt-4">3교시: 댓글·사진 · 4교시: 찜 ❤️</p>
+</div>
+</body>
+</html>
