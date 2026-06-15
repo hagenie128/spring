@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!-- th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+    layout/base.html 파일을 사용하여 레이아웃을 적용합니다.
+    title 태그와 main 태그를 참조하여 페이지의 제목과 내용을 설정합니다.
+    -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layout/base :: layout(~{::title}, ~{::main})}"> 
+<head th:fragment="title">
+    <title>게시글 목록</title>
+</head>
+<body th:fragment="main">
+    <div>
+        <h2>게시글 목록</h2>
+        <a th:href="@{/board/write}">게시글 작성</a>
+    </div>
+    <!-- 검색폼 차후 구현 -->
+    
+    <!-- 게시글 테이블 -->
+    <table>
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성일</th>
+                <th>조회수</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${postPage.totalElements == 0}">
+                <td colspan="5">
+                    작성된 게시글이 없습니다.
+                </td>
+            </tr>
+            <tr th:each="post:${postPage.content}">
+                <td th:text="${post.id}"></td>
+                <td>
+                    <a th:href="@{/board/detail(id=${post.id})}" th:text="${post.title}"></a>
+                </td>
+                <td th:text="${post.member.nickname}"></td>
+                <td th:text="${post.createdAt}"></td>
+                <td th:text="${post.viewCount}"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div th:if="${postPage.totalPages > 0}">
+        <ul>
+            <li th:if="${!postPage.first}">
+                <a th:href="@{/board/list(keyword=${keyword}, page=${currentPage - 1})}">◀</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
+                <a th:href="@{/board/list(keyword=${keyword}, page=${i})}"
+                   th:classappend="${i == currentPage} ? 'active'">
+                    <span th:text="${i + 1}"></span>
+                </a>
+            </li>
+            <li th:if="${!postPage.last}">
+                <a th:href="@{/board/list(keyword=${keyword}, page=${currentPage + 1})}">▶</a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

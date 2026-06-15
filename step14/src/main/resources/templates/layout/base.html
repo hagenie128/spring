@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+    th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}"></title>
+</head>
+<body>
+    <nav>
+        <a th:href="@{/board}">Spring 게시판</a>
+    </nav>
+    <div>
+        <!-- 로그인 상태 -->
+            <th:block th:if="${session.loginMember != null}">
+                <p>ooo님 로그인 하셨습니다.</p>
+            </th:block>
+        <!-- 로그아웃 상태 -->
+            <th:block th:if="${session.loginMember == null}">
+                <a th:href="@{/login}">로그인</a>
+                <a th:href="@{/join}">회원가입</a>
+            </th:block>
+    </div>
+    <div class="container">
+        <!-- 메시지 출력 -->
+        <div th:if="${message}">
+            <span th:text="${message}"></span>
+            <button type="button" class="btn_close" th:onclick="this.closest('div').remove()">X</button>
+        </div>
+        <!-- 컨텐츠 출력 -->
+        <th:block th:replace="${content}"></th:block>
+    </div>
+    <footer>
+        <small>Spring Boot + JPA + Thymeleaf + Quill 실습</small>
+    </footer>
+</body>
+</html>

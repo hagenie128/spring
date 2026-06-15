@@ -79,4 +79,5 @@ public class Post {
   public void onUpdate() {
     updatedAt = LocalDateTime.now();
   }
+
 }
