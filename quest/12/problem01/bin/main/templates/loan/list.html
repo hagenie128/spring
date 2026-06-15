@@ -32,12 +32,12 @@
         - loan.loanItems.size()
         - loan.status.label
     -->
-    <tr>
-      <td>?</td>
-      <td>?</td>
-      <td>?</td>
-      <td>?</td>
-      <td>?</td>
+    <tr th:each="loan:${loans}">
+      <td th:text="${loan.id}"></td>
+      <td th:text="${loan.student.name}"></td>
+      <td th:text="${#temporals.format(loan.loanDate, 'yyyy-MM-dd HH:mm')}"></td>
+      <td th:text="${loan.loanItems.size()}"></td>
+      <td th:text="${loan.status.label}"></td>
     </tr>
     <tr th:if="${loans != null and loans.empty}">
       <td colspan="5" class="text-center text-muted">

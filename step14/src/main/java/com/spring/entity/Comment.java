@@ -17,11 +17,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 댓글번호(Long, PK)
- * 게시글번호(Many-to-One, FK)
- * 작성자(Member, Many-to-One, FK)
- * 내용(String, NotNull)
- * 작성일(LocalDateTime, NotNull, default = CURRENT_TIMESTAMP)
+ * [댓글 엔티티 — comment 테이블]
+ *
+ * Post, Member 양쪽에 @ManyToOne 으로 연결됩니다.
+ *  - post_id   : 어느 게시글의 댓글인지
+ *  - member_id : 누가 썼는지
  */
 @Entity
 @Table(name = "comment")
@@ -29,26 +29,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @Column(nullable = false, length = 500)
-  private String content;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(nullable = false, name = "member_id")
-  private Member member;
+	@Column(nullable = false, length = 500)
+	private String content;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(nullable = false, name = "post_id")
-  private Post post;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false, name = "member_id")
+	private Member member;
 
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false, name = "post_id")
+	private Post post;
 
-  @PrePersist
-  public void onCreate() {
-    createdAt = LocalDateTime.now();
-  }
+	@Column(nullable = false, updatable = false)
+	private LocalDateTime createdAt;
+
+	@PrePersist
+	public void onCreate() {
+		createdAt = LocalDateTime.now();
+	}
 }

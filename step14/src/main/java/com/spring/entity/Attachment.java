@@ -17,11 +17,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 첨부파일 아이디(Long, PK)
- * 첨부파일 원본 파일명(String)
- * 첨부파일 저장한 파일명(String)
- * 파일 사이즈(Long)
- * 생성일(LocalDateTime)
+ * [첨부파일 엔티티 — attachment 테이블]
+ *
+ * originalName : 사용자가 올린 원본 파일명 (예: 보고서.pdf)
+ * storedName   : 서버 디스크에 저장할 때 쓰는 UUID 등 고유 이름 (중복 방지)
+ * post         : 어느 게시글에 붙은 파일인지 (@ManyToOne)
  */
 @Data
 @NoArgsConstructor

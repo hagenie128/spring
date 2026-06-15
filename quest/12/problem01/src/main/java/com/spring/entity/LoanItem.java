@@ -34,6 +34,8 @@ public class LoanItem {
 
 	// TODO 1: Loan과 @ManyToOne 관계를 설정하세요.
 	//   힌트: fetch = LAZY, @JoinColumn(name = "loan_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="loan_id",nullable = false)
 	private Loan loan;
 
 	@NonNull

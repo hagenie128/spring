@@ -21,6 +21,6 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 	 * 힌트: (:studentId IS NULL OR s.id = :studentId) AND (:status IS NULL OR l.status = :status)
 	 */
 	// TODO 1~2: WHERE 절에 null 조건 추가 (지금은 전체 조회 — 완성 전 테스트용)
-	@Query("SELECT l FROM Loan l JOIN FETCH l.student s ORDER BY l.loanDate DESC")
+	@Query("SELECT l FROM Loan l JOIN FETCH l.student s where (:studentId IS NULL OR s.id = :studentId) AND (:status IS NULL OR l.status = :status) ORDER BY l.loanDate DESC")
 	List<Loan> search(@Param("studentId") Long studentId, @Param("status") LoanStatus status);
 }

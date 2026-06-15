@@ -3,12 +3,10 @@ package com.spring.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.spring.service.LoanService;
 
 @Controller
-@RequestMapping("/loans")
 public class LoanController {
 
 	private final LoanService loanService;
@@ -24,9 +22,9 @@ public class LoanController {
 	 * 2. model.addAttribute("loans", ...) 추가
 	 * 3. "loan/list" 뷰 반환
 	 */
-	@GetMapping
+	@GetMapping({"/loans", "/loans/list", "/loan/list"})
 	public String list(Model model) {
-		// ???
+		model.addAttribute("loans", loanService.findAllWithStudent());
 		return "loan/list";
 	}
 }

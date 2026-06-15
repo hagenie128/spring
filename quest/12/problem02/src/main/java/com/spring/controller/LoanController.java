@@ -28,10 +28,13 @@ public class LoanController {
 	 * TODO 7: students, statuses, selectedStudentId, selectedStatus 도 model에 담기
 	 */
 	@GetMapping
-	public String list(Model model) {
-		// TODO 4: @RequestParam(value = "studentId", required = false) Long studentId
-		// TODO 5: @RequestParam(value = "status", required = false) LoanStatus status
+	public String list(Model model, @RequestParam(value = "studentId", required = false) Long studentId, @RequestParam(value = "status", required = false) LoanStatus status)  {
 		// TODO 6~7: search 결과 + students, statuses, selected 값 model에 담기
+		model.addAttribute("loans",loanService.search(studentId, status));
+		model.addAttribute("students", loanService.findAllStudents());
+		model.addAttribute("statuses", LoanStatus.values());
+		model.addAttribute("selectedStudentId", studentId);
+		model.addAttribute("selectedStatus", status);
 		return "loan/list";
 	}
 }

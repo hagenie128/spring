@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +15,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -52,16 +55,20 @@ public class Loan {
 
 	// TODO 2: LoanItem과 @OneToMany 관계를 설정하세요.
 	//   힌트: mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true
+	@OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<LoanItem> loanItems = new ArrayList<>();
 
 	// TODO 4: @PrePersist 를 붙이고, INSERT 직전에 loanDate에 현재 시각을 넣으세요.
+	@PrePersist
 	public void setLoanDateOnCreate() {
-		// ???
+		loanDate = LocalDateTime.now();
 	}
 
 	// TODO 3: 양방향 연관관계 편의 메서드를 작성하세요.
 	//   힌트: loanItems.add(item) + item.setLoan(this)
+
 	public void addLoanItem(LoanItem item) {
-		// ???
+		loanItems.add(item);
+		item.setLoan(this);
 	}
 }

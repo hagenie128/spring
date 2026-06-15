@@ -17,6 +17,11 @@
             <!-- TODO 8: students 로 option 반복, th:selected 로 selectedStudentId 유지 -->
             <select name="studentId" class="form-select">
                 <option value="">전체</option>
+                <option th:each="s : ${students}"
+                        th:value="${s.id}"
+                        th:text="${s.name}"
+                        th:selected="${selectedStudentId != null and selectedStudentId == s.id}">
+                    </option>
             </select>
         </div>
         <div class="col-auto"><label class="col-form-label">상태</label></div>
@@ -24,6 +29,11 @@
             <!-- TODO 9: statuses 로 option 반복 (th:text="${s.label}") -->
             <select name="status" class="form-select">
                 <option value="">전체</option>
+                <option th:each="s : ${statuses}"
+                        th:value="${s}"
+                        th:text="${s.label}"
+                        th:selected="${selectedStatus != null and selectedStatus == s}">
+                    </option>
             </select>
         </div>
         <div class="col-auto">

@@ -9,6 +9,26 @@
             "projectName": "step13-boot-jpa-join",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-Problem01Application<quest12-problem01-problem01>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.spring.Problem01Application",
+            "projectName": "quest12-problem01-problem01",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-Problem02Application<quest12-problem02-problem02>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.spring.Problem02Application",
+            "projectName": "quest12-problem02-problem02",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

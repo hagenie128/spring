@@ -4,6 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.spring.entity.CommentReaction;
 
+/**
+ * [댓글 좋아요/싫어요 DB Repository]
+ */
 public interface CommentReactionRepository extends JpaRepository<CommentReaction, Long> {
 
 }

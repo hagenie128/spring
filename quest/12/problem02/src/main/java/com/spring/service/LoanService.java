@@ -31,8 +31,7 @@ public class LoanService {
 	 * loanRepository.search(studentId, status) 호출
 	 */
 	public List<Loan> search(Long studentId, LoanStatus status) {
-		// ???
-		return List.of();
+		return loanRepository.search(studentId, status);
 	}
 
 	public List<com.spring.entity.Student> findAllStudents() {

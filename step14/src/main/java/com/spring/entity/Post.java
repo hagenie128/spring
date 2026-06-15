@@ -22,15 +22,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 게시글번호(Long, PK)
- * 제목(String, NotNull)
- * 내용(String, NotNull)
- * 작성자(Member, name=member_id)
- * 작성일(LocalDateTime, NotNull, default = CURRENT_TIMESTAMP)
- * 수정일(LocalDateTime, default = CURRENT_TIMESTAMP)
- * 조회수(Long, default = 0)
- * 댓글목록(One-to-Many)
- * 첨부파일 목록(One-to-Many)
+ * [게시글 엔티티 — DB 의 post 테이블]
+ *
+ * [연관관계]
+ *  @ManyToOne Member   : 게시글 여러 개 → 회원 한 명 (post.member_id FK)
+ *  @OneToMany Comment  : 게시글 한 개 → 댓글 여러 개
+ *  @OneToMany Attachment : 게시글 한 개 → 첨부파일 여러 개
+ *
+ * [FetchType.LAZY]
+ *  - member, comments 등을 당장 안 쓰면 DB 조회를 나중으로 미룸 (지연 로딩)
+ *  - 목록에서 nickname 만 필요할 때 join fetch 로 한 번에 가져오기도 함 (PostRepository)
+ *
+ * [CascadeType.ALL + orphanRemoval]
+ *  - 게시글 삭제 시 딸린 댓글·첨부도 같이 삭제
  */
 @Entity
 @Table(name = "post")
@@ -38,46 +42,48 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @Column(nullable = false, length = 200)
-  private String title;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-  @Column(nullable = false, columnDefinition = "TEXT")
-  private String content;
+	@Column(nullable = false, length = 200)
+	private String title;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id", nullable = false)
-  private Member member;
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String content;
 
-  @Column(nullable = false)
-  private Long viewCount = 0L;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+	@Column(nullable = false)
+	private Long viewCount = 0L;
 
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
+	@Column(nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, 
-  cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Comment> comments = new ArrayList<>();
+	@Column(nullable = false)
+	private LocalDateTime updatedAt;
 
-  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, 
-  cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Attachment> attachments = new ArrayList<>();
+	@OneToMany(mappedBy = "post", fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comment> comments = new ArrayList<>();
 
-  @PrePersist
-  public void onCreate() {
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
-  }
+	@OneToMany(mappedBy = "post", fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Attachment> attachments = new ArrayList<>();
 
-  @PreUpdate
-  public void onUpdate() {
-    updatedAt = LocalDateTime.now();
-  }
+	/** INSERT 전: 작성일·수정일 자동 설정 */
+	@PrePersist
+	public void onCreate() {
+		createdAt = LocalDateTime.now();
+		updatedAt = LocalDateTime.now();
+	}
 
+	/** UPDATE 전: 수정일만 갱신 */
+	@PreUpdate
+	public void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 }

@@ -1,38 +1,80 @@
+// =============================================================================
+//  build.gradle
+//  Gradle 빌드 스크립트 — 프로젝트가 사용할 라이브러리(의존성) 목록을 정의합니다.
+//
+//  [용어]
+//  Gradle        : Java 프로젝트 빌드·의존성 관리 도구 (Maven 과 비슷한 역할)
+//  dependency    : 프로젝트가 가져다 쓰는 외부 라이브러리(JAR)
+//  implementation: 컴파일 + 실행 시 모두 필요한 라이브러리
+//  compileOnly   : 컴파일할 때만 필요, 실행 JAR에는 포함 안 됨 (예: Lombok)
+//  runtimeOnly   : 실행할 때만 필요 (예: DB 드라이버)
+// =============================================================================
+
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.15'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'java'                                                          // Java 프로젝트임을 선언
+	id 'org.springframework.boot' version '3.5.15'                     // Spring Boot 플러그인 (실행·패키징)
+	id 'io.spring.dependency-management' version '1.1.7'                 // Spring 라이브러리 버전 자동 맞춤
 }
 
 group = 'com.spring'
 version = '0.0.1-SNAPSHOT'
 
 java {
-sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_21   // Java 21 문법 사용
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
-	mavenCentral()
+	mavenCentral()   // 라이브러리를 다운로드 받을 저장소 (중앙 Maven 저장소)
 }
 
 dependencies {
+
+	// ----- Spring Boot Starter (기능별 라이브러리 묶음) -----
+
+	// [JPA + Hibernate + Spring Data JPA + HikariCP + JDBC]
+	// Entity, Repository, @Transactional, Pageable 페이징 등
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// [Thymeleaf 템플릿 엔진]
+	// templates/*.html 렌더링, application.properties 의 spring.thymeleaf.* 설정
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// [Bean Validation — @NotNull, @Size 등 입력값 검증 어노테이션]
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// [Spring MVC + 내장 Tomcat 서버]
+	// @Controller, @GetMapping, REST, server.port 설정
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// [비밀번호 암호화 BCrypt]
+	// 회원가입 시 password 해싱에 사용 (Spring Security 전체는 아님, crypto만)
 	implementation 'org.springframework.security:spring-security-crypto'
+
+	// ----- Lombok : 보일러플레이트 코드 자동 생성 -----
+	// @Data → getter/setter/toString, @NoArgsConstructor, @AllArgsConstructor 등
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// ----- DevTools : 개발 편의 -----
+	// 코드 변경 시 앱 자동 재시작, LiveReload 등
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// ----- MySQL 드라이버 -----
+	// application.properties 의 jdbc:mysql://... 연결에 필요
+	// runtimeOnly = 실행 시에만 classpath 에 포함
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// application.properties 메타데이터 (IDE 자동완성용, 선택 사항)
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// ----- 테스트 -----
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'  // JUnit 5, MockMvc 등
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform()   // JUnit 5 로 테스트 실행
 }

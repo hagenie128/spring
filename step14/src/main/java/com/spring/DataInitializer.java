@@ -1,16 +1,9 @@
 package com.spring;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.spring.entity.Comment;
-import com.spring.entity.CommentReaction;
 import com.spring.entity.Member;
 import com.spring.entity.Post;
+import com.spring.entity.Comment;
+import com.spring.entity.CommentReaction;
 import com.spring.entity.PostReaction;
 import com.spring.entity.ReactionType;
 import com.spring.repository.CommentReactionRepository;
@@ -18,6 +11,14 @@ import com.spring.repository.CommentRepository;
 import com.spring.repository.MemberRepository;
 import com.spring.repository.PostReactionRepository;
 import com.spring.repository.PostRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -27,12 +28,13 @@ public class DataInitializer implements CommandLineRunner {
     private final CommentRepository commentRepository;
     private final PostReactionRepository postReactionRepository;
     private final CommentReactionRepository commentReactionRepository;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public DataInitializer(MemberRepository memberRepository,
-                        PostRepository postRepository,
-                        CommentRepository commentRepository,
-                        PostReactionRepository postReactionRepository,
-                        CommentReactionRepository commentReactionRepository) {
+                           PostRepository postRepository,
+                           CommentRepository commentRepository,
+                           PostReactionRepository postReactionRepository,
+                           CommentReactionRepository commentReactionRepository) {
         this.memberRepository = memberRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
@@ -63,7 +65,7 @@ public class DataInitializer implements CommandLineRunner {
     private Member createMember(String username, String nickname) {
         Member member = new Member();
         member.setUsername(username);
-        member.setPassword("12345678");
+        member.setPassword(passwordEncoder.encode("1234"));
         member.setNickname(nickname);
         member.setRole("USER");
         return member;

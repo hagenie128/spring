@@ -24,6 +24,6 @@ public class LoanService {
 	 */
 	public List<Loan> findAllWithStudent() {
 		// ???
-		return List.of();
+		return loanRepository.findAllWithStudent();
 	}
 }
