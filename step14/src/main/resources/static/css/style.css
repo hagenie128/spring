@@ -302,7 +302,253 @@ a:hover {
     font-size: 0.88rem;
 }
 
+/* ----- 로그인 / 회원가입 ----- */
+form[action="/auth/register"],
+form[action="/auth/login"] {
+    max-width: 420px;
+    margin: 12px auto 24px;
+    padding: 28px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+form[action="/auth/register"] > div,
+form[action="/auth/login"] > div {
+    margin-bottom: 18px;
+}
+
+form[action="/auth/register"] > div:last-child,
+form[action="/auth/login"] > div:last-child {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0;
+    margin-top: 8px;
+}
+
+form[action="/auth/register"] label,
+form[action="/auth/login"] label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+form[action="/auth/register"] input[type="text"],
+form[action="/auth/register"] input[type="password"],
+form[action="/auth/login"] input[type="text"],
+form[action="/auth/login"] input[type="password"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font: inherit;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+form[action="/auth/register"] input:focus,
+form[action="/auth/login"] input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+form[action="/auth/register"] > div > div,
+form[action="/auth/login"] > div > div {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #dc2626;
+}
+
+form[action="/auth/register"] > div > div:empty,
+form[action="/auth/login"] > div > div:empty {
+    display: none;
+}
+
+form[action="/auth/register"] button,
+form[action="/auth/login"] button {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+form[action="/auth/register"] button[type="submit"],
+form[action="/auth/register"] button:not([type]),
+form[action="/auth/login"] button[type="submit"] {
+    background: #2563eb;
+    color: #fff;
+}
+
+form[action="/auth/register"] button[type="submit"]:hover,
+form[action="/auth/register"] button:not([type]):hover,
+form[action="/auth/login"] button[type="submit"]:hover {
+    background: #1d4ed8;
+}
+
+form[action="/auth/register"] button[type="button"],
+form[action="/auth/login"] button[type="button"] {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+form[action="/auth/register"] button[type="button"]:hover,
+form[action="/auth/login"] button[type="button"]:hover {
+    background: #d1d5db;
+}
+
+/* ----- 게시글 작성 (Quill) ----- */
+.container section:has(#quill-editor) {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.container section:has(#quill-editor) > h2 {
+    margin: 0;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
+    font-size: 1.35rem;
+    color: #111827;
+}
+
+.container section:has(#quill-editor) form {
+    padding: 24px;
+}
+
+.container section:has(#quill-editor) form > div {
+    margin-bottom: 20px;
+}
+
+.container section:has(#quill-editor) form > div:last-child {
+    margin-bottom: 0;
+}
+
+.container section:has(#quill-editor) label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.container section:has(#quill-editor) input[type="text"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font: inherit;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.container section:has(#quill-editor) input[type="text"]:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.container section:has(#quill-editor) input[type="file"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    font: inherit;
+    background: #f9fafb;
+    cursor: pointer;
+}
+
+.container section:has(#quill-editor) form > div > div:empty {
+    display: none;
+}
+
+.container section:has(#quill-editor) form > div > div:not(:has(*)) {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #dc2626;
+}
+
+#quill-editor {
+    height: 500px;
+    background: #fff;
+}
+
+.container section:has(#quill-editor) .ql-toolbar.ql-snow {
+    border: 1px solid #d1d5db;
+    border-radius: 8px 8px 0 0;
+    background: #f9fafb;
+}
+
+.container section:has(#quill-editor) .ql-container.ql-snow {
+    border: 1px solid #d1d5db;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    font-size: 15px;
+}
+
+.container section:has(#quill-editor) ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.container section:has(#quill-editor) ul li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.container section:has(#quill-editor) ul li span {
+    flex: 1;
+    font-size: 0.92rem;
+    color: #374151;
+    word-break: break-all;
+}
+
+.container section:has(#quill-editor) form button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.container section:has(#quill-editor) form button:hover {
+    background: #fecaca;
+}
+
 @media (max-width: 720px) {
+    .container section:has(#quill-editor) form {
+        padding: 16px;
+    }
+
+    #quill-editor {
+        height: 360px;
+    }
+
+    .container section:has(#quill-editor) .ql-toolbar.ql-snow {
+        padding: 6px;
+    }
+
     .board-header {
         flex-direction: column;
         align-items: flex-start;

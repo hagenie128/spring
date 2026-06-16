@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${postId != null} ? '게시글 수정' : '게시글 작성'">Document</title>
+</head>
+
+<body>
+  <section>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <h2 th:text="${postId != null} ? '게시글 수정' : '게시글 작성'"></h2>
+    <form th:action="${postId != null} ? @{/board/{id}/edit(id=${postId})} : @{/board/new}" method="post"
+      enctype="multipart/form-data" th:object="${form}">
+      <!-- 제목 -->
+      <div>
+        <input type="text" placeholder="제목을 입력하세요" th:field="*{title}">
+        <div th:errors="*{title}"></div>
+      </div>
+      <!-- Quill 에디터, 내용 -->
+      <div>
+        <div id="quill-editor"></div>
+        <input type="hidden" th:field="*{content}">
+      </div>
+      <!-- 첨부파일 -->
+      <div>
+        <label>파일첨부</label>
+        <input type="file" name="files" multiple>
+      </div>
+      <!-- 수정 모드일때 첨부 파일 삭제 -->
+      <div th:if="${postId != null and attachments != null and !attachments.isEmpty() }">
+        <ul>
+          <li th:each="att : ${attachments}">
+            <span th:text="${att.originFileName}"></span>
+            <form th:action="@{/attachments/{id}/delete(id=${att.id})}" method="post"
+              onsubmit="return confirm('정말로 파일을 삭제하시겠습니까?')">
+              <button>삭제</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+      <button type="submit">글 저장</button>
+      <a href="javascript:history.back();">뒤로 가기</a>
+    </form>
+    <script>
+      const toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+        ['blockquote', 'code-block'],
+        ['link', 'image', 'video', 'formula'],
+
+        [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
+        [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+        [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+        [{ 'direction': 'rtl' }],                         // text direction
+
+        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+        [{ 'font': [] }],
+        [{ 'align': [] }],
+
+        ['clean']                                         // remove formatting button
+      ];
+
+      window.onload = () => {
+        const quill = new Quill('#quill-editor', {
+          modules: {
+            toolbar: toolbarOptions
+          },
+          theme: 'snow'
+        });
+        document.querySelector("form").onsubmit = (e) => {
+          //e.preventDefault();
+          console.log(quill.getContents());
+          console.log(quill.getText());
+          console.log(quill.getSemanticHTML());
+          document.querySelector("#content").value = quill.getSemanticHTML();
+        }
+      }
+    </script>
+  </section>
+</body>
+
+</html>

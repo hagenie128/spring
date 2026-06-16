@@ -31,10 +31,10 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public DataInitializer(MemberRepository memberRepository,
-                           PostRepository postRepository,
-                           CommentRepository commentRepository,
-                           PostReactionRepository postReactionRepository,
-                           CommentReactionRepository commentReactionRepository) {
+            PostRepository postRepository,
+            CommentRepository commentRepository,
+            PostReactionRepository postReactionRepository,
+            CommentReactionRepository commentReactionRepository) {
         this.memberRepository = memberRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
@@ -45,6 +45,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        if (memberRepository.count() > 0) {
+            return;
+        }
         List<Member> members = createMembers();
         List<Post> posts = createPosts(members);
         List<Comment> comments = createComments(posts, members);
@@ -109,8 +112,7 @@ public class DataInitializer implements CommandLineRunner {
                 comment.setContent(String.format(
                         "샘플 댓글 %d입니다. %s 화면 테스트에 도움이 되는 댓글입니다.",
                         i,
-                        member.getNickname()
-                ));
+                        member.getNickname()));
                 comments.add(comment);
             }
         }

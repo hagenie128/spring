@@ -38,41 +38,40 @@
   결과: 이 페이지 전체가 base.html의 껍데기(헤더, 푸터, CSS)로 감싸져서 출력됩니다.
   각 페이지는 본문(main)만 작성하고, 상단 메뉴·푸터는 base.html에서 공통으로 관리합니다.
 -->
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-    th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
 
 <!--
   th:fragment="title"
   → base.html의 <title th:replace="${title}"> 자리에 들어갈 '조각'의 이름입니다.
   브라우저 탭에 보이는 제목을 정합니다.
 -->
+
 <head th:fragment="title">
-    <title>게시글 목록</title>
+  <title>게시글 목록</title>
 </head>
 
 <!--
   th:fragment="main"
   → base.html의 <th:block th:replace="${content}"> 자리에 들어갈 본문 조각입니다.
 -->
+
 <body th:fragment="main">
 
-    <!-- class="card" : static/css/style.css 에 정의된 카드형 박스 스타일 -->
-    <section class="card">
-
-        <div class="board-header">
-            <h2>게시글 목록</h2>
-            <div class="board-actions">
-                <!--
-                  th:href="@{/board/write}"
-                  @{} : Thymeleaf URL 표현식. 컨텍스트 경로를 자동으로 붙여 줍니다.
-                  예) @{/board/write} → http://localhost:8888/board/write
-                  (일반 href="/board/write" 와 비슷하지만, 배포 환경에서 더 안전합니다)
-                -->
-                <a class="btn btn-primary" th:href="@{/board/write}">게시글 작성</a>
-            </div>
-        </div>
-
+  <!-- class="card" : static/css/style.css 에 정의된 카드형 박스 스타일 -->
+  <section class="card">
+    <div class="board-header">
+      <h2>게시글 목록</h2>
+      <div class="board-actions">
         <!--
+                  th:href="@{/board/new}"
+                  @{} : Thymeleaf URL 표현식. 컨텍스트 경로를 자동으로 붙여 줍니다.
+                  예) @{/board/new} → http://localhost:8888/board/new
+                -->
+        <a class="btn btn-primary" th:href="@{/board/new}">게시글 작성</a>
+      </div>
+    </div>
+
+    <!--
           ========== 검색 폼 ==========
           method="get" : 주소창에 검색어가 쿼리스트링으로 붙습니다.
                          예) /board/list?keyword=샘플&page=0
@@ -85,37 +84,38 @@
                                   검색 후에도 입력창에 검색어가 남습니다.
                                   ${...} 는 '모델(Model)에 담긴 변수'를 꺼내 쓰는 문법입니다.
         -->
-        <form class="search-form" th:action="@{/board/list}" method="get">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 내용 검색">
-            <button type="submit" class="btn btn-secondary">검색</button>
-        </form>
+    <form class="search-form" th:action="@{/board/list}" method="get">
+      <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 닉네임 검색">
+      <button type="submit" class="btn btn-secondary">검색</button>
+      <a th:href="@{/board/list}" class="btn btn-secondary">초기화</a>
+    </form>
 
-        <!-- ========== 게시글 테이블 ========== -->
-        <div class="table-wrap">
-            <table class="board-table">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">번호</th>
-                        <th>제목</th>
-                        <th style="width: 120px;">작성자</th>
-                        <th style="width: 180px;">작성일</th>
-                        <th style="width: 90px;">조회수</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <!-- ========== 게시글 테이블 ========== -->
+    <div class="table-wrap">
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">번호</th>
+            <th>제목</th>
+            <th style="width: 120px;">작성자</th>
+            <th style="width: 180px;">작성일</th>
+            <th style="width: 90px;">조회수</th>
+          </tr>
+        </thead>
+        <tbody>
 
-                    <!--
+          <!--
                       th:if="${postPage.totalElements == 0}"
                       → 조건이 true 일 때만 이 <tr>을 화면에 그립니다.
 
                       postPage : Spring Data의 Page<Post> 객체 (게시글 한 페이지 분량)
                       totalElements : DB에서 조건에 맞는 게시글 전체 개수
                     -->
-                    <tr class="empty-row" th:if="${postPage.totalElements == 0}">
-                        <td colspan="5">작성된 게시글이 없습니다.</td>
-                    </tr>
+          <tr class="empty-row" th:if="${postPage.totalElements == 0}">
+            <td colspan="5">작성된 게시글이 없습니다.</td>
+          </tr>
 
-                    <!--
+          <!--
                       th:each="post : ${postPage.content}"
                       → 반복문. postPage.content 안의 Post 를 하나씩 꺼내 post 변수에 담습니다.
 
@@ -126,36 +126,36 @@
                       post.id, post.title 등은 Post.java 엔티티의 필드입니다.
                       post.member.nickname 은 Post가 연관된 Member(작성자)의 닉네임입니다.
                     -->
-                    <tr th:each="post : ${postPage.content}">
+          <tr th:each="post : ${postPage.content}">
 
-                        <!-- th:text : 태그 안의 텍스트를 ${} 값으로 치환 (HTML 이스케이프 처리됨) -->
-                        <td th:text="${post.id}"></td>
+            <!-- th:text : 태그 안의 텍스트를 ${} 값으로 치환 (HTML 이스케이프 처리됨) -->
+            <td th:text="${post.id}"></td>
 
-                        <td class="title">
-                            <!--
+            <td class="title">
+              <!--
                               @{/board/detail(id=${post.id})}
                               → 경로 변수/쿼리 파라미터가 있는 URL 생성
                               → 예) /board/detail?id=1
                             -->
-                            <a th:href="@{/board/detail(id=${post.id})}" th:text="${post.title}"></a>
-                        </td>
+              <a th:href="@{/board/detail(id=${post.id})}" th:text="${post.title}"></a>
+            </td>
 
-                        <td th:text="${post.member.nickname}"></td>
+            <td th:text="${post.member.nickname}"></td>
 
-                        <!--
+            <!--
                           #temporals.format(...)
                           → Thymeleaf 유틸리티 객체. Java의 LocalDateTime 을 원하는 형식 문자열로 변환
                           'yyyy-MM-dd HH:mm' → 2026-06-15 17:30
                         -->
-                        <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
 
-                        <td th:text="${post.viewCount}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            <td th:text="${post.viewCount}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-        <!--
+    <!--
           ========== 페이징(페이지 번호) ==========
 
           Spring Data Page 객체에서 자주 쓰는 속성:
@@ -169,14 +169,14 @@
           currentPage 는 컨트롤러에서 view.addObject("currentPage", page) 로 넘긴 값입니다.
           (URL의 ?page=0 에 해당, 사용자에게는 1페이지로 보여 주기 위해 +1 표시)
         -->
-        <ul class="pagination" th:if="${postPage.totalPages > 0}">
+    <ul class="pagination" th:if="${postPage.totalPages > 0}">
 
-            <!-- !postPage.first : 첫 페이지가 아닐 때만 이전 버튼 표시 -->
-            <li th:if="${!postPage.first}">
-                <a th:href="@{/board/list(keyword=${keyword}, page=${currentPage - 1})}">◀</a>
-            </li>
+      <!-- !postPage.first : 첫 페이지가 아닐 때만 이전 버튼 표시 -->
+      <li th:if="${!postPage.first}">
+        <a th:href="@{/board/list(keyword=${keyword}, page=${currentPage - 1})}">◀</a>
+      </li>
 
-            <!--
+      <!--
               #numbers.sequence(0, postPage.totalPages - 1)
               → 0, 1, 2, ... (마지막 페이지 번호) 까지 숫자 배열을 만들어 줍니다.
               → th:each 로 페이지 번호 링크를 반복 생성합니다.
@@ -187,18 +187,18 @@
 
               화면에는 i+1 을 보여 줍니다 (0 → 1페이지, 1 → 2페이지 ...)
             -->
-            <li th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
-                <a th:href="@{/board/list(keyword=${keyword}, page=${i})}"
-                   th:classappend="${i == currentPage} ? 'active'">
-                    <span th:text="${i + 1}"></span>
-                </a>
-            </li>
+      <li th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
+        <a th:href="@{/board/list(keyword=${keyword}, page=${i})}" th:classappend="${i == currentPage} ? 'active'">
+          <span th:text="${i + 1}"></span>
+        </a>
+      </li>
 
-            <li th:if="${!postPage.last}">
-                <a th:href="@{/board/list(keyword=${keyword}, page=${currentPage + 1})}">▶</a>
-            </li>
-        </ul>
+      <li th:if="${!postPage.last}">
+        <a th:href="@{/board/list(keyword=${keyword}, page=${currentPage + 1})}">▶</a>
+      </li>
+    </ul>
 
-    </section>
+  </section>
 </body>
+
 </html>

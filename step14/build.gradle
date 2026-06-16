@@ -24,6 +24,11 @@ java {
 	targetCompatibility = JavaVersion.VERSION_21
 }
 
+// @Query 의 :keyword 같은 이름 파라미터를 메서드 인자와 자동 매칭 (Antigravity IDE 기본 동작과 동일)
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs.add('-parameters')
+}
+
 repositories {
 	mavenCentral()   // 라이브러리를 다운로드 받을 저장소 (중앙 Maven 저장소)
 }

@@ -29,6 +29,16 @@
             "projectName": "quest12-problem02-problem02",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-Step14Application<step14>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.spring.Step14Application",
+            "projectName": "step14",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

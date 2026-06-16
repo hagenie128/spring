@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>스터디 모집</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="container">
+    <h1>스터디 모집</h1>
+
+    <form class="toolbar" th:action="@{/studies}" method="get">
+        <!-- TODO problem01-11: 검색값 유지 -->
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="제목, 소개글, 기술스택 검색">
+        <select name="status">
+            <option value="">전체</option>
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                    th:selected="${status == s}"></option>
+        </select>
+        <button class="btn" type="submit">검색</button>
+        <a class="btn btn-secondary" th:href="@{/studies/new}">모집 등록</a>
+    </form>
+
+    <!-- TODO problem01-11: 모집글 카드 목록, 정원, 상태 출력 -->
+    <section class="study-grid">
+        <article class="study-card" th:each="study : ${studyPage.content}">
+            <span class="badge" th:classappend="${study.status.name() == 'CLOSED'} ? ' closed'"
+                  th:text="${study.status.name() == 'OPEN'} ? '모집중' : '마감'">모집중</span>
+            <h3>
+                <a th:href="@{/studies/{id}(id=${study.id})}" th:text="${study.title}">스터디 제목</a>
+            </h3>
+            <p th:text="${study.description}">소개글</p>
+            <p class="meta" th:text="${study.techStack}">Java, Spring</p>
+            <p>
+                <strong th:text="${study.acceptedCount}">0</strong>
+                /
+                <span th:text="${study.capacity}">4</span>
+                명 확정
+            </p>
+            <p class="meta" th:text="${study.leader.nickname + ' · ' + study.method}">리더 · 온라인</p>
+        </article>
+    </section>
+
+    <p th:if="${studyPage.totalElements == 0}">등록된 스터디 모집글이 없습니다.</p>
+
+    <!-- TODO problem01-11: 검색 파라미터 유지 페이징 -->
+    <ul class="pagination" th:if="${studyPage.totalPages > 0}">
+        <li th:if="${!studyPage.first}">
+            <a th:href="@{/studies(keyword=${keyword}, status=${status}, page=${currentPage - 1})}">이전</a>
+        </li>
+        <li th:each="i : ${#numbers.sequence(0, studyPage.totalPages - 1)}">
+            <a th:href="@{/studies(keyword=${keyword}, status=${status}, page=${i})}"
+               th:classappend="${i == currentPage} ? 'active'"
+               th:text="${i + 1}">1</a>
+        </li>
+        <li th:if="${!studyPage.last}">
+            <a th:href="@{/studies(keyword=${keyword}, status=${status}, page=${currentPage + 1})}">다음</a>
+        </li>
+    </ul>
+</main>
+</body>
+</html>
