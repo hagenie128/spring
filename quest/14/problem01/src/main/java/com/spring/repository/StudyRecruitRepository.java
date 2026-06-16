@@ -10,7 +10,7 @@ import com.spring.entity.StudyRecruit;
 
 public interface StudyRecruitRepository extends JpaRepository<StudyRecruit, Long> {
 
-    // TODO problem01-6: 작성자 fetch join 목록 쿼리로 바꾸세요.
+    // TODO problem01-6: 목록 조회 쿼리를 작성하세요.
     @Query(value = "select s from StudyRecruit s",
            countQuery = "select count(s) from StudyRecruit s")
     Page<StudyRecruit> findAllWithLeader(Pageable pageable);
@@ -22,6 +22,6 @@ public interface StudyRecruitRepository extends JpaRepository<StudyRecruit, Long
                               RecruitStatus status,
                               Pageable pageable);
 
-    // TODO problem04-1: 상세 조회 시 작성자 fetch join
+    // TODO problem04-1: 상세 조회 쿼리를 작성하세요.
     // 문제 4에서 직접 추가하세요.
 }

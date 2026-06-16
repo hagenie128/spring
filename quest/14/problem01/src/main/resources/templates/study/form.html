@@ -2,15 +2,16 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>스터디 모집 등록</title>
+    <title>스터디 모집 폼</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <main class="container">
-    <h1>스터디 모집 등록</h1>
+    <h1>스터디 모집 폼</h1>
 
-    <!-- TODO problem02-11,12: 모집글 등록 폼을 작성하세요. -->
     <form class="card" method="post">
+        <!-- TODO problem02: 모집글 등록 폼을 작성하세요. -->
+        <!-- TODO problem04: 수정에서도 재사용할 수 있게 확장하세요. -->
         <button class="btn" type="submit">저장</button>
         <a class="btn btn-secondary" th:href="@{/studies}">목록</a>
     </form>

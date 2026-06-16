@@ -35,7 +35,7 @@ public class StudyApplicationService {
         throw new UnsupportedOperationException("TODO problem03-8~9");
     }
 
-    // TODO problem03-10~13: 합격 처리, 정원 검사, 자동 마감
+    // TODO problem03: 신청 상태 변경 기능을 작성하세요.
     @Transactional
     public void accept(Long applicationId) {
         throw new UnsupportedOperationException("TODO problem03-10~13");

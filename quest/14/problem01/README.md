@@ -15,11 +15,11 @@
 | 3 | `StudyRecruit.java` | 모집 상태 `RecruitStatus` 매핑 |
 | 4 | `StudyRecruit.java` | 작성자 `Member`와 `ManyToOne` 매핑 |
 | 5 | `StudyRecruit.java` | 작성일/수정일 자동 설정 |
-| 6 | `StudyRecruitRepository.java` | 작성자 fetch join 목록 쿼리 |
+| 6 | `StudyRecruitRepository.java` | 목록 조회 쿼리 |
 | 7 | `StudyRecruitRepository.java` | 키워드 + 모집 상태 검색 쿼리 |
 | 8 | `StudyRecruitService.java` | 검색 조건에 따른 Page 조회 |
 | 9 | `StudyRecruitController.java` | `keyword`, `status`, `page`, `size` 파라미터 받기 |
-| 10 | `StudyRecruitController.java` | `studyPage`, `keyword`, `status`, `currentPage` model 추가 |
+| 10 | `StudyRecruitController.java` | 목록 화면 데이터 전달 |
 | 11 | `list.html` | 카드 목록, 정원, 상태, 페이지 링크 출력 |
 
 ## 완료 기준

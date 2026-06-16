@@ -10,7 +10,7 @@
 
 | TODO | 파일 | 할 일 |
 |------|------|-------|
-| 1 | `StudyRecruitRepository.java` | 상세 조회 시 작성자 fetch join |
+| 1 | `StudyRecruitRepository.java` | 상세 조회 쿼리 |
 | 2 | `StudyApplicationRepository.java` | `WAITING` 신청자 목록 조회 |
 | 3 | `StudyApplicationRepository.java` | `ACCEPTED` 합격자 목록 조회 |
 | 4 | `StudyRecruitService.java` | 상세 조회 + 조회수 증가 |
@@ -19,10 +19,10 @@
 | 7 | `StudyInterest.java` | 회원, 모집글, 생성일 매핑 |
 | 8 | `InterestType.java` | `LIKE`, `DISLIKE` enum 작성 |
 | 9 | `StudyInterest.java` | 회원+모집글 unique 제약조건, 반응 타입 매핑 |
-| 10 | `StudyInterestRepository.java` | 관심 여부 조회, LIKE/DISLIKE 개수 조회 |
-| 11 | `StudyInterestService.java` | 좋아요/싫어요 등록·변경·취소 |
+| 10 | `StudyInterestRepository.java` | 반응 조회와 개수 조회 |
+| 11 | `StudyInterestService.java` | 좋아요/싫어요 처리 |
 | 12 | `StudyRecruitController.java` | `GET /studies/{id}` 상세 핸들러 |
-| 13 | `StudyRecruitController.java` | model에 study, waitingApplications, acceptedApplications 담기 |
+| 13 | `StudyRecruitController.java` | 상세 화면 데이터 전달 |
 | 14 | `StudyRecruitController.java` | 좋아요/싫어요 토글 POST 핸들러 |
 | 15 | `detail.html` | 스터디 정보, 정원, 모집 상태, 신청 폼 출력 |
 | 16 | `detail.html` | 신청자 목록과 합격자 목록을 따로 출력 |
@@ -34,7 +34,7 @@
 | 22 | `StudyMaterial.java` | 모집글과 `ManyToOne` 매핑 |
 | 23 | `StudyMaterialRepository.java` | 모집글별 파일 목록 조회 |
 | 24 | `StudyMaterialService.java` | 파일 업로드 저장 |
-| 25 | `StudyMaterialService.java` | 다운로드 Resource 조회 |
+| 25 | `StudyMaterialService.java` | 파일 다운로드 처리 |
 | 26 | `detail.html` | 파일 업로드 폼과 다운로드 링크 출력 |
 
 ## 완료 기준

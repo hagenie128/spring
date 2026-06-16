@@ -49,11 +49,11 @@
 | TODO 3 | `StudyRecruit.java` | 모집 상태 `RecruitStatus` 매핑 |
 | TODO 4 | `StudyRecruit.java` | 작성자 `Member`와 `ManyToOne` 연관관계 매핑 |
 | TODO 5 | `StudyRecruit.java` | 작성일/수정일 자동 설정 |
-| TODO 6 | `StudyRecruitRepository.java` | 작성자 fetch join 목록 쿼리 |
+| TODO 6 | `StudyRecruitRepository.java` | 목록 조회 쿼리 |
 | TODO 7 | `StudyRecruitRepository.java` | 키워드 + 모집 상태 검색 쿼리 |
 | TODO 8 | `StudyRecruitService.java` | 검색 조건에 따라 Page 조회 |
 | TODO 9 | `StudyRecruitController.java` | `keyword`, `status`, `page`, `size` 파라미터 받기 |
-| TODO 10 | `StudyRecruitController.java` | model에 `studyPage`, `keyword`, `status`, `currentPage` 담기 |
+| TODO 10 | `StudyRecruitController.java` | 목록 화면 데이터 전달 |
 | TODO 11 | `list.html` | 모집글 카드 목록, 정원, 상태, 페이지 링크 출력 |
 
 **step14 참고:** [Post.java](../../step14/src/main/java/com/spring/entity/Post.java) · [PostRepository.java](../../step14/src/main/java/com/spring/repository/PostRepository.java) · [PostService.java](../../step14/src/main/java/com/spring/service/PostService.java) · [PostController.java](../../step14/src/main/java/com/spring/controller/PostController.java) · [list.html](../../step14/src/main/resources/templates/board/list.html)
@@ -121,10 +121,10 @@
 | TODO 7 | `StudyApplicationRepository.java` | 회원+모집글 신청 여부 조회 |
 | TODO 8 | `StudyApplicationService.java` | 스터디 신청 생성 |
 | TODO 9 | `StudyApplicationService.java` | 마감된 스터디에는 신청 불가 처리 |
-| TODO 10 | `StudyApplicationService.java` | 신청자 합격 처리 |
-| TODO 11 | `StudyApplicationService.java` | 합격 처리 시 `acceptedCount` 증가 |
-| TODO 12 | `StudyApplicationService.java` | 정원 도달 시 모집글 자동 마감 |
-| TODO 13 | `StudyApplicationService.java` | 정원이 찼으면 추가 합격 불가 처리 |
+| TODO 10 | `StudyApplicationService.java` | 신청 상태 변경 |
+| TODO 11 | `StudyApplicationService.java` | 합격 인원 관리 |
+| TODO 12 | `StudyApplicationService.java` | 모집 마감 처리 |
+| TODO 13 | `StudyApplicationService.java` | 정원 초과 방지 |
 | TODO 14 | `StudyRecruitController.java` | 신청 POST 핸들러 |
 | TODO 15 | `StudyRecruitController.java` | 합격/거절 POST 핸들러 |
 
@@ -149,7 +149,7 @@
 
 | TODO | 열어볼 파일 | 할 일 |
 |------|------------|-------|
-| TODO 1 | `StudyRecruitRepository.java` | 상세 조회 시 작성자 fetch join |
+| TODO 1 | `StudyRecruitRepository.java` | 상세 조회 쿼리 |
 | TODO 2 | `StudyApplicationRepository.java` | `WAITING` 신청자 목록 조회 |
 | TODO 3 | `StudyApplicationRepository.java` | `ACCEPTED` 합격자 목록 조회 |
 | TODO 4 | `StudyRecruitService.java` | 상세 조회 + 조회수 증가 |
@@ -158,10 +158,10 @@
 | TODO 7 | `StudyInterest.java` | 회원, 모집글, 생성일 매핑 |
 | TODO 8 | `InterestType.java` | `LIKE`, `DISLIKE` enum 작성 |
 | TODO 9 | `StudyInterest.java` | 회원+모집글 unique 제약조건, 반응 타입 매핑 |
-| TODO 10 | `StudyInterestRepository.java` | 관심 여부 조회, LIKE/DISLIKE 개수 조회 |
-| TODO 11 | `StudyInterestService.java` | 좋아요/싫어요 등록·변경·취소 토글 |
+| TODO 10 | `StudyInterestRepository.java` | 반응 조회와 개수 조회 |
+| TODO 11 | `StudyInterestService.java` | 좋아요/싫어요 처리 |
 | TODO 12 | `StudyRecruitController.java` | `GET /studies/{id}` 상세 핸들러 |
-| TODO 13 | `StudyRecruitController.java` | 상세 model에 study, waitingApplications, acceptedApplications 담기 |
+| TODO 13 | `StudyRecruitController.java` | 상세 화면 데이터 전달 |
 | TODO 14 | `StudyRecruitController.java` | 좋아요/싫어요 토글 POST 핸들러 |
 | TODO 15 | `detail.html` | 스터디 정보, 정원, 모집 상태, 신청 폼 출력 |
 | TODO 16 | `detail.html` | 신청자 목록과 합격자 목록을 따로 출력 |
@@ -173,7 +173,7 @@
 | TODO 22 | `StudyMaterial.java` | 모집글과 `ManyToOne` 매핑 |
 | TODO 23 | `StudyMaterialRepository.java` | 모집글별 파일 목록 조회 |
 | TODO 24 | `StudyMaterialService.java` | 파일 업로드 저장 |
-| TODO 25 | `StudyMaterialService.java` | 다운로드 Resource 조회 |
+| TODO 25 | `StudyMaterialService.java` | 파일 다운로드 처리 |
 | TODO 26 | `detail.html` | 파일 업로드 폼과 다운로드 링크 출력 |
 
 **step14 참고:** [PostReaction.java](../../step14/src/main/java/com/spring/entity/PostReaction.java) · [Attachment.java](../../step14/src/main/java/com/spring/entity/Attachment.java) · [AttachmentService.java](../../step14/src/main/java/com/spring/service/AttachmentService.java) · [PostController.java](../../step14/src/main/java/com/spring/controller/PostController.java)
@@ -201,15 +201,5 @@
 | `StudyMaterial` | studyRecruit, originalName, storedName, fileSize, createdAt |
 
 ---
-
-## 팁
-
-- 정원은 `capacity`, 합격 인원은 `acceptedCount`처럼 분리하면 화면 출력과 마감 판단이 쉬워집니다.
-- 합격 처리 로직은 반드시 `@Transactional` 안에서 처리하세요.
-- 합격 처리 순서: 신청 조회 -> 이미 합격인지 확인 -> 정원 확인 -> 상태 변경 -> 합격 인원 증가 -> 정원 도달 시 마감.
-- 화면에서는 신청자 전체 목록보다 `WAITING`과 `ACCEPTED`를 나눠서 보여주는 편이 요구사항이 선명합니다.
-- 검색 후 페이지 이동 링크에는 `keyword`, `status`를 계속 같이 넘겨야 검색 상태가 유지됩니다.
-- 좋아요/싫어요는 회원+모집글 unique 제약조건을 유지하고, type만 바꾸는 방식으로 처리하면 중복 반응을 막기 쉽습니다.
-- 파일 다운로드 응답에는 `Content-Disposition: attachment` 헤더를 넣어야 브라우저가 다운로드로 처리합니다.
 
 **진행 순서:** [problem01](problem01/) -> [problem02](problem02/) -> [problem03](problem03/) -> [problem04](problem04/)

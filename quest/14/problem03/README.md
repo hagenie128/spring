@@ -19,10 +19,10 @@
 | 7 | `StudyApplicationRepository.java` | 회원+모집글 신청 여부 조회 |
 | 8 | `StudyApplicationService.java` | 스터디 신청 생성 |
 | 9 | `StudyApplicationService.java` | 마감된 스터디 신청 불가 처리 |
-| 10 | `StudyApplicationService.java` | 신청자 합격 처리 |
-| 11 | `StudyApplicationService.java` | 합격 처리 시 `acceptedCount` 증가 |
-| 12 | `StudyApplicationService.java` | 정원 도달 시 모집글 자동 마감 |
-| 13 | `StudyApplicationService.java` | 정원이 찼으면 추가 합격 불가 처리 |
+| 10 | `StudyApplicationService.java` | 신청 상태 변경 |
+| 11 | `StudyApplicationService.java` | 합격 인원 관리 |
+| 12 | `StudyApplicationService.java` | 모집 마감 처리 |
+| 13 | `StudyApplicationService.java` | 정원 초과 방지 |
 | 14 | `StudyRecruitController.java` | 신청 POST 핸들러 |
 | 15 | `StudyRecruitController.java` | 합격/거절 POST 핸들러 |
 
