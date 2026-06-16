@@ -46,7 +46,8 @@ public class LoanService {
 	 */
 	@Transactional
 	public Loan save(Long studentId, List<Long> bookIds, List<Integer> quantities) {
-		// ???
+		Loan loan = new Loan(studentRepository.findById(studentId).orElseThrow(() -> new IllegalArgumentException("해당 학생이 없습니다")));
+		
 		throw new UnsupportedOperationException("TODO 1~5 구현");
 	}
 }
