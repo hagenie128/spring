@@ -27,7 +27,7 @@
 | 01 | [problem01/](problem01/) | ★★☆☆ | 스터디 모집 목록 + 검색 + 페이징 | 1~11 |
 | 02 | [problem02/](problem02/) | ★★★☆ | 모집글 등록 + 정원 + 마감 상태 | 1~13 |
 | 03 | [problem03/](problem03/) | ★★★★ | 스터디 신청 + 합격/대기 관리 | 1~15 |
-| 04 | [problem04/](problem04/) | ★★★★ | 상세 화면 + 합격자 목록 + 관심 반응 | 1~16 |
+| 04 | [problem04/](problem04/) | ★★★★★ | 상세 + 조회수 + 수정 + 파일 다운로드 + 좋아요/싫어요 | 1~26 |
 
 **실행:** `cd quest/14/problem0N` -> `gradlew.bat bootRun`  
 **URL:** http://localhost:8080/studies  
@@ -140,12 +140,12 @@
 
 ---
 
-## 문제 4 - 상세 화면, 합격자 목록, 관심 반응 (★★★★)
+## 문제 4 - 상세, 조회수, 수정, 파일, 좋아요/싫어요 (★★★★★)
 
 **폴더:** [problem04/](problem04/)  
 **신청/합격/마감 기능까지 완성되어 있다고 가정**
 
-스터디 상세 화면에서 신청자와 합격자를 구분해 보여주고, 관심 있어요 반응을 추가합니다.
+스터디 상세 화면에서 신청자와 합격자를 구분해 보여주고, 오늘 배운 조회수 관리, 모집글 수정, 파일 업로드/다운로드, 좋아요/싫어요 반응까지 추가합니다.
 
 | TODO | 열어볼 파일 | 할 일 |
 |------|------------|-------|
@@ -156,24 +156,37 @@
 | TODO 5 | `StudyApplicationService.java` | 대기 신청자 목록 서비스 |
 | TODO 6 | `StudyApplicationService.java` | 합격자 목록 서비스 |
 | TODO 7 | `StudyInterest.java` | 회원, 모집글, 생성일 매핑 |
-| TODO 8 | `StudyInterest.java` | 회원+모집글 unique 제약조건 |
-| TODO 9 | `StudyInterestRepository.java` | 관심 여부 조회 |
-| TODO 10 | `StudyInterestRepository.java` | 모집글별 관심 수 조회 |
-| TODO 11 | `StudyInterestService.java` | 관심 등록/취소 토글 |
+| TODO 8 | `InterestType.java` | `LIKE`, `DISLIKE` enum 작성 |
+| TODO 9 | `StudyInterest.java` | 회원+모집글 unique 제약조건, 반응 타입 매핑 |
+| TODO 10 | `StudyInterestRepository.java` | 관심 여부 조회, LIKE/DISLIKE 개수 조회 |
+| TODO 11 | `StudyInterestService.java` | 좋아요/싫어요 등록·변경·취소 토글 |
 | TODO 12 | `StudyRecruitController.java` | `GET /studies/{id}` 상세 핸들러 |
 | TODO 13 | `StudyRecruitController.java` | 상세 model에 study, waitingApplications, acceptedApplications 담기 |
-| TODO 14 | `StudyRecruitController.java` | 관심 토글 POST 핸들러 |
+| TODO 14 | `StudyRecruitController.java` | 좋아요/싫어요 토글 POST 핸들러 |
 | TODO 15 | `detail.html` | 스터디 정보, 정원, 모집 상태, 신청 폼 출력 |
 | TODO 16 | `detail.html` | 신청자 목록과 합격자 목록을 따로 출력 |
+| TODO 17 | `StudyRecruitController.java` | `GET /studies/{id}/edit` 수정 폼 |
+| TODO 18 | `StudyRecruitService.java` | 모집글 수정 서비스 |
+| TODO 19 | `StudyRecruitController.java` | `POST /studies/{id}/edit` 수정 처리 |
+| TODO 20 | `form.html` | 등록/수정 공용 폼으로 변경 |
+| TODO 21 | `StudyMaterial.java` | 원본 파일명, 저장 파일명, 파일 크기 필드 매핑 |
+| TODO 22 | `StudyMaterial.java` | 모집글과 `ManyToOne` 매핑 |
+| TODO 23 | `StudyMaterialRepository.java` | 모집글별 파일 목록 조회 |
+| TODO 24 | `StudyMaterialService.java` | 파일 업로드 저장 |
+| TODO 25 | `StudyMaterialService.java` | 다운로드 Resource 조회 |
+| TODO 26 | `detail.html` | 파일 업로드 폼과 다운로드 링크 출력 |
 
-**step14 참고:** [PostReaction.java](../../step14/src/main/java/com/spring/entity/PostReaction.java) · [PostController.java](../../step14/src/main/java/com/spring/controller/PostController.java)
+**step14 참고:** [PostReaction.java](../../step14/src/main/java/com/spring/entity/PostReaction.java) · [Attachment.java](../../step14/src/main/java/com/spring/entity/Attachment.java) · [AttachmentService.java](../../step14/src/main/java/com/spring/service/AttachmentService.java) · [PostController.java](../../step14/src/main/java/com/spring/controller/PostController.java)
 
 **완성 기준**
 
 - 상세 화면에서 `대기 신청자`와 `합격 멤버`가 따로 보임
 - 합격 멤버 목록에는 닉네임과 지원 메시지가 표시됨
 - 합격 인원/정원이 실시간으로 맞게 표시됨
-- 관심 있어요 버튼을 누르면 관심 수가 증가/감소함
+- 상세 조회할 때마다 조회수가 1 증가함
+- 모집글 수정 화면에서 제목/소개글/기술스택/진행방식/정원을 수정할 수 있음
+- 파일 업로드 후 상세 화면에서 다운로드 가능
+- 좋아요/싫어요를 누르면 개수가 증가/감소하고, 같은 반응을 다시 누르면 취소됨
 
 ---
 
@@ -184,7 +197,8 @@
 | `Member` | username, password, nickname, role, createdAt |
 | `StudyRecruit` | title, description, techStack, method, capacity, acceptedCount, status, leader, viewCount, createdAt, updatedAt |
 | `StudyApplication` | studyRecruit, applicant, message, status, createdAt |
-| `StudyInterest` | studyRecruit, member, createdAt |
+| `StudyInterest` | studyRecruit, member, type, createdAt |
+| `StudyMaterial` | studyRecruit, originalName, storedName, fileSize, createdAt |
 
 ---
 
@@ -195,5 +209,7 @@
 - 합격 처리 순서: 신청 조회 -> 이미 합격인지 확인 -> 정원 확인 -> 상태 변경 -> 합격 인원 증가 -> 정원 도달 시 마감.
 - 화면에서는 신청자 전체 목록보다 `WAITING`과 `ACCEPTED`를 나눠서 보여주는 편이 요구사항이 선명합니다.
 - 검색 후 페이지 이동 링크에는 `keyword`, `status`를 계속 같이 넘겨야 검색 상태가 유지됩니다.
+- 좋아요/싫어요는 회원+모집글 unique 제약조건을 유지하고, type만 바꾸는 방식으로 처리하면 중복 반응을 막기 쉽습니다.
+- 파일 다운로드 응답에는 `Content-Disposition: attachment` 헤더를 넣어야 브라우저가 다운로드로 처리합니다.
 
 **진행 순서:** [problem01](problem01/) -> [problem02](problem02/) -> [problem03](problem03/) -> [problem04](problem04/)

@@ -40,15 +40,8 @@ public class StudyRecruitController {
                              @RequestParam(required = false) RecruitStatus status,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "9") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<StudyRecruit> studyPage = studyRecruitService.search(keyword, status, pageable);
-
         ModelAndView view = new ModelAndView("study/list");
-        view.addObject("studyPage", studyPage);
-        view.addObject("keyword", keyword);
-        view.addObject("status", status);
-        view.addObject("statuses", RecruitStatus.values());
-        view.addObject("currentPage", page);
+        // TODO problem01-9,10: 목록 조회에 필요한 데이터들을 model에 담으세요.
         return view;
     }
 

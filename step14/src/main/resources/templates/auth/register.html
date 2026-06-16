@@ -1,4 +1,17 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+  [회원가입 화면]
+  AuthController.registerView() → GET /auth/register
+
+  [th:object="${form}"]
+    컨트롤러가 넘긴 MemberDTO 와 폼을 연결합니다.
+    th:field="*{username}" → form.username 과 자동 바인딩
+
+  [th:errors]
+    @Valid 검증 실패 시 MemberDTO 의 message 가 여기 표시됩니다.
+================================================================================
+-->
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::main})}">
 
 <head th:fragment="title">
@@ -23,6 +36,7 @@
             <div th:errors="*{password}"></div>
         </div>
         <div>
+            <!-- button type 생략 시 submit (폼 전송) -->
             <button>가입하기</button>
             <button type="button" onclick="history.back();">취소</button>
         </div>

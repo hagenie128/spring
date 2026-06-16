@@ -7,12 +7,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.spring.entity.ApplicationStatus;
 import com.spring.entity.Member;
-import com.spring.entity.StudyApplication;
 import com.spring.entity.StudyRecruit;
 import com.spring.repository.MemberRepository;
-import com.spring.repository.StudyApplicationRepository;
 import com.spring.repository.StudyRecruitRepository;
 
 @Component
@@ -20,22 +17,18 @@ public class DataInitializer implements CommandLineRunner {
 
     private final MemberRepository memberRepository;
     private final StudyRecruitRepository studyRecruitRepository;
-    private final StudyApplicationRepository applicationRepository;
 
     public DataInitializer(MemberRepository memberRepository,
-                           StudyRecruitRepository studyRecruitRepository,
-                           StudyApplicationRepository applicationRepository) {
+                           StudyRecruitRepository studyRecruitRepository) {
         this.memberRepository = memberRepository;
         this.studyRecruitRepository = studyRecruitRepository;
-        this.applicationRepository = applicationRepository;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
         List<Member> members = createMembers();
-        List<StudyRecruit> studies = createStudies(members);
-        createApplications(studies, members);
+        createStudies(members);
     }
 
     private List<Member> createMembers() {
@@ -66,25 +59,5 @@ public class DataInitializer implements CommandLineRunner {
             studies.add(study);
         }
         return studyRecruitRepository.saveAll(studies);
-    }
-
-    private void createApplications(List<StudyRecruit> studies, List<Member> members) {
-        List<StudyApplication> applications = new ArrayList<>();
-        for (int i = 0; i < studies.size(); i++) {
-            StudyRecruit study = studies.get(i);
-            for (int j = 1; j <= 2; j++) {
-                Member applicant = members.get((i + j) % members.size());
-                StudyApplication application = new StudyApplication();
-                application.setStudyRecruit(study);
-                application.setApplicant(applicant);
-                application.setMessage("열심히 참여하고 싶습니다.");
-                if (j == 1 && i % 3 == 0) {
-                    application.setStatus(ApplicationStatus.ACCEPTED);
-                    study.increaseAcceptedCount();
-                }
-                applications.add(application);
-            }
-        }
-        applicationRepository.saveAll(applications);
     }
 }

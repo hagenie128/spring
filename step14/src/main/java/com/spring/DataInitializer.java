@@ -20,6 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * [앱 시작 시 샘플 데이터 자동 삽입]
+ *
+ * CommandLineRunner : Spring Boot 가 완전히 뜬 뒤 run() 을 한 번 실행합니다.
+ * 개발·실습용으로 회원 5명, 게시글 60개, 댓글, 좋아요 등을 넣어 둡니다.
+ */
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -45,6 +51,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        // 이미 DB에 회원 데이터가 있으면 샘플 데이터를 다시 넣지 않음 (재시작 시 중복 오류 방지)
         if (memberRepository.count() > 0) {
             return;
         }

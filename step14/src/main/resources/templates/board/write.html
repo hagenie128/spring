@@ -1,4 +1,23 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+  [게시글 작성 화면]
+  PostController.postForm()  → GET  /board/new
+  PostController.postWrite() → POST /board/new
+
+  [enctype="multipart/form-data"]
+    파일 첨부를 위해 반드시 필요 (없으면 MultipartFile 을 받을 수 없음)
+
+  [Quill 에디터]
+    - 화면에는 #quill-editor div 에 리치 텍스트 에디터가 표시됩니다.
+    - 제출 시 JavaScript 가 quill.getSemanticHTML() 로 HTML 을 뽑아
+      hidden input #content 에 넣어 서버로 전송합니다.
+    - th:field="*{content}" → PostFormDTO.content 와 연결
+
+  [name="files" multiple]
+    AttachmentService.saveFiles() 의 MultipartFile[] files 와 연결
+================================================================================
+-->
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
 
 <head>
@@ -9,6 +28,7 @@
 
 <body>
   <section>
+    <!-- Quill CDN : CSS(스타일) + JS(에디터 동작) -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <h2 th:text="${postId != null} ? '게시글 수정' : '게시글 작성'"></h2>
@@ -19,17 +39,17 @@
         <input type="text" placeholder="제목을 입력하세요" th:field="*{title}">
         <div th:errors="*{title}"></div>
       </div>
-      <!-- Quill 에디터, 내용 -->
+      <!-- Quill 에디터 + hidden content (실제 서버로 넘어가는 값) -->
       <div>
         <div id="quill-editor"></div>
         <input type="hidden" th:field="*{content}">
       </div>
-      <!-- 첨부파일 -->
+      <!-- 첨부파일 (여러 개 선택 가능) -->
       <div>
         <label>파일첨부</label>
         <input type="file" name="files" multiple>
       </div>
-      <!-- 수정 모드일때 첨부 파일 삭제 -->
+      <!-- 수정 모드일 때만 기존 첨부파일 목록 + 삭제 (추후 구현) -->
       <div th:if="${postId != null and attachments != null and !attachments.isEmpty() }">
         <ul>
           <li th:each="att : ${attachments}">
@@ -45,42 +65,35 @@
       <a href="javascript:history.back();">뒤로 가기</a>
     </form>
     <script>
+      // Quill 툴바 버튼 구성 (굵게, 기울임, 링크, 이미지 등)
       const toolbarOptions = [
-        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+        ['bold', 'italic', 'underline', 'strike'],
         ['blockquote', 'code-block'],
         ['link', 'image', 'video', 'formula'],
-
-        [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        [{ 'header': 1 }, { 'header': 2 }],
         [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-        [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-        [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-        [{ 'direction': 'rtl' }],                         // text direction
-
-        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+        [{ 'script': 'sub' }, { 'script': 'super' }],
+        [{ 'indent': '-1' }, { 'indent': '+1' }],
+        [{ 'direction': 'rtl' }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+        [{ 'color': [] }, { 'background': [] }],
         [{ 'font': [] }],
         [{ 'align': [] }],
-
-        ['clean']                                         // remove formatting button
+        ['clean']
       ];
 
       window.onload = () => {
         const quill = new Quill('#quill-editor', {
-          modules: {
-            toolbar: toolbarOptions
-          },
+          modules: { toolbar: toolbarOptions },
           theme: 'snow'
         });
-        document.querySelector("form").onsubmit = (e) => {
-          //e.preventDefault();
-          console.log(quill.getContents());
-          console.log(quill.getText());
-          console.log(quill.getSemanticHTML());
+
+        // 폼 제출 직전: Quill 내용 → hidden input(#content) 에 복사
+        document.querySelector("form").onsubmit = () => {
           document.querySelector("#content").value = quill.getSemanticHTML();
-        }
-      }
+        };
+      };
     </script>
   </section>
 </body>

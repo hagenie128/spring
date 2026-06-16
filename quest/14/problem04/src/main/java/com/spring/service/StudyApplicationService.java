@@ -32,59 +32,27 @@ public class StudyApplicationService {
     // TODO problem03-8,9: 스터디 신청 생성
     @Transactional
     public StudyApplication apply(Long studyId, Long applicantId, String message) {
-        StudyRecruit study = studyRecruitRepository.findById(studyId)
-                .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
-        if (study.getStatus() == RecruitStatus.CLOSED) {
-            throw new IllegalStateException("마감된 스터디에는 신청할 수 없습니다.");
-        }
-
-        Member applicant = memberRepository.findById(applicantId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-
-        applicationRepository.findByStudyRecruitAndApplicant(study, applicant)
-                .ifPresent(existing -> {
-                    throw new IllegalStateException("이미 신청한 스터디입니다.");
-                });
-
-        StudyApplication application = new StudyApplication();
-        application.setStudyRecruit(study);
-        application.setApplicant(applicant);
-        application.setMessage(message);
-        return applicationRepository.save(application);
+        throw new UnsupportedOperationException("TODO problem03-8~9");
     }
 
     // TODO problem03-10~13: 합격 처리, 정원 검사, 자동 마감
     @Transactional
     public void accept(Long applicationId) {
-        StudyApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
-        StudyRecruit study = application.getStudyRecruit();
-
-        if (application.getStatus() == ApplicationStatus.ACCEPTED) {
-            return;
-        }
-        if (study.isFull()) {
-            throw new IllegalStateException("이미 정원이 찼습니다.");
-        }
-
-        application.setStatus(ApplicationStatus.ACCEPTED);
-        study.increaseAcceptedCount();
+        throw new UnsupportedOperationException("TODO problem03-10~13");
     }
 
     @Transactional
     public void reject(Long applicationId) {
-        StudyApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
-        application.setStatus(ApplicationStatus.REJECTED);
+        throw new UnsupportedOperationException("TODO problem03-15");
     }
 
     // TODO problem04-5: 대기 신청자 목록 서비스
     public List<StudyApplication> getWaitingApplications(StudyRecruit study) {
-        return applicationRepository.findByStudyRecruitAndStatusOrderByIdAsc(study, ApplicationStatus.WAITING);
+        throw new UnsupportedOperationException("TODO problem04-5");
     }
 
     // TODO problem04-6: 합격자 목록 서비스
     public List<StudyApplication> getAcceptedApplications(StudyRecruit study) {
-        return applicationRepository.findByStudyRecruitAndStatusOrderByIdAsc(study, ApplicationStatus.ACCEPTED);
+        throw new UnsupportedOperationException("TODO problem04-6");
     }
 }

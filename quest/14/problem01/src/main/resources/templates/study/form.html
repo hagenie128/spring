@@ -9,15 +9,9 @@
 <main class="container">
     <h1>스터디 모집 등록</h1>
 
-    <!-- TODO problem02-11,12: 모집글 등록 폼 완성 -->
-    <form class="card" th:action="@{/studies}" method="post">
-        <p><input class="form-control" type="number" name="leaderId" value="1" placeholder="작성자 회원 ID"></p>
-        <p><input class="form-control" type="text" name="title" placeholder="스터디 제목"></p>
-        <p><textarea class="form-control" name="description" rows="6" placeholder="스터디 소개"></textarea></p>
-        <p><input class="form-control" type="text" name="techStack" placeholder="예: Java, Spring, JPA"></p>
-        <p><input class="form-control" type="text" name="method" placeholder="온라인/오프라인"></p>
-        <p><input class="form-control" type="number" name="capacity" min="1" placeholder="모집 정원"></p>
-        <button class="btn" type="submit">등록</button>
+    <!-- TODO problem02-11,12: 모집글 등록 폼을 작성하세요. -->
+    <form class="card" method="post">
+        <button class="btn" type="submit">저장</button>
         <a class="btn btn-secondary" th:href="@{/studies}">목록</a>
     </form>
 </main>

@@ -28,21 +28,10 @@ public class StudyInterestService {
     // TODO problem04-11: 관심 등록/취소 토글
     @Transactional
     public void toggle(Long studyId, Long memberId) {
-        StudyRecruit study = studyRecruitRepository.findById(studyId)
-                .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-
-        interestRepository.findByStudyRecruitAndMember(study, member)
-                .ifPresentOrElse(interestRepository::delete, () -> {
-                    StudyInterest interest = new StudyInterest();
-                    interest.setStudyRecruit(study);
-                    interest.setMember(member);
-                    interestRepository.save(interest);
-                });
+        throw new UnsupportedOperationException("TODO problem04-11");
     }
 
     public long count(StudyRecruit study) {
-        return interestRepository.countByStudyRecruit(study);
+        throw new UnsupportedOperationException("TODO problem04-10");
     }
 }

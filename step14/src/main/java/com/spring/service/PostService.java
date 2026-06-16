@@ -58,6 +58,10 @@ public class PostService {
 	}
 
 	@Transactional
+	/**
+	 * 게시글 새로 작성
+	 * PostFormDTO → Post 엔티티 변환 후 DB 저장, 작성자(member) 연결
+	 */
 	public Post createPost(PostFormDTO form, Member loginMember) {
 		Post post = new Post();
 		post.setTitle(form.getTitle());

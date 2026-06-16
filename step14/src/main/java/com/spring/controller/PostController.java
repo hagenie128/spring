@@ -94,12 +94,21 @@ public class PostController {
 
 	@GetMapping("/new")
 	public String postForm(@SessionAttribute(value = "loginMember", required = false) Member member, Model model) {
+		// required = false : 비로그인이어도 예외 없이 null 로 받음 → 아래에서 로그인 페이지로 보냄
 		if (member == null)
 			return "redirect:/auth/login";
 		model.addAttribute("form", new PostFormDTO());
 		return "board/write";
 	}
 
+	/**
+	 * 게시글 작성 처리
+	 *
+	 * [enctype="multipart/form-data"]  : 파일 업로드를 위해 write.html 폼에 설정
+	 * [MultipartFile[] files]        : name="files" 인 첨부파일들 (없어도 됨 → required = false)
+	 * [createPost]                   : Post 엔티티 생성·저장
+	 * [saveFiles]                    : 첨부파일 디스크 + DB 저장
+	 */
 	@PostMapping("/new")
 	public String postWrite(@Valid @ModelAttribute("form") PostFormDTO form, BindingResult bindingResult,
 			@SessionAttribute(value = "loginMember", required = false) Member loginMember,

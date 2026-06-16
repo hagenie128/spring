@@ -33,7 +33,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @Query(value = "select p from Post p join fetch p.member order by p.id desc", countQuery = "select count(p) from Post p")
   Page<Post> findAllWithPost(Pageable pageable);
 
-  /** 제목 또는 작성자 닉네임으로 검색 (페이징) */
+  /**
+   * [검색 쿼리 — 제목 또는 작성자 닉네임 LIKE 검색]
+   *
+   * :keyword 는 build.gradle 의 -parameters 옵션으로 메서드 인자명과 자동 매칭됩니다.
+   * (또는 @Param("keyword") 를 붙여도 됩니다)
+   *
+   * %:keyword% : keyword 값 앞뒤에 % 가 붙어 LIKE '%검색어%' 형태로 동작합니다.
+   */
   @Query(value = "select p from Post p join fetch p.member m "
       + "where p.title like %:keyword% or m.nickname like %:keyword% "
       + "order by p.id desc", countQuery = "select count(p) from Post p join p.member m "
