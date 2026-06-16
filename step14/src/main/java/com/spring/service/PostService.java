@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.dto.PostFormDTO;
 import com.spring.entity.Member;
@@ -28,6 +29,7 @@ import jakarta.validation.Valid;
  * - @Component 와 비슷하지만, 역할이 '비즈니스 로직'임을 나타내는 표시입니다.
  */
 @Service
+@Transactional(readOnly = true)
 public class PostService {
 
 	private final PostRepository postRepository;
@@ -55,12 +57,13 @@ public class PostService {
 		}
 	}
 
+	@Transactional
 	public Post createPost(PostFormDTO form, Member loginMember) {
 		Post post = new Post();
 		post.setTitle(form.getTitle());
 		post.setContent(form.getContent());
 		post.setMember(loginMember);
-
-		return postRepository.save(post);
+		postRepository.save(post);
+		return post;
 	}
 }

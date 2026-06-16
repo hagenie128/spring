@@ -1,5 +1,6 @@
 package com.spring.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -101,12 +103,14 @@ public class PostController {
 	@PostMapping("/new")
 	public String postWrite(@Valid @ModelAttribute("form") PostFormDTO form, BindingResult bindingResult,
 			@SessionAttribute(value = "loginMember", required = false) Member loginMember,
-			RedirectAttributes redirectAttributes) {
+			RedirectAttributes redirectAttributes, @RequestParam(value = "files", required = false) MultipartFile[] files) 
+			throws IOException {
 		if (loginMember == null)
 			return "redirect:/auth/login";
 		if (bindingResult.hasErrors())
 			return "board/write";
 		Post post = postService.createPost(form, loginMember);
+		attachmentService.saveFiles(files, post);
 		// return "redirect:/board/" + post.getId() + "/detail";
 		return "redirect:/";
 	}
