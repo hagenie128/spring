@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글</title>
+</head>
+<body>
+  <section class="detail-page">
+    <article class="post-detail-card">
+      <div class="detail-header">
+        <h2 th:text="${post.title}"></h2>
+        <a class="btn btn-ghost" href="javascript:history.back();">목록으로</a>
+      </div>
+      <div class="post-info">
+        <p>작성자 : <span th:text="${post.member.nickname}"></span></p>
+        <p>작성일 : <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+        | 조회수 : <span th:text="${post.viewCount}"></span>
+        </p>
+      </div>
+      <div class="post-content" th:utext="${post.content}"></div>
+      <!-- 첨부 파일 목록 출력 -->
+      <div class="file-list" th:if="${!attachments.isEmpty()}">
+        <h3>첨부파일</h3>
+        <p th:each="file : ${attachments}">
+          <a th:href="@{/attachments/download/{id}(id=${file.id})}" th:text="${file.originalName}"></a>
+          <span th:text="${file.fileSize}"></span>
+        </p>
+      </div>
+      <div class="post-footer">
+        <button class="reaction-btn" type="button">👍좋아요 <span>0</span></button>
+        <button class="reaction-btn" type="button">👎싫어요 <span>0</span></button>
+      </div>
+      <div class="detail-actions" th:if="${session.loginMember != null and session.loginMember.id == post.member.id}">
+        <div class="owner-actions">
+          <a class="btn btn-ghost" href="">수정</a>
+          <a class="btn btn-danger" th:href="@{/board/{id}/delete(id=${post.id})}">삭제</a>
+        </div>
+      </div>
+    </article>
+    <section class="comment-section">
+      <h3>댓글</h3>
+      <!-- 댓글 입력 폼 -->
+      <div class="comment-form-wrap" th:if="${session.loginMember != null}">
+        <form class="comment-form" th:action="@{/comments/post/{id}(id=${post.id})}" method="post"
+          th:object="${commentForm}">
+          <textarea class="comment-textarea" th:field="*{content}" placeholder="댓글을 입력해주세요"></textarea>
+          <div class="comment-form-actions">
+            <div class="field-error" th:errors="*{content}"></div>
+            <button class="btn btn-primary" type="submit">댓글 등록</button>
+          </div>
+        </form>
+      </div>
+      <div class="login-required" th:if="${session.loginMember == null}">
+        <p>로그인 하셔야 댓글일 입력하실 수 있습니다.</p>
+      </div>
+      <!-- 댓글 목록 -->
+       <div class="comment-list" id="comments">
+          <div class="empty-comments" th:if="${comments.isEmpty()}">
+            첫번째 댓글을 남겨보세요
+          </div>
+          <div class="comment-item" th:each="comment : ${comments}">
+            <ul class="comment-info">
+              <li>작성자 : <span th:text="${comment.member.nickname}"></span></li>
+              <li>작성일 : <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></li>
+              <li th:if="${session.loginMember != null and session.loginMember.id == comment.member.id}">
+                <a class="comment-delete" th:href="@{/comments/{id}/delete(id=${comment.id})}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
+              </li>
+              <li>
+                <button class="reaction-btn reaction-btn--small" type="button">👍좋아요 <span>0</span></button>
+                <button class="reaction-btn reaction-btn--small" type="button">👎싫어요 <span>0</span></button>
+              </li>
+            </ul>
+            <hr>
+            <div class="comment-content" th:text="${comment.content}"></div>
+          </div>
+       </div>
+    </section>
+  </section>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title,content)">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:replace="${title}">Document</title>
+  <link rel="stylesheet" th:href="@{/css/board.css}">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <a class="site-logo" th:href="@{/board}">Spring 게시판</a>
+    <div class="site-nav__actions">
+      <!-- 로그인 상태 -->
+      <th:block th:if="${session.loginMember != null}">
+        <p class="login-status"><span th:text="${session.loginMember.nickname}"></span>님 로그인 하셨습니다.</p>
+        <a class="nav-link nav-link--logout" th:href="@{/auth/logout}">로그아웃</a>
+      </th:block>
+      <!-- 비로그인 상태 -->
+      <th:block th:if="${session.loginMember == null}">
+        <a class="nav-link" th:href="@{/auth/login}">로그인</a>
+        <a class="nav-link nav-link--primary" th:href="@{/auth/register}">회원가입</a>
+      </th:block>
+    </div>
+  </nav>
+  <div class="container">
+    <!-- 플래시 메세지 출력부분 -->
+    <div class="flash-message" th:if="${message}">
+      <span th:text="${message}"></span>
+      <!-- 플래시 메세지 닫기 버튼 -->
+      <button type="button" class="btn-close" aria-label="메시지 닫기"></button>
+    </div>
+    <th:block th:replace="${content}"></th:block>
+  </div>
+  <footer class="site-footer">
+    <small>Spring Boot + JPA + Thymeleaf + Quill 게시판 실습</small>
+  </footer>
+</body>
+
+</html>

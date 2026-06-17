@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${postId != null} ? '게시글 수정' : '게시글 작성'">Document</title>
+</head>
+<body>
+  <section class="write-page">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <div class="write-header">
+      <h2 th:text="${postId != null} ? '게시글 수정' : '게시글 작성'"></h2>
+      <a class="btn btn-ghost" th:href="@{/board}">목록으로</a>
+    </div>
+    <form class="post-form" th:action="${postId != null} ? @{/board/{id}/edit(id=${postId})} : @{/board/new}" method="post" enctype="multipart/form-data" th:object="${form}">
+      <!-- 제목 -->
+       <div class="form-group">
+         <label for="title">제목</label>
+         <input class="form-control post-title-input" type="text" placeholder="제목을 입력하세요" th:field="*{title}">
+         <div class="field-error" th:errors="*{title}"></div>
+        </div>
+      <!-- Quill 에디터, 내용 -->
+      <div class="form-group">
+        <label for="quill-editor">내용</label>
+        <div id="quill-editor"></div>
+        <input type="hidden" th:field="*{content}">
+        <div class="field-error" th:errors="*{content}"></div>
+      </div>
+      <!-- 첨부파일 -->
+       <div class="form-group file-field">
+          <label>파일첨부</label>
+          <input class="file-input" type="file" name="files" multiple>
+       </div>
+       <!-- 수정 모드일때 첨부 파일 삭제 -->
+        <div class="attachment-panel" th:if="${postId != null and attachments != null and !attachments.isEmpty() }">
+          <h3>첨부파일</h3>
+          <ul class="attachment-list">
+            <li th:each="att : ${attachments}">
+              <span th:text="${att.originFileName}"></span>
+              <form th:action="@{/attachments/{id}/delete(id=${att.id})}" method="post"
+              onsubmit="return confirm('정말로 파일을 삭제하시겠습니까?')">
+                <button class="btn btn-danger" type="submit">삭제</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <div class="write-actions">
+          <button class="btn btn-primary" type="submit" th:text="${postId != null} ? '수정하기' : '등록하기'"></button>
+          <button class="btn btn-ghost" type="button" onclick="history.back();">취소</button>
+        </div>
+    </form>
+    <script>
+	const toolbarOptions = [
+		  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+		  ['blockquote', 'code-block'],
+		  ['link', 'image', 'video', 'formula'],
+	
+		  [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+		  [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+		  [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+		  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+		  [{ 'direction': 'rtl' }],                         // text direction
+	
+		  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+		  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+	
+		  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+		  [{ 'font': [] }],
+		  [{ 'align': [] }],
+	
+		  ['clean']                                         // remove formatting button
+		];
+
+	window.onload = () => {
+		const quill = new Quill('#quill-editor', {
+			modules: {
+			    toolbar: toolbarOptions
+			  },
+		    theme: 'snow'
+		  });
+		document.querySelector(".post-form").onsubmit = (e) => {
+			//e.preventDefault();
+			console.log(quill.getContents());
+			console.log(quill.getText());
+			console.log(quill.getSemanticHTML());
+			document.querySelector("#content").value = quill.getSemanticHTML();  
+		}
+	}
+</script>
+  </section>
+</body>
+</html>

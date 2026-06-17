@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// TODO frontend-1: baseURL, timeout 등 Axios 기본 설정을 작성하세요.
+// TODO frontend-1: axios.create()로 baseURL이 "http://localhost:8080/api"인 HTTP 인스턴스를 만드세요.
 const http = axios.create({
   baseURL: "http://localhost:8080/api",
 });
