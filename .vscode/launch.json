@@ -1,44 +1,54 @@
 {
     "configurations": [
-        {
-            "type": "java",
-            "name": "Spring Boot-Step13BootJpaJoinApplication<step13-boot-jpa-join>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "com.spring.Step13BootJpaJoinApplication",
-            "projectName": "step13-boot-jpa-join",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        },
-        {
-            "type": "java",
-            "name": "Spring Boot-Problem01Application<quest12-problem01-problem01>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "com.spring.Problem01Application",
-            "projectName": "quest12-problem01-problem01",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        },
-        {
-            "type": "java",
-            "name": "Spring Boot-Problem02Application<quest12-problem02-problem02>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "com.spring.Problem02Application",
-            "projectName": "quest12-problem02-problem02",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        },
-        {
-            "type": "java",
-            "name": "Spring Boot-Step14Application<step14>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "com.spring.Step14Application",
-            "projectName": "step14",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        }
+      {
+        "type": "java",
+        "name": "Spring Boot-Step13BootJpaJoinApplication<step13-boot-jpa-join>",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.spring.Step13BootJpaJoinApplication",
+        "projectName": "step13-boot-jpa-join",
+        "args": "",
+        "envFile": "${workspaceFolder}/.env"
+      },
+      {
+        "type": "java",
+        "name": "Spring Boot-Problem01Application<quest12-problem01-problem01>",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.spring.Problem01Application",
+        "projectName": "quest12-problem01-problem01",
+        "args": "",
+        "envFile": "${workspaceFolder}/.env"
+      },
+      {
+        "type": "java",
+        "name": "Spring Boot-Problem02Application<quest12-problem02-problem02>",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.spring.Problem02Application",
+        "projectName": "quest12-problem02-problem02",
+        "args": "",
+        "envFile": "${workspaceFolder}/.env"
+      },
+      {
+        "type": "java",
+        "name": "Spring Boot-Step14Application<step14>",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.spring.Step14Application",
+        "projectName": "step14",
+        "args": "",
+        "envFile": "${workspaceFolder}/.env"
+      },
+      {
+        "type": "java",
+        "name": "Spring Boot-Step14BoardJpaApplication<step14-board-jpa>",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.spring.Step14BoardJpaApplication",
+        "projectName": "step14-board-jpa",
+        "args": "",
+        "envFile": "${workspaceFolder}/.env"
+      }
     ]
 }

@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1e3a5f">
+  <title>Step14 - Spring Boot JPA 게시판 학습 가이드</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --muted: #5a6270;
+      --accent: #2563eb;
+      --accent-light: #dbeafe;
+      --border: #e2e8f0;
+      --code-bg: #1e293b;
+      --code-text: #e2e8f0;
+      --tip-bg: #ecfdf5;
+      --tip-border: #10b981;
+      --warn-bg: #fffbeb;
+      --warn-border: #f59e0b;
+      --trend-bg: #f5f3ff;
+      --trend-border: #8b5cf6;
+      --nav-h: 52px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 16px;
+      padding-bottom: calc(24px + var(--safe-bottom));
+    }
+    /* 상단 고정 헤더 */
+    .top-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: #1e3a5f;
+      color: #fff;
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .top-bar h1 { font-size: 1rem; font-weight: 700; line-height: 1.4; }
+    .top-bar p { font-size: 0.8rem; opacity: .85; margin-top: 2px; }
+    /* 목차 토글 버튼 */
+    .toc-toggle {
+      display: block; width: 100%;
+      background: var(--accent); color: #fff; border: none;
+      padding: 14px 16px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.2);
+    }
+    .toc-toggle::after { content: " ▼"; float: right; font-size: 0.75rem; }
+    .toc-toggle.open::after { content: " ▲"; }
+    /* 목차 패널 */
+    .toc-panel {
+      display: none; background: #fff;
+      border-bottom: 2px solid var(--border);
+      max-height: 60vh; overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .toc-panel.open { display: block; }
+    .toc-panel a {
+      display: block; padding: 12px 16px;
+      color: var(--accent); text-decoration: none;
+      font-size: 0.9rem; border-bottom: 1px solid var(--border);
+    }
+    .toc-panel a:active { background: var(--accent-light); }
+    .toc-panel .toc-sub { padding-left: 28px; font-size: 0.85rem; color: var(--muted); }
+    /* 본문 */
+    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+    section {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    h2 {
+      font-size: 1.2rem; color: #1e3a5f;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px; margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    h3 { font-size: 1.05rem; margin: 20px 0 10px; color: #334155; }
+    h4 { font-size: 0.95rem; margin: 16px 0 8px; color: #475569; }
+    p { margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    /* 테이블 — 모바일 가로 스크롤 */
+    .table-wrap {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      margin: 12px 0; border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 280px; }
+    th { background: #1e3a5f; color: #fff; padding: 10px 12px; text-align: left; white-space: nowrap; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    /* 코드 */
+    pre {
+      background: var(--code-bg); color: var(--code-text);
+      padding: 14px; border-radius: 8px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      font-size: 0.8rem; line-height: 1.6;
+      margin: 12px 0; white-space: pre; tab-size: 2;
+    }
+    code {
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 0.85em;
+    }
+    p code, li code, td code {
+      background: #e2e8f0; color: #1e293b;
+      padding: 2px 6px; border-radius: 4px;
+    }
+    /* 박스 */
+    .box {
+      border-radius: 8px; padding: 14px 16px;
+      margin: 14px 0; font-size: 0.9rem;
+    }
+    .box-tip { background: var(--tip-bg); border-left: 4px solid var(--tip-border); }
+    .box-warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); }
+    .box-trend { background: var(--trend-bg); border-left: 4px solid var(--trend-border); }
+    .box strong { display: block; margin-bottom: 6px; }
+    /* 흐름도 */
+    .flow {
+      background: #f1f5f9; border-radius: 8px;
+      padding: 14px; font-family: monospace;
+      font-size: 0.8rem; line-height: 1.8;
+      overflow-x: auto; white-space: pre;
+    }
+    /* 단계 뱃지 */
+    .step-badge {
+      display: inline-block; background: var(--accent);
+      color: #fff; font-size: 0.75rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+    }
+    /* 맨 위로 */
+    .back-top {
+      position: fixed; bottom: calc(16px + var(--safe-bottom)); right: 16px;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--accent); color: #fff; border: none;
+      font-size: 1.2rem; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37,99,235,.4);
+      display: none; z-index: 99;
+    }
+    .back-top.show { display: block; }
+    @media (min-width: 768px) {
+      body { font-size: 17px; }
+      .container { padding: 24px; }
+      section { padding: 28px 24px; }
+      h2 { font-size: 1.4rem; }
+      .toc-panel { display: block !important; max-height: none; }
+      .toc-toggle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1>Step14 — Spring Boot JPA 게시판</h1>
+  <p>2026-06-17 수업 복습 · 모바일 학습 가이드</p>
+</header>
+
+<button class="toc-toggle" id="tocBtn" onclick="toggleToc()">📋 목차 보기</button>
+<nav class="toc-panel" id="tocPanel">
+  <a href="#intro">시작하기 — 수업 못 들었을 때</a>
+  <a href="#file-order" class="toc-sub">파일 읽는 순서 (25단계)</a>
+  <a href="#overview">오늘 배운 핵심 기능</a>
+  <a href="#config">설정 파일 해설</a>
+  <a href="#code-detail">코드 상세 해설 (0-2)</a>
+  <a href="#entity">JPA 엔티티 &amp; 연관관계</a>
+  <a href="#repo">Repository</a>
+  <a href="#transactional">@Transactional</a>
+  <a href="#paging">페이징</a>
+  <a href="#session">세션 인증</a>
+  <a href="#file-upload">파일 업로드</a>
+  <a href="#viewcount">조회수 중복 방지</a>
+  <a href="#bcrypt">BCrypt 암호화</a>
+  <a href="#reaction">좋아요/싫어요 준비</a>
+  <a href="#controllers">컨트롤러별 로직</a>
+  <a href="#thymeleaf">Thymeleaf 문법</a>
+  <a href="#flow">전체 흐름 요약</a>
+  <a href="#run">실행 방법</a>
+  <a href="#errors">자주 나오는 에러</a>
+  <a href="#beginner">🎓 초보자 선생님 팁</a>
+  <a href="#trends">🚀 요즘 개발 트렌드</a>
+</nav>
+
+<main class="container">
+
+<!-- INTRO -->
+<section id="intro">
+  <h2>시작하기 — 수업 못 들었을 때</h2>
+  <p>오늘(2026-06-17) 수업에서 만든 <strong>JPA 기반 게시판</strong> 프로젝트 복습 가이드입니다. 수업을 못 들었다면 아래 순서대로 파일을 읽으면 전체 흐름을 파악할 수 있습니다.</p>
+  <div class="box box-tip">
+    <strong>💡 선생님 한마디</strong>
+    Spring Boot 게시판은 "브라우저 → Controller → Service → Repository → DB" 순서로 요청이 흐릅니다. 처음엔 어렵게 느껴지지만, 이 5단계만 머릿속에 그려두면 나머지는 "각 계층이 뭘 하는지"만 채우면 됩니다.
+  </div>
+</section>
+
+<!-- FILE ORDER -->
+<section id="file-order">
+  <h2>파일 읽는 순서</h2>
+
+  <span class="step-badge">1단계</span>
+  <h3>설정 파일 이해</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>1</td><td><code>build.gradle</code></td><td>의존성 구성 (JPA, Thymeleaf, Validation, Security-Crypto, MySQL)</td></tr>
+    <tr><td>2</td><td><code>application.properties</code></td><td>DB 연결, JPA 설정, 파일 업로드 설정</td></tr>
+  </table></div>
+
+  <span class="step-badge">2단계</span>
+  <h3>엔티티(Entity) — DB 테이블과 매핑되는 클래스</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>3</td><td><code>entity/Member.java</code></td><td>@Entity, @Id, @GeneratedValue, @Column, @PrePersist</td></tr>
+    <tr><td>4</td><td><code>entity/Post.java</code></td><td>@ManyToOne(LAZY), @OneToMany(mappedBy, cascade, orphanRemoval)</td></tr>
+    <tr><td>5</td><td><code>entity/Comment.java</code></td><td>다대일(N:1) 양방향 연관관계 (Post ↔ Comment)</td></tr>
+    <tr><td>6</td><td><code>entity/Attachment.java</code></td><td>파일 메타데이터 저장, N:1 연관 (Post ↔ Attachment)</td></tr>
+    <tr><td>6-1</td><td><code>entity/ReactionType.java</code></td><td>좋아요/싫어요 값을 Enum으로 제한</td></tr>
+    <tr><td>6-2</td><td><code>entity/PostReaction.java</code></td><td>게시글 좋아요/싫어요 테이블 설계</td></tr>
+    <tr><td>6-3</td><td><code>entity/CommentReaction.java</code></td><td>댓글 좋아요/싫어요 테이블 설계</td></tr>
+  </table></div>
+
+  <span class="step-badge">3단계</span>
+  <h3>Repository — DB 접근 계층</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>7</td><td><code>repository/PostRepository.java</code></td><td>@Query JPQL, 페치 조인, 페이징(Page), N+1 문제 해결</td></tr>
+    <tr><td>8</td><td><code>repository/CommentRepository.java</code></td><td>@Query vs 메서드명 기반 쿼리 두 가지 방법 비교</td></tr>
+    <tr><td>8-1</td><td><code>repository/PostReactionRepository.java</code></td><td>게시글 반응 CRUD 준비</td></tr>
+    <tr><td>8-2</td><td><code>repository/CommentReactionRepository.java</code></td><td>댓글 반응 CRUD 준비</td></tr>
+  </table></div>
+
+  <span class="step-badge">4단계</span>
+  <h3>DTO — 화면과 서버 간 데이터 전송 객체</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>9</td><td><code>dto/MemberDTO.java</code></td><td>회원가입 폼 DTO, @NotBlank, @Size 유효성 검증</td></tr>
+    <tr><td>10</td><td><code>dto/PostFormDTO.java</code></td><td>게시글 작성 폼 DTO</td></tr>
+    <tr><td>11</td><td><code>dto/CommentFormDTO.java</code></td><td>댓글 입력 폼 DTO</td></tr>
+  </table></div>
+
+  <span class="step-badge">5단계</span>
+  <h3>Service — 비즈니스 로직</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>12</td><td><code>service/MemberService.java</code></td><td>BCrypt 암호화, 로그인 인증, 중복 체크</td></tr>
+    <tr><td>13</td><td><code>service/PostService.java</code></td><td>@Transactional, readOnly, 게시글 CRUD, 조회수 업데이트</td></tr>
+    <tr><td>14</td><td><code>service/CommentService.java</code></td><td>댓글 CRUD, 서비스 계층의 역할</td></tr>
+    <tr><td>15</td><td><code>service/AttachmentService.java</code></td><td>UUID 파일명 변환, Files.copy(), 물리 파일 저장</td></tr>
+    <tr><td>15-1</td><td><code>service/PostReactionService.java</code></td><td>게시글 반응 로직을 넣기 위한 서비스 뼈대</td></tr>
+    <tr><td>15-2</td><td><code>service/CommentReactionService.java</code></td><td>댓글 반응 로직을 넣기 위한 서비스 뼈대</td></tr>
+  </table></div>
+
+  <span class="step-badge">6단계</span>
+  <h3>Controller — HTTP 요청/응답 처리</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>16</td><td><code>controller/AuthController.java</code></td><td>회원가입/로그인/로그아웃, 세션(HttpSession), FlashAttribute</td></tr>
+    <tr><td>17</td><td><code>controller/PostController.java</code></td><td>게시글 CRUD, ModelAndView, 페이징, 조회수 HashSet 중복 방지</td></tr>
+    <tr><td>18</td><td><code>controller/CommentController.java</code></td><td>댓글 등록/삭제, 앵커(#comments) 리다이렉트</td></tr>
+  </table></div>
+
+  <span class="step-badge">7단계</span>
+  <h3>화면 (Thymeleaf 템플릿)</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>19</td><td><code>templates/layout/base.html</code></td><td>공통 레이아웃 (th:fragment, th:replace)</td></tr>
+    <tr><td>20</td><td><code>templates/auth/register.html</code></td><td>회원가입 폼, th:errors 에러 메시지 출력</td></tr>
+    <tr><td>21</td><td><code>templates/auth/login.html</code></td><td>로그인 폼, FlashAttribute 에러 메시지</td></tr>
+    <tr><td>22</td><td><code>templates/board/list.html</code></td><td>게시글 목록, 검색, 페이징 (th:each, #numbers.sequence)</td></tr>
+    <tr><td>23</td><td><code>templates/board/detail.html</code></td><td>게시글 상세, 댓글 목록, 댓글 입력 폼</td></tr>
+    <tr><td>24</td><td><code>templates/board/write.html</code></td><td>게시글 작성, 파일 첨부 (enctype="multipart/form-data")</td></tr>
+  </table></div>
+
+  <span class="step-badge">8단계</span>
+  <h3>초기 데이터</h3>
+  <div class="table-wrap"><table>
+    <tr><th>순서</th><th>파일</th><th>핵심 내용</th></tr>
+    <tr><td>25</td><td><code>DataInitializer.java</code></td><td>CommandLineRunner, BCrypt 암호화, 테스트 데이터 생성 패턴</td></tr>
+  </table></div>
+</section>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <h2>오늘 배운 핵심 기능</h2>
+  <h3>0. 오늘 추가된 코드와 역할 한눈에 보기</h3>
+  <p>오늘 프로젝트는 단순 게시판에서 한 단계 확장해서 <strong>회원, 게시글, 댓글, 첨부파일, 반응 기능의 테이블 설계</strong>까지 이어지는 구조입니다. 아직 화면에서 좋아요/싫어요 버튼을 누르는 전체 로직은 완성 전이고, 반응 관련 코드는 DB 설계와 확장 준비 단계로 보면 됩니다.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>영역</th><th>추가/사용 파일</th><th>역할</th></tr>
+    <tr><td>실행 진입점</td><td><code>Step14BoardJpaApplication.java</code></td><td>Spring Boot 애플리케이션 시작 클래스</td></tr>
+    <tr><td>의존성</td><td><code>build.gradle</code></td><td>JPA, Thymeleaf, Validation, Web, BCrypt, MySQL, Lombok 사용 설정</td></tr>
+    <tr><td>환경 설정</td><td><code>application.properties</code></td><td>DB 연결, JPA 테이블 생성 전략, 서버 포트, 파일 업로드 크기/경로 설정</td></tr>
+    <tr><td>회원</td><td>Member, MemberDTO, MemberRepository, MemberService, AuthController</td><td>회원가입, 로그인, 로그아웃, 비밀번호 암호화, 세션 저장</td></tr>
+    <tr><td>게시글</td><td>Post, PostFormDTO, PostRepository, PostService, PostController</td><td>글 목록/검색/상세/작성/삭제, 조회수 증가, 페이징</td></tr>
+    <tr><td>댓글</td><td>Comment, CommentFormDTO, CommentRepository, CommentService, CommentController</td><td>게시글별 댓글 조회, 댓글 등록, 댓글 삭제</td></tr>
+    <tr><td>첨부파일</td><td>Attachment, AttachmentRepository, AttachmentService</td><td>업로드 파일을 서버 디스크에 저장하고 DB에는 파일 정보만 저장</td></tr>
+    <tr><td>반응</td><td>ReactionType, PostReaction, CommentReaction, 각 ReactionRepository/Service</td><td>좋아요/싫어요 기능을 위한 테이블과 서비스 구조 준비</td></tr>
+    <tr><td>화면</td><td>templates/layout, templates/auth, templates/board</td><td>Thymeleaf로 서버에서 HTML 생성</td></tr>
+    <tr><td>스타일</td><td><code>static/css/board.css</code></td><td>게시판 화면 스타일</td></tr>
+    <tr><td>테스트 데이터</td><td><code>DataInitializer.java</code></td><td>샘플 회원/게시글/댓글/첨부파일 데이터 생성</td></tr>
+  </table></div>
+
+  <h4>전체 요청 흐름</h4>
+  <div class="flow">브라우저
+  → Controller: URL 요청을 받음
+  → DTO: 폼 데이터를 담고 검증함
+  → Service: 실제 업무 규칙을 처리함
+  → Repository: DB에 접근함
+  → Entity: DB 테이블과 매핑되는 객체
+  → Thymeleaf: 서버 데이터를 HTML로 렌더링
+  → 브라우저</div>
+
+  <h4>왜 이렇게 계층을 나누는가?</h4>
+  <div class="table-wrap"><table>
+    <tr><th>계층</th><th>맡는 일</th><th>여기에 두면 좋은 코드</th></tr>
+    <tr><td>Controller</td><td>요청/응답 처리</td><td>URL 매핑, 로그인 체크, Model에 데이터 담기, redirect</td></tr>
+    <tr><td>DTO</td><td>화면 입력값 운반</td><td>제목/내용/댓글/회원가입 입력값, @NotBlank, @Size</td></tr>
+    <tr><td>Service</td><td>핵심 로직 처리</td><td>회원 중복 확인, 비밀번호 암호화, 글 저장, 조회수 증가, 파일 저장</td></tr>
+    <tr><td>Repository</td><td>DB 접근</td><td>findById, save, deleteById, 검색 쿼리</td></tr>
+    <tr><td>Entity</td><td>DB 테이블 구조</td><td>컬럼, PK, FK, 연관관계, 생성/수정 시간 자동 세팅</td></tr>
+  </table></div>
+</section>
+
+<!-- CONFIG -->
+<section id="config">
+  <h2>0-1. 설정 파일에 추가된 코드 의미</h2>
+  <h3>build.gradle</h3>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>spring-boot-starter-web</code></td><td>Controller, URL 매핑, 내장 톰캣, MVC 기능 사용</td></tr>
+    <tr><td><code>spring-boot-starter-thymeleaf</code></td><td>서버에서 HTML 템플릿을 렌더링</td></tr>
+    <tr><td><code>spring-boot-starter-data-jpa</code></td><td>Entity, Repository, JpaRepository, JPQL 사용</td></tr>
+    <tr><td><code>spring-boot-starter-validation</code></td><td>DTO의 @NotBlank, @Size 같은 검증 어노테이션 사용</td></tr>
+    <tr><td><code>spring-security-crypto</code></td><td>전체 Spring Security 로그인 기능은 쓰지 않고, BCrypt 비밀번호 암호화 기능만 사용</td></tr>
+    <tr><td><code>mysql-connector-j</code></td><td>Spring Boot가 MySQL DB에 접속할 수 있게 해주는 드라이버</td></tr>
+    <tr><td><code>lombok</code></td><td>@Getter, @Setter, @NoArgsConstructor 등 반복 코드를 자동 생성</td></tr>
+    <tr><td><code>options.compilerArgs &lt;&lt; '-parameters'</code></td><td>컨트롤러 파라미터 이름 인식을 안정적으로 하도록 컴파일 옵션 추가</td></tr>
+  </table></div>
+
+  <h3>application.properties</h3>
+  <div class="table-wrap"><table>
+    <tr><th>설정</th><th>의미</th></tr>
+    <tr><td><code>server.port=8888</code></td><td>애플리케이션 실행 포트를 8888로 변경</td></tr>
+    <tr><td><code>spring.datasource.url</code></td><td>접속할 MySQL DB 주소와 DB 이름 지정</td></tr>
+    <tr><td><code>spring.datasource.username/password</code></td><td>DB 접속 계정</td></tr>
+    <tr><td><code>spring.jpa.hibernate.ddl-auto=create</code></td><td>실행할 때마다 기존 테이블을 지우고 새로 생성. 학습용으로는 편하지만 데이터가 매번 삭제됨</td></tr>
+    <tr><td><code>spring.jpa.show-sql=true</code></td><td>JPA가 실행하는 SQL을 콘솔에 출력</td></tr>
+    <tr><td><code>spring.jpa.properties.hibernate.format_sql=true</code></td><td>SQL을 줄바꿈해서 보기 좋게 출력</td></tr>
+    <tr><td><code>spring.thymeleaf.cache=false</code></td><td>HTML 수정 후 서버 재시작 없이 변경 확인하기 쉽게 캐시 끔</td></tr>
+    <tr><td><code>spring.servlet.multipart.max-file-size=10MB</code></td><td>파일 1개 최대 업로드 크기</td></tr>
+    <tr><td><code>spring.servlet.multipart.max-request-size=100MB</code></td><td>요청 1번에 포함될 수 있는 전체 업로드 용량</td></tr>
+    <tr><td><code>app.upload.dir=uploads</code></td><td>실제 파일이 저장될 서버 폴더</td></tr>
+  </table></div>
+  <div class="box box-warn">
+    <strong>⚠️ 복습 포인트</strong>
+    <code>ddl-auto=create</code>는 실행할 때마다 테이블을 새로 만들기 때문에, 저장된 게시글/회원이 사라지는 것이 정상입니다. 데이터를 유지하려면 <code>update</code>로 바꿉니다.
+  </div>
+</section>
+
+<!-- CODE DETAIL -->
+<section id="code-detail">
+  <h2>0-2. 사용된 코드 상세 해설</h2>
+
+  <h3>1. Spring Boot 시작 코드</h3>
+  <pre><code>@SpringBootApplication
+public class Step14BoardJpaApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(Step14BoardJpaApplication.class, args);
+  }
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@SpringBootApplication</code></td><td>Spring Boot 시작 설정. 내부적으로 @Configuration, @EnableAutoConfiguration, @ComponentScan 역할을 함께 함</td></tr>
+    <tr><td><code>SpringApplication.run(...)</code></td><td>내장 톰캣을 띄우고, Controller/Service/Repository 같은 Bean을 찾아 등록한 뒤 애플리케이션 실행</td></tr>
+    <tr><td>ComponentScan</td><td><code>com.spring</code> 패키지 아래의 @Controller, @Service, @Repository, @Component를 자동으로 찾음</td></tr>
+  </table></div>
+
+  <h3>2. DTO 검증 코드</h3>
+  <p>DTO는 HTML 폼에서 넘어온 값을 Entity에 바로 넣지 않고, 중간에서 검증하고 운반하는 객체입니다.</p>
+  <pre><code>@NotBlank(message = "제목을 입력해주세요.")
+@Size(max = 200, message = "제목은 200자 이하로 입력해 주세요.")
+private String title;</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@NotBlank</code></td><td>null, 빈 문자열, 공백 문자열을 허용하지 않음</td></tr>
+    <tr><td><code>@Size(max = 200)</code></td><td>글자 수 제한. DB 컬럼 길이와 맞춰주면 안전함</td></tr>
+    <tr><td><code>message</code></td><td>검증 실패 시 Thymeleaf의 th:errors로 출력할 메시지</td></tr>
+  </table></div>
+  <p>컨트롤러에서는 이렇게 검증합니다.</p>
+  <pre><code>public String postNew(@Valid @ModelAttribute("form") PostFormDTO form,
+    BindingResult bindingResult) {
+  if (bindingResult.hasErrors()) {
+    return "board/write";
+  }
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@Valid</code></td><td>DTO의 검증 어노테이션을 실행</td></tr>
+    <tr><td><code>@ModelAttribute("form")</code></td><td>HTML form 데이터를 PostFormDTO 객체에 바인딩하고, 뷰에서도 form 이름으로 사용</td></tr>
+    <tr><td><code>BindingResult</code></td><td>검증 실패 정보를 담는 객체</td></tr>
+    <tr><td><code>bindingResult.hasErrors()</code></td><td>입력값 오류가 있으면 DB 저장하지 않고 다시 폼 화면으로 이동</td></tr>
+  </table></div>
+  <div class="box box-warn">
+    <strong>⚠️ 중요</strong>
+    BindingResult는 반드시 @Valid가 붙은 파라미터 <strong>바로 뒤</strong>에 와야 합니다. 사이에 다른 파라미터가 끼면 검증 에러를 제대로 받지 못할 수 있습니다.
+  </div>
+
+  <h3>3. Entity 기본 코드</h3>
+  <pre><code>@Entity
+@Table(name = "post")
+public class Post {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@Entity</code></td><td>이 클래스가 DB 테이블과 매핑되는 JPA 엔티티임을 표시</td></tr>
+    <tr><td><code>@Table(name = "post")</code></td><td>실제 DB 테이블명을 post로 지정</td></tr>
+    <tr><td><code>@Id</code></td><td>기본키(PK) 컬럼</td></tr>
+    <tr><td><code>@GeneratedValue(strategy = GenerationType.IDENTITY)</code></td><td>MySQL의 AUTO_INCREMENT 방식으로 PK 자동 증가</td></tr>
+  </table></div>
+  <pre><code>@Column(nullable = false, columnDefinition = "TEXT")
+private String content;</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>nullable = false</code></td><td>DB 컬럼에 NOT NULL 제약 추가</td></tr>
+    <tr><td><code>columnDefinition = "TEXT"</code></td><td>긴 게시글 본문을 저장하기 위해 DB 컬럼 타입을 TEXT로 지정</td></tr>
+  </table></div>
+
+  <h3>4. 연관관계 코드</h3>
+  <p>게시글 여러 개는 회원 한 명이 작성할 수 있으므로 Post → Member는 N:1입니다.</p>
+  <pre><code>@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "member_id", nullable = false)
+private Member member;</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@ManyToOne</code></td><td>여러 게시글이 한 회원을 참조하는 다대일 관계</td></tr>
+    <tr><td><code>fetch = FetchType.LAZY</code></td><td>연관된 회원을 당장 조회하지 않고, 실제 사용할 때 조회</td></tr>
+    <tr><td><code>@JoinColumn(name = "member_id")</code></td><td>post 테이블에 생길 FK 컬럼명 지정</td></tr>
+  </table></div>
+  <p>게시글 하나에는 댓글 여러 개가 달릴 수 있으므로 Post → Comment는 1:N입니다.</p>
+  <pre><code>@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+private List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@OneToMany</code></td><td>게시글 하나가 댓글 여러 개를 가짐</td></tr>
+    <tr><td><code>mappedBy = "post"</code></td><td>FK 관리는 Comment 엔티티의 post 필드가 담당한다는 뜻</td></tr>
+    <tr><td><code>cascade = CascadeType.ALL</code></td><td>게시글 삭제 시 댓글도 함께 삭제</td></tr>
+    <tr><td><code>orphanRemoval = true</code></td><td>부모와 연결이 끊긴 댓글을 DB에서도 삭제</td></tr>
+    <tr><td><code>new ArrayList&lt;&gt;()</code></td><td>NullPointerException 방지를 위해 컬렉션을 미리 초기화</td></tr>
+  </table></div>
+
+  <h3>5. 생성/수정 시간 자동 입력</h3>
+  <pre><code>@PrePersist
+public void onCreate() {
+  this.createdAt = LocalDateTime.now();
+  this.updatedAt = LocalDateTime.now();
+}
+
+@PreUpdate
+public void onUpdate() {
+  this.updatedAt = LocalDateTime.now();
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>실행 시점</th><th>역할</th></tr>
+    <tr><td><code>@PrePersist</code></td><td>INSERT 직전</td><td>최초 생성일, 수정일 자동 입력</td></tr>
+    <tr><td><code>@PreUpdate</code></td><td>UPDATE 직전</td><td>수정일 자동 갱신</td></tr>
+  </table></div>
+  <div class="box box-tip">
+    <strong>💡 팁</strong>
+    컨트롤러나 서비스에서 createdAt을 직접 세팅하지 않아도 DB 저장 직전에 자동으로 값이 들어갑니다.
+  </div>
+</section>
+
+<section id="code-detail-2">
+  <h2>0-2. 코드 상세 해설 (계속)</h2>
+
+  <h3>6. Repository 코드</h3>
+  <pre><code>public interface PostRepository extends JpaRepository&lt;Post, Long&gt; {
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>JpaRepository&lt;Post, Long&gt;</code></td><td>Post 엔티티를 다루고, PK 타입은 Long</td></tr>
+    <tr><td><code>save()</code></td><td>INSERT 또는 UPDATE</td></tr>
+    <tr><td><code>findById()</code></td><td>PK로 단건 조회</td></tr>
+    <tr><td><code>findAll()</code></td><td>전체 조회</td></tr>
+    <tr><td><code>deleteById()</code></td><td>PK로 삭제</td></tr>
+    <tr><td><code>count()</code></td><td>전체 개수 조회</td></tr>
+  </table></div>
+  <p>커스텀 쿼리는 @Query로 직접 작성합니다.</p>
+  <pre><code>@Query(value = "select p from Post p join fetch p.member order by p.id desc",
+       countQuery = "select count(p) from Post p")
+Page&lt;Post&gt; findAllWithPost(Pageable pageable);</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>select p from Post p</code></td><td>SQL 테이블명이 아니라 Entity 이름 기준으로 조회</td></tr>
+    <tr><td><code>join fetch p.member</code></td><td>게시글과 작성자 회원을 한 번에 가져와 N+1 문제 방지</td></tr>
+    <tr><td><code>order by p.id desc</code></td><td>최신 글이 먼저 보이도록 정렬</td></tr>
+    <tr><td><code>Page&lt;Post&gt;</code></td><td>목록 데이터 + 전체 페이지 수 + 현재 페이지 정보까지 담는 객체</td></tr>
+    <tr><td><code>Pageable</code></td><td>몇 페이지, 몇 개씩 가져올지 담는 객체</td></tr>
+    <tr><td><code>countQuery</code></td><td>페이징에 필요한 전체 데이터 개수를 따로 조회</td></tr>
+  </table></div>
+  <pre><code>@Query(value = "select p from Post p join fetch p.member m "
+    + "where p.title like %:keyword% or m.nickname like %:keyword% "
+    + "order by p.id desc")
+Page&lt;Post&gt; searchWithPost(String keyword, Pageable pageable);</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>:keyword</code></td><td>메서드 파라미터 keyword 값이 들어갈 자리</td></tr>
+    <tr><td><code>like %:keyword%</code></td><td>검색어가 일부만 포함돼도 조회</td></tr>
+    <tr><td><code>m.nickname</code></td><td>작성자 닉네임으로도 검색</td></tr>
+  </table></div>
+
+  <h3>7. Service 코드</h3>
+  <p>서비스는 컨트롤러가 직접 DB를 만지지 않도록 중간에서 업무 로직을 처리합니다.</p>
+  <pre><code>@Service
+@Transactional(readOnly = true)
+public class PostService {
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@Service</code></td><td>스프링 Bean으로 등록. 비즈니스 로직 계층임을 표시</td></tr>
+    <tr><td><code>@Transactional(readOnly = true)</code></td><td>기본은 조회 전용 트랜잭션으로 실행</td></tr>
+  </table></div>
+  <p>쓰기 작업은 메서드에 따로 @Transactional을 붙입니다.</p>
+  <pre><code>@Transactional
+public Post createPost(PostFormDTO form, Member loginMember) {
+  Post post = new Post();
+  post.setTitle(form.getTitle());
+  post.setContent(form.getContent());
+  post.setMember(loginMember);
+  postRepository.save(post);
+  return post;
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>new Post()</code></td><td>DB에 저장할 엔티티 생성</td></tr>
+    <tr><td><code>form.getTitle()</code></td><td>화면에서 입력한 제목을 DTO에서 꺼냄</td></tr>
+    <tr><td><code>post.setMember(loginMember)</code></td><td>현재 로그인 회원을 작성자로 연결</td></tr>
+    <tr><td><code>postRepository.save(post)</code></td><td>INSERT 실행</td></tr>
+    <tr><td><code>return post</code></td><td>저장 후 생성된 게시글 ID를 사용할 수 있게 반환</td></tr>
+  </table></div>
+  <p>조회수 증가는 JPA 변경 감지를 이용합니다.</p>
+  <pre><code>@Transactional
+public void updateCount(Long id) {
+  Post post = findById(id);
+  post.setViewCount(post.getViewCount() + 1);
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>findById(id)</code></td><td>영속 상태의 Post 엔티티 조회</td></tr>
+    <tr><td><code>setViewCount(...)</code></td><td>엔티티 값 변경</td></tr>
+    <tr><td>별도 save() 없음</td><td>트랜잭션 종료 시 JPA Dirty Checking으로 UPDATE 자동 실행</td></tr>
+  </table></div>
+</section>
+
+<section id="code-detail-3">
+  <h2>0-2. 코드 상세 해설 (계속 2)</h2>
+
+  <h3>8. 회원가입/로그인 코드</h3>
+  <pre><code>private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>PasswordEncoder</code></td><td>비밀번호 암호화/검증 인터페이스</td></tr>
+    <tr><td><code>BCryptPasswordEncoder</code></td><td>BCrypt 해시 알고리즘 구현체</td></tr>
+    <tr><td><code>(10)</code></td><td>암호화 강도. 높을수록 안전하지만 느려짐</td></tr>
+  </table></div>
+  <pre><code>if (memberRepository.existsByUsername(form.getUsername())) {
+  throw new IllegalArgumentException("중복된 아이디 입니다.");
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>existsByUsername</code></td><td>해당 아이디가 이미 있는지 true/false 조회</td></tr>
+    <tr><td><code>throw new IllegalArgumentException</code></td><td>가입 불가 상황을 예외로 알림</td></tr>
+    <tr><td>컨트롤러의 catch</td><td>예외 메시지를 화면 에러로 보여줌</td></tr>
+  </table></div>
+  <pre><code>member.setPassword(passwordEncoder.encode(form.getPassword()));</code></pre>
+  <ul>
+    <li>사용자가 입력한 평문 비밀번호를 DB에 그대로 저장하지 않습니다.</li>
+    <li>BCrypt로 해시한 문자열만 저장합니다.</li>
+  </ul>
+  <pre><code>passwordEncoder.matches(password, member.getPassword())</code></pre>
+  <ul>
+    <li>첫 번째 값: 사용자가 로그인 폼에 입력한 평문 비밀번호</li>
+    <li>두 번째 값: DB에 저장된 BCrypt 해시 문자열</li>
+    <li>둘이 같은 비밀번호인지 검증해서 true/false를 반환합니다.</li>
+  </ul>
+
+  <h3>9. Controller 코드</h3>
+  <pre><code>@Controller
+@RequestMapping("/board")
+public class PostController {
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@Controller</code></td><td>HTML 화면을 반환하는 MVC 컨트롤러</td></tr>
+    <tr><td><code>@RequestMapping("/board")</code></td><td>이 클래스의 모든 URL 앞에 /board가 붙음</td></tr>
+  </table></div>
+  <pre><code>@GetMapping
+public ModelAndView list(ModelAndView view,
+    @RequestParam(defaultValue = "") String keyword,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size) {
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@GetMapping</code></td><td>GET /board 요청 처리</td></tr>
+    <tr><td><code>@RequestParam</code></td><td>URL 쿼리스트링 값을 받음. 예: /board?page=1&amp;keyword=java</td></tr>
+    <tr><td><code>defaultValue</code></td><td>값이 없을 때 기본값 사용</td></tr>
+    <tr><td><code>ModelAndView</code></td><td>화면 이름과 화면에 넘길 데이터를 함께 담음</td></tr>
+  </table></div>
+  <pre><code>@SessionAttribute(value = "loginMember", required = false) Member loginMember</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>@SessionAttribute</code></td><td>세션에 저장된 값을 컨트롤러 파라미터로 바로 받음</td></tr>
+    <tr><td><code>value = "loginMember"</code></td><td>로그인 성공 시 저장했던 세션 key</td></tr>
+    <tr><td><code>required = false</code></td><td>로그인하지 않아도 예외 대신 null 받음</td></tr>
+  </table></div>
+  <pre><code>return "redirect:/auth/login";</code></pre>
+  <ul>
+    <li>서버에서 HTML을 렌더링하는 것이 아니라, 브라우저에게 /auth/login으로 다시 요청하라고 지시합니다.</li>
+    <li>로그인 필요 화면에서 자주 사용합니다.</li>
+  </ul>
+
+  <h3>10. 파일 업로드 코드</h3>
+  <pre><code>@RequestParam(value = "files", required = false) MultipartFile[] files</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>MultipartFile</code></td><td>업로드된 파일 1개를 표현하는 Spring 객체</td></tr>
+    <tr><td><code>MultipartFile[]</code></td><td>multiple 업로드라 여러 파일을 배열로 받음</td></tr>
+    <tr><td><code>required = false</code></td><td>파일 첨부 없이 글만 작성해도 허용</td></tr>
+  </table></div>
+  <pre><code>String originalName = file.getOriginalFilename();
+String storedName = UUID.randomUUID() + extension;
+Files.copy(file.getInputStream(), uploadPath.resolve(storedName));</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>getOriginalFilename()</code></td><td>사용자가 업로드한 원래 파일명</td></tr>
+    <tr><td><code>UUID.randomUUID()</code></td><td>중복 가능성이 거의 없는 저장 파일명 생성</td></tr>
+    <tr><td><code>getInputStream()</code></td><td>업로드된 임시 파일의 내용을 읽는 스트림</td></tr>
+    <tr><td><code>Files.copy(...)</code></td><td>실제 서버 폴더에 파일 복사</td></tr>
+  </table></div>
+  <p>DB에는 파일 자체가 아니라 파일 정보만 저장합니다.</p>
+  <pre><code>Attachment attachment = new Attachment();
+attachment.setOriginalName(originalName);
+attachment.setStoredName(storedName);
+attachment.setFileSize(file.getSize());
+attachment.setPost(post);
+attachmentRepository.save(attachment);</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>필드</th><th>저장 이유</th></tr>
+    <tr><td><code>originalName</code></td><td>다운로드/화면 표시용 원본 이름</td></tr>
+    <tr><td><code>storedName</code></td><td>서버에 실제 저장된 고유 이름</td></tr>
+    <tr><td><code>fileSize</code></td><td>파일 크기 표시/관리</td></tr>
+    <tr><td><code>post</code></td><td>어떤 게시글의 첨부파일인지 연결</td></tr>
+  </table></div>
+
+  <h3>11. 조회수 중복 방지 코드</h3>
+  <pre><code>HashSet&lt;Long&gt; pageList = (HashSet&lt;Long&gt;) session.getAttribute("pageList");
+if (pageList == null) {
+  pageList = new HashSet&lt;Long&gt;();
+  session.setAttribute("pageList", pageList);
+}
+if (pageList.add(id)) {
+  postService.updateCount(id);
+}</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>session.getAttribute("pageList")</code></td><td>이 브라우저가 이미 본 게시글 ID 목록을 꺼냄</td></tr>
+    <tr><td><code>HashSet&lt;Long&gt;</code></td><td>중복을 허용하지 않는 자료구조</td></tr>
+    <tr><td><code>pageList == null</code></td><td>처음 상세 페이지에 들어온 세션이면 새 Set 생성</td></tr>
+    <tr><td><code>pageList.add(id)</code></td><td>처음 보는 ID면 true, 이미 있으면 false</td></tr>
+    <tr><td><code>updateCount(id)</code></td><td>true일 때만 조회수 1 증가</td></tr>
+  </table></div>
+  <div class="box box-tip">
+    <strong>💡 참고</strong>
+    이 방식은 브라우저 세션 기준입니다. 다른 브라우저나 세션이 만료된 뒤에는 다시 조회수가 올라갑니다.
+  </div>
+
+  <h3>12. 삭제 코드</h3>
+  <p>게시글 삭제는 DB 데이터만 지우면 서버 폴더에 실제 파일이 남습니다. 그래서 물리 파일 삭제와 DB 삭제를 같이 처리합니다.</p>
+  <pre><code>List&lt;Attachment&gt; fileList = attachmentService.getAttachmentByPost(id);
+Path rootPath = Paths.get(uploadDir).toAbsolutePath();
+for (Attachment att : fileList) {
+  rootPath.resolve(att.getStoredName()).toFile().delete();
+}
+postService.deleteById(id);</code></pre>
+  <div class="table-wrap"><table>
+    <tr><th>코드</th><th>의미</th></tr>
+    <tr><td><code>getAttachmentByPost(id)</code></td><td>게시글에 연결된 첨부파일 목록 조회</td></tr>
+    <tr><td><code>Paths.get(uploadDir).toAbsolutePath()</code></td><td>업로드 폴더의 절대 경로 계산</td></tr>
+    <tr><td><code>resolve(att.getStoredName())</code></td><td>업로드 폴더 + 저장 파일명 결합</td></tr>
+    <tr><td><code>.delete()</code></td><td>서버 디스크의 실제 파일 삭제</td></tr>
+    <tr><td><code>postService.deleteById(id)</code></td><td>DB에서 게시글 삭제</td></tr>
+  </table></div>
+  <div class="box box-warn">
+    <strong>⚠️ 주의</strong>
+    Post 엔티티의 cascade = CascadeType.ALL 때문에 게시글을 삭제하면 댓글과 첨부파일 메타데이터도 함께 삭제됩니다. 단, 실제 파일은 DB가 아니라 디스크에 있으므로 직접 삭제해야 합니다.
+  </div>
+</section>
+
+<!-- ENTITY -->
+<section id="entity">
+  <h2>1. JPA 엔티티 설계와 연관관계</h2>
+  <h3>엔티티란?</h3>
+  <ul>
+    <li>자바 클래스 하나 = DB 테이블 하나</li>
+    <li><code>@Entity</code> + <code>@Table(name = "...")</code> 로 매핑</li>
+    <li><code>@Id</code> + <code>@GeneratedValue(strategy = GenerationType.IDENTITY)</code> → AUTO_INCREMENT 기본키</li>
+  </ul>
+  <h3>연관관계 매핑</h3>
+  <div class="flow">Member (1) ──── (N) Post ──── (N) Comment
+                 └──── (N) Attachment</div>
+  <div class="table-wrap"><table>
+    <tr><th>어노테이션</th><th>의미</th><th>사용 위치</th></tr>
+    <tr><td><code>@ManyToOne</code></td><td>다대일 (N:1)</td><td>Post, Comment, Attachment에서 Member/Post를 가리킬 때</td></tr>
+    <tr><td><code>@OneToMany(mappedBy=...)</code></td><td>일대다 (1:N)</td><td>Post에서 comments, attachments 컬렉션 선언 시</td></tr>
+    <tr><td><code>@JoinColumn(name="...")</code></td><td>FK 컬럼명 지정</td><td>@ManyToOne 필드에 함께 선언</td></tr>
+  </table></div>
+  <h3>지연 로딩(Lazy Loading)</h3>
+  <pre><code>@ManyToOne(fetch = FetchType.LAZY)  // 게시글 조회 시 회원 정보를 즉시 안 가져옴</code></pre>
+  <ul>
+    <li>실제로 <code>post.getMember().getNickname()</code> 을 호출하는 순간 쿼리 실행</li>
+    <li>N+1 문제 → <strong>페치 조인(JOIN FETCH)</strong> 으로 해결</li>
+  </ul>
+  <h3>영속성 전이(Cascade)와 고아 객체 제거</h3>
+  <pre><code>@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+private List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();</code></pre>
+  <ul>
+    <li><code>cascade = CascadeType.ALL</code>: 게시글 저장/삭제 시 댓글도 자동 저장/삭제</li>
+    <li><code>orphanRemoval = true</code>: 리스트에서 댓글을 제거하면 DB에서도 자동 DELETE</li>
+  </ul>
+  <h3>생명주기 콜백</h3>
+  <pre><code>@PrePersist   // DB INSERT 직전 자동 호출
+public void onCreate() {
+    this.createdAt = LocalDateTime.now();
+}
+
+@PreUpdate    // DB UPDATE 직전 자동 호출
+public void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
+}</code></pre>
+</section>
+
+<!-- REPO -->
+<section id="repo">
+  <h2>2. JPA Repository — 데이터 접근 계층</h2>
+  <h3>JpaRepository 상속만 하면 CRUD 자동 제공</h3>
+  <pre><code>public interface PostRepository extends JpaRepository&lt;Post, Long&gt; {
+    // save(), findById(), findAll(), deleteById(), count() 등 기본 제공
+}</code></pre>
+  <h3>@Query JPQL로 커스텀 쿼리 작성</h3>
+  <pre><code>// 페치 조인으로 N+1 문제 해결 + 페이징 처리
+@Query(value = "select p from Post p join fetch p.member order by p.id desc",
+       countQuery = "select count(p) from Post p")
+Page&lt;Post&gt; findAllWithPost(Pageable pageable);</code></pre>
+  <h3>메서드명 기반 쿼리 (자동 JPQL 생성)</h3>
+  <pre><code>// "findBy" + "PostId" + "OrderBy" + "CreatedAt" + "Asc"
+// → WHERE post_id = ? ORDER BY created_at ASC
+List&lt;Comment&gt; findByPostIdOrderByCreatedAtAsc(Long id);</code></pre>
+</section>
+
+<!-- TRANSACTIONAL -->
+<section id="transactional">
+  <h2>3. @Transactional — 트랜잭션 처리</h2>
+  <pre><code>@Service
+@Transactional(readOnly = true)  // 클래스 전체: 읽기 전용 (성능 최적화)
+public class PostService {
+
+    @Transactional  // 이 메서드만 쓰기 트랜잭션으로 오버라이드
+    public Post createPost(PostFormDTO form, Member loginMember) {
+        // ...INSERT/UPDATE 작업...
+    }
+}</code></pre>
+  <ul>
+    <li><strong>readOnly = true</strong>: 변경 감지(Dirty Checking) 생략 → 성능 향상</li>
+    <li>예외 발생 시 자동 롤백 (RuntimeException 계열)</li>
+    <li>예외 없이 종료 시 자동 커밋</li>
+  </ul>
+</section>
+
+<!-- PAGING -->
+<section id="paging">
+  <h2>4. 페이징(Pagination)</h2>
+  <pre><code>// 컨트롤러에서
+Pageable pageable = PageRequest.of(page, size);  // 페이지 번호(0부터), 크기
+Page&lt;Post&gt; list = postService.getPostList(keyword, pageable);
+
+// Page 객체가 제공하는 메서드
+list.isFirst()        // 첫 페이지 여부
+list.isLast()         // 마지막 페이지 여부
+list.getNumber()      // 현재 페이지 번호 (0부터)
+list.getTotalPages()  // 전체 페이지 수
+list.getSize()        // 한 페이지 크기</code></pre>
+  <pre><code>&lt;!-- Thymeleaf 페이징 버튼 --&gt;
+&lt;li th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}"&gt;
+  &lt;a th:href="@{/board(page=${i})}" th:text="${i + 1}"&gt;&lt;/a&gt;
+&lt;/li&gt;</code></pre>
+</section>
+
+<!-- SESSION -->
+<section id="session">
+  <h2>5. 세션(Session) 기반 인증</h2>
+  <pre><code>// 로그인 성공 → 세션에 회원 정보 저장
+session.setAttribute("loginMember", member);
+
+// 로그아웃 → 세션 전체 무효화
+session.invalidate();
+
+// 컨트롤러 파라미터에서 세션 값 바로 꺼내기
+@SessionAttribute(value = "loginMember", required = false) Member loginMember
+// required = false → 세션 없어도 예외 없이 null 반환</code></pre>
+  <pre><code>&lt;!-- Thymeleaf에서 세션 접근 --&gt;
+&lt;div th:if="${session.loginMember != null}"&gt;로그인 상태입니다&lt;/div&gt;
+&lt;span th:text="${session.loginMember.nickname}"&gt;&lt;/span&gt;</code></pre>
+</section>
+
+<!-- FILE UPLOAD -->
+<section id="file-upload">
+  <h2>6. 파일 업로드 처리</h2>
+  <pre><code>// HTML: &lt;input type="file" name="files" multiple&gt;
+// 서버:
+@RequestParam(value = "files", required = false) MultipartFile[] files
+
+// 파일 저장 알고리즘
+String originalName = file.getOriginalFilename();       // 원본 파일명
+String extension = originalName.substring(originalName.lastIndexOf("."));  // 확장자
+String storedName = UUID.randomUUID() + extension;      // 고유 파일명 생성
+Files.copy(file.getInputStream(), uploadPath.resolve(storedName));  // 물리 복사</code></pre>
+  <p><strong>UUID를 사용하는 이유</strong>: 같은 이름의 파일이 업로드돼도 덮어쓰기가 일어나지 않게 하기 위해</p>
+</section>
+
+<!-- VIEWCOUNT -->
+<section id="viewcount">
+  <h2>7. 조회수 중복 방지 — HashSet 활용</h2>
+  <pre><code>// 세션에 HashSet&lt;Long&gt;을 저장하여 이미 본 게시글 ID를 기억
+HashSet&lt;Long&gt; pageList = (HashSet&lt;Long&gt;) session.getAttribute("pageList");
+if (pageList == null) {
+    pageList = new HashSet&lt;&gt;();
+    session.setAttribute("pageList", pageList);
+}
+// add()가 true → 처음 보는 게시글 → 조회수 +1
+// add()가 false → 이미 본 게시글 → 조회수 유지
+if (pageList.add(id)) {
+    postService.updateCount(id);
+}</code></pre>
+</section>
+
+<!-- BCRYPT -->
+<section id="bcrypt">
+  <h2>8. BCrypt 비밀번호 암호화</h2>
+  <pre><code>PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+// 저장할 때
+member.setPassword(passwordEncoder.encode("1234"));  // → "$2a$10$..." 형태
+
+// 로그인 검증할 때
+passwordEncoder.matches("입력한비밀번호", member.getPassword())  // true/false 반환</code></pre>
+  <ul>
+    <li><strong>단방향 해시</strong>: 암호화된 값으로 원래 비밀번호를 되돌릴 수 없음</li>
+    <li>DB가 털려도 원본 비밀번호가 노출되지 않음</li>
+  </ul>
+</section>
+
+<!-- REACTION -->
+<section id="reaction">
+  <h2>9. 좋아요/싫어요 반응 기능 준비 코드</h2>
+  <p>이번 프로젝트에는 반응 기능을 위한 파일이 추가되어 있지만, 현재 서비스 로직은 아직 비어 있습니다. 즉 <strong>테이블 설계와 Repository 준비까지 된 상태</strong>입니다.</p>
+
+  <h3>ReactionType.java</h3>
+  <pre><code>public enum ReactionType {
+  LIKE, DISLIKE
+}</code></pre>
+  <ul>
+    <li>문자열을 아무거나 저장하지 못하게 LIKE, DISLIKE 두 값으로 제한합니다.</li>
+    <li>"좋아요", "싫어요", "like", "LIKE"처럼 제각각 저장되는 문제를 막습니다.</li>
+  </ul>
+
+  <h3>PostReaction.java</h3>
+  <pre><code>@Table(name = "post_reaction",
+       uniqueConstraints = @UniqueConstraint(columnNames = { "member_id", "post_id" }))</code></pre>
+  <ul>
+    <li>게시글 반응 정보를 저장하는 엔티티입니다.</li>
+    <li><code>member_id</code>: 누가 눌렀는지</li>
+    <li><code>post_id</code>: 어떤 게시글에 눌렀는지</li>
+    <li><code>type</code>: LIKE 또는 DISLIKE</li>
+    <li><code>uniqueConstraints</code>: 한 회원이 같은 게시글에 반응을 여러 번 남기지 못하게 막습니다.</li>
+  </ul>
+
+  <h3>CommentReaction.java</h3>
+  <pre><code>@Table(name = "comment_reaction",
+       uniqueConstraints = @UniqueConstraint(columnNames = { "member_id", "comment_id" }))</code></pre>
+  <ul>
+    <li>댓글 반응 정보를 저장하는 엔티티입니다.</li>
+    <li>구조는 PostReaction과 거의 같고, 대상이 게시글이 아니라 댓글입니다.</li>
+  </ul>
+
+  <h3>@Enumerated(EnumType.STRING)을 쓰는 이유</h3>
+  <pre><code>@Enumerated(EnumType.STRING)
+private ReactionType type;</code></pre>
+  <ul>
+    <li>Enum을 DB에 저장할 때 LIKE, DISLIKE 문자열로 저장합니다.</li>
+    <li>EnumType.ORDINAL은 0, 1 같은 숫자로 저장하므로 나중에 Enum 순서가 바뀌면 데이터 의미가 깨질 수 있습니다.</li>
+  </ul>
+
+  <h3>현재 비어 있는 Service의 의미</h3>
+  <pre><code>@Service
+public class PostReactionService {
+}</code></pre>
+  <p>아직 좋아요/싫어요 클릭 로직은 구현되지 않았습니다. 나중에 여기에 다음 로직이 들어갈 수 있습니다.</p>
+  <div class="flow">1. 로그인 회원 확인
+2. 게시글 또는 댓글 조회
+3. 기존 반응이 있는지 조회
+4. 기존 반응이 없으면 새로 저장
+5. 같은 버튼을 다시 누르면 반응 취소
+6. 반대 버튼을 누르면 LIKE ↔ DISLIKE 변경</div>
+</section>
+
+<!-- CONTROLLERS -->
+<section id="controllers">
+  <h2>10. 컨트롤러별 로직 의미</h2>
+  <h3>AuthController</h3>
+  <div class="table-wrap"><table>
+    <tr><th>메서드</th><th>URL</th><th>역할</th></tr>
+    <tr><td>registerForm</td><td>GET /auth/register</td><td>회원가입 화면 보여주기</td></tr>
+    <tr><td>register</td><td>POST /auth/register</td><td>입력값 검증, 중복 체크, 비밀번호 암호화 후 회원 저장</td></tr>
+    <tr><td>loginForm</td><td>GET /auth/login</td><td>로그인 화면 보여주기</td></tr>
+    <tr><td>login</td><td>POST /auth/login</td><td>아이디/비밀번호 검증 후 세션에 loginMember 저장</td></tr>
+    <tr><td>logout</td><td>GET /auth/logout</td><td>세션 무효화로 로그아웃 처리</td></tr>
+  </table></div>
+
+  <h3>PostController</h3>
+  <div class="table-wrap"><table>
+    <tr><th>메서드</th><th>URL</th><th>역할</th></tr>
+    <tr><td>list</td><td>GET /board</td><td>게시글 목록, 검색, 페이징 처리</td></tr>
+    <tr><td>postForm</td><td>GET /board/new</td><td>로그인한 사용자에게 글쓰기 화면 제공</td></tr>
+    <tr><td>postNew</td><td>POST /board/new</td><td>게시글 저장 + 첨부파일 저장</td></tr>
+    <tr><td>detail</td><td>GET /board/{id}</td><td>게시글 상세, 댓글, 첨부파일 조회 + 조회수 증가</td></tr>
+    <tr><td>delete</td><td>GET /board/{id}/delete</td><td>작성자 본인 확인 후 물리 파일 삭제 + DB 삭제</td></tr>
+  </table></div>
+
+  <h3>CommentController</h3>
+  <div class="table-wrap"><table>
+    <tr><th>메서드</th><th>URL</th><th>역할</th></tr>
+    <tr><td>addComment</td><td>POST /comments/post/{id}</td><td>로그인 확인 후 댓글 저장</td></tr>
+    <tr><td>delete</td><td>GET /comments/{id}/delete</td><td>댓글 작성자 본인 확인 후 댓글 삭제</td></tr>
+  </table></div>
+</section>
+
+<!-- THYMELEAF -->
+<section id="thymeleaf">
+  <h2>11. Thymeleaf 주요 문법</h2>
+  <div class="table-wrap"><table>
+    <tr><th>문법</th><th>설명</th><th>예시</th></tr>
+    <tr><td><code>th:text="${...}"</code></td><td>텍스트 출력</td><td>th:text="${post.title}"</td></tr>
+    <tr><td><code>th:utext="${...}"</code></td><td>HTML 태그 포함 출력</td><td>th:utext="${post.content}"</td></tr>
+    <tr><td><code>th:href="@{...}"</code></td><td>URL 링크</td><td>th:href="@{/board/{id}(id=${post.id})}"</td></tr>
+    <tr><td><code>th:each="item : ${list}"</code></td><td>반복문</td><td>th:each="post : ${postPage}"</td></tr>
+    <tr><td><code>th:if="${...}"</code></td><td>조건부 출력</td><td>th:if="${session.loginMember != null}"</td></tr>
+    <tr><td><code>th:errors="*{field}"</code></td><td>검증 에러 출력</td><td>th:errors="*{content}"</td></tr>
+    <tr><td><code>th:object="${...}"</code></td><td>폼 객체 바인딩</td><td>th:object="${commentForm}"</td></tr>
+    <tr><td><code>th:field="*{field}"</code></td><td>폼 필드 바인딩</td><td>th:field="*{content}"</td></tr>
+    <tr><td><code>th:replace="~{layout/base :: layout(...)}"</code></td><td>레이아웃 삽입</td><td>공통 레이아웃 적용</td></tr>
+    <tr><td><code>#temporals.format(날짜, '패턴')</code></td><td>날짜 포맷</td><td>#temporals.format(post.createdAt, 'yyyy-MM-dd')</td></tr>
+    <tr><td><code>#numbers.sequence(시작, 끝)</code></td><td>숫자 시퀀스 생성</td><td>#numbers.sequence(0, totalPages-1)</td></tr>
+  </table></div>
+</section>
+
+<!-- FLOW -->
+<section id="flow">
+  <h2>12. 프로젝트 전체 흐름 요약</h2>
+  <div class="flow">브라우저 요청
+    ↓
+Controller (URL 매핑, 세션 체크, DTO 바인딩)
+    ↓
+Service (비즈니스 로직, @Transactional)
+    ↓
+Repository (JpaRepository → SQL 자동 생성 또는 @Query)
+    ↓
+Database (MySQL)
+    ↓
+Service (엔티티 반환)
+    ↓
+Controller (Model에 데이터 담기)
+    ↓
+Thymeleaf Template (HTML 렌더링)
+    ↓
+브라우저 응답 (HTML 화면 출력)</div>
+</section>
+
+<!-- RUN -->
+<section id="run">
+  <h2>실행 방법</h2>
+  <ol>
+    <li>MySQL에 <code>board_jpa_db</code> 데이터베이스 생성
+      <pre><code>CREATE DATABASE board_jpa_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</code></pre>
+    </li>
+    <li><code>application.properties</code> 에서 DB 비밀번호 확인 (기본값: <code>12345678</code>)</li>
+    <li>서버 실행 후 브라우저에서 <code>http://localhost:8888</code> 접속</li>
+    <li>테스트 데이터가 필요하면 <code>DataInitializer.java</code> 의 <code>// @Component</code> 주석을 풀고 한 번 실행 후 다시 주석 처리</li>
+    <li>테스트 계정: <code>sample1</code> / <code>1234</code> (총 5개 샘플 계정)</li>
+  </ol>
+</section>
+
+<!-- ERRORS -->
+<section id="errors">
+  <h2>자주 나오는 에러와 원인</h2>
+  <div class="table-wrap"><table>
+    <tr><th>에러</th><th>원인</th><th>해결</th></tr>
+    <tr><td>LazyInitializationException</td><td>트랜잭션 밖에서 LAZY 로딩 시도</td><td>@Transactional 범위 내에서 접근하거나 JOIN FETCH 사용</td></tr>
+    <tr><td>could not initialize proxy</td><td>위와 동일</td><td>위와 동일</td></tr>
+    <tr><td>N+1 쿼리 발생</td><td>LAZY 로딩 + 반복문에서 연관 객체 접근</td><td>JOIN FETCH 또는 @EntityGraph 사용</td></tr>
+    <tr><td>BindException</td><td>폼 제출 값이 DTO 타입과 불일치</td><td>DTO 타입 및 HTML name 속성 확인</td></tr>
+    <tr><td>EntityNotFoundException</td><td>findById().orElseThrow() 에서 해당 ID 없음</td><td>존재하는 ID로 요청하는지 확인</td></tr>
+  </table></div>
+</section>
+
+<!-- BEGINNER -->
+<section id="beginner">
+  <h2>🎓 초보자 선생님 팁 — 꼼꼼 복습</h2>
+
+  <h3>JPA를 처음 배울 때 꼭 기억할 3가지</h3>
+  <ol>
+    <li><strong>엔티티 = 테이블 설계도</strong> — 자바 클래스에 적은 내용이 그대로 DB 테이블이 됩니다. 컬럼명, 타입, 관계를 클래스에서 결정합니다.</li>
+    <li><strong>Repository = DB 창구</strong> — SQL을 직접 안 써도 save(), findById()가 됩니다. 복잡한 건 @Query로 JPQL을 씁니다.</li>
+    <li><strong>Service = 진짜 일하는 곳</strong> — "글 쓰기", "로그인 확인", "파일 저장" 같은 규칙은 여기에 모읍니다. Controller는 길 안내, Service는 실제 처리입니다.</li>
+  </ol>
+
+  <h3>LAZY vs EAGER — 쉬운 비유</h3>
+  <p>LAZY는 "필요할 때만 가져오기"입니다. 게시글 목록만 볼 때 작성자 이름까지 매번 DB에서 가져오면 느려집니다. 그래서 LAZY를 쓰고, 목록에서 작성자 이름이 필요하면 <code>join fetch</code>로 한 번에 가져옵니다.</p>
+
+  <h3>DTO를 쓰는 이유 (Entity에 바로 안 넣는 이유)</h3>
+  <ul>
+    <li>화면에서 넘어온 값이 항상 올바르지 않습니다 → DTO에서 검증 후 Entity로 변환</li>
+    <li>Entity에 폼 전용 필드(비밀번호 확인 등)를 넣으면 DB 설계가 지저분해집니다</li>
+    <li>API/화면이 바뀌어도 Entity는 안정적으로 유지할 수 있습니다</li>
+  </ul>
+
+  <h3>트랜잭션이란? (은행 이체 비유)</h3>
+  <p>A 계좌에서 1만 원 빼고 B 계좌에 1만 원 넣는 작업. 중간에 오류 나면 둘 다 취소(롤백)되어야 합니다. @Transactional은 "이 메서드 안의 DB 작업을 하나의 묶음으로 처리"합니다.</p>
+
+  <h3>세션 vs 쿠키 (로그인 이해)</h3>
+  <ul>
+    <li><strong>쿠키</strong>: 브라우저에 저장되는 작은 데이터 (세션 ID가 여기 들어감)</li>
+    <li><strong>세션</strong>: 서버 메모리(또는 저장소)에 저장. loginMember 객체가 여기 있음</li>
+    <li>로그아웃 = session.invalidate() → 서버 쪽 로그인 정보 삭제</li>
+  </ul>
+
+  <h3>복습 체크리스트 ✅</h3>
+  <ul>
+    <li>□ build.gradle에 JPA, Thymeleaf, Validation 의존성이 왜 있는지 설명할 수 있다</li>
+    <li>□ @ManyToOne과 @OneToMany의 차이를 말할 수 있다</li>
+    <li>□ N+1 문제가 뭔지, join fetch로 어떻게 해결하는지 안다</li>
+    <li>□ @Valid + BindingResult 검증 흐름을 설명할 수 있다</li>
+    <li>□ BCrypt로 비밀번호를 왜 암호화하는지 안다</li>
+    <li>□ MultipartFile로 파일 업로드 흐름을 따라갈 수 있다</li>
+    <li>□ Thymeleaf th:each, th:if, th:field 기본 문법을 안다</li>
+  </ul>
+</section>
+
+<!-- TRENDS -->
+<section id="trends">
+  <h2>🚀 요즘 개발 트렌드 덧붙임</h2>
+  <p>학원에서 배운 내용은 실무의 기초입니다. 현업에서는 아래 방향으로 확장하는 경우가 많습니다.</p>
+
+  <h3>1. 인증 방식의 변화</h3>
+  <div class="box box-trend">
+    <strong>세션 → JWT / OAuth2</strong>
+    이 프로젝트는 HttpSession 기반입니다. 요즘 REST API·SPA(React, Vue)에서는 <strong>JWT(JSON Web Token)</strong>이나 <strong>OAuth2(카카오/구글 로그인)</strong>을 많이 씁니다. Spring Security 전체를 도입해 토큰 기반 인증으로 바꾸는 것이 다음 단계입니다.
+  </div>
+
+  <h3>2. 프론트엔드 분리 (SSR → API + SPA)</h3>
+  <div class="box box-trend">
+    <strong>Thymeleaf → REST API + React/Vue</strong>
+    Thymeleaf는 서버에서 HTML을 만드는 방식(SSR)입니다. 최근에는 Spring Boot가 <strong>JSON API만 제공</strong>하고, 화면은 React·Next.js·Vue가 담당하는 구조가 주류입니다. Controller의 @Controller 대신 <strong>@RestController</strong> + ResponseEntity/DTO 반환이 핵심 패턴입니다.
+  </div>
+
+  <h3>3. JPA 실무 패턴</h3>
+  <ul>
+    <li><strong>QueryDSL</strong>: 복잡한 동적 쿼리를 타입 안전하게 작성 (문자열 JPQL 대신)</li>
+    <li><strong>Spring Data JPA Specifications</strong>: 검색 조건이 많을 때 활용</li>
+    <li><strong>Flyway / Liquibase</strong>: ddl-auto=create/update 대신 <strong>마이그레이션 도구</strong>로 DB 스키마 버전 관리 (운영 환경 필수)</li>
+    <li><strong>Auditing (@CreatedDate, @LastModifiedDate)</strong>: @PrePersist 대신 Spring Data JPA Auditing 사용</li>
+  </ul>
+
+  <h3>4. 파일 저장 — 로컬 → 클라우드</h3>
+  <p>이 프로젝트는 <code>uploads/</code> 폴더에 직접 저장합니다. 실무에서는 <strong>AWS S3</strong>, Azure Blob, Cloudflare R2 같은 <strong>오브젝트 스토리지</strong>에 올리고 DB에는 URL만 저장합니다. 서버 재시작·배포 시 파일 유실 문제도 해결됩니다.</p>
+
+  <h3>5. 아키텍처 &amp; 설계</h3>
+  <ul>
+    <li><strong>레이어드 → 헥사고날/클린 아키텍처</strong>: 도메인 로직을 프레임워크에 덜 의존하게 분리</li>
+    <li><strong>Record 클래스 (Java 16+)</strong>: 불변 DTO에 record 활용 증가</li>
+    <li><strong>MapStruct</strong>: Entity ↔ DTO 변환을 컴파일 타임에 자동 생성</li>
+  </ul>
+
+  <h3>6. 테스트 &amp; 품질</h3>
+  <ul>
+    <li><strong>@SpringBootTest, @DataJpaTest, MockMvc</strong>: 단위·통합 테스트가 CI/CD의 기본</li>
+    <li><strong>Testcontainers</strong>: 테스트 시 실제 MySQL을 Docker로 띄워 검증</li>
+    <li><strong>GitHub Actions</strong>: push 시 자동 빌드·테스트 (DevOps 기본)</li>
+  </ul>
+
+  <h3>7. 배포 &amp; 인프라</h3>
+  <ul>
+    <li><strong>Docker</strong>: 앱을 컨테이너로 패키징해 어디서나 동일하게 실행</li>
+    <li><strong>Kubernetes</strong>: 대규모 서비스의 컨테이너 오케스트레이션</li>
+    <li><strong>클라우드 (AWS, GCP, Azure)</strong>: EC2/ECS, RDS(관리형 DB) 등</li>
+  </ul>
+
+  <h3>8. AI 시대 개발 트렌드 (2025~2026)</h3>
+  <ul>
+    <li><strong>AI 코딩 어시스턴트</strong>: Cursor, GitHub Copilot 등으로 보일러플레이트·테스트 생성 가속</li>
+    <li><strong>API 우선 설계</strong>: OpenAPI(Swagger) 스펙 먼저, 구현 나중</li>
+    <li><strong>관측성(Observability)</strong>: 로그·메트릭·트레이싱 (Micrometer, Grafana, ELK)</li>
+    <li><strong>보안 강화</strong>: CSRF, XSS 방어, Rate Limiting, 비밀번호 외 2FA·OAuth</li>
+  </ul>
+
+  <div class="box box-tip">
+    <strong>💡 학습 로드맵 제안</strong>
+  Step14(지금) → Spring Security + JWT → REST API 전환 → React 연동 → Docker 배포 → Flyway 마이그레이션. 이 순서로 가면 학원 내용이 실무로 자연스럽게 이어집니다.
+  </div>
+</section>
+
+</main>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="맨 위로">↑</button>
+
+<script>
+function toggleToc() {
+  const panel = document.getElementById('tocPanel');
+  const btn = document.getElementById('tocBtn');
+  panel.classList.toggle('open');
+  btn.classList.toggle('open');
+  btn.textContent = panel.classList.contains('open') ? '📋 목차 닫기' : '📋 목차 보기';
+}
+document.querySelectorAll('.toc-panel a').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth < 768) {
+      document.getElementById('tocPanel').classList.remove('open');
+      document.getElementById('tocBtn').classList.remove('open');
+      document.getElementById('tocBtn').textContent = '📋 목차 보기';
+    }
+  });
+});
+window.addEventListener('scroll', () => {
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 300);
+});
+</script>
+</body>
+</html>

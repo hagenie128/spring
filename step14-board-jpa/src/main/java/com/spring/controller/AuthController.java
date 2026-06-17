@@ -114,7 +114,7 @@ public class AuthController {
    * @param redirectAttributes 에러 메시지 전달을 위한 리다이렉트 객체
    */
   @PostMapping("/login")
-  public String login(String username, String password, HttpSession session,
+  public String login(@RequestParam("username") String username, @RequestParam("password") String password, HttpSession session,
     RedirectAttributes redirectAttributes
   ) {
       try {
