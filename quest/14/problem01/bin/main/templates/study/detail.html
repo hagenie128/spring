@@ -7,61 +7,24 @@
 </head>
 <body>
 <main class="container">
-    <!-- TODO problem04-15: 스터디 정보, 정원, 모집 상태 출력 -->
     <section class="detail-panel">
-        <span class="badge" th:classappend="${study.status.name() == 'CLOSED'} ? ' closed'"
-              th:text="${study.status.name() == 'OPEN'} ? '모집중' : '마감'">모집중</span>
-        <h1 th:text="${study.title}">스터디 제목</h1>
-        <p class="meta" th:text="${study.leader.nickname + ' · 조회수 ' + study.viewCount}">리더</p>
-        <p th:text="${study.description}">소개글</p>
-        <p><strong>기술스택</strong> <span th:text="${study.techStack}">Java</span></p>
-        <p><strong>진행방식</strong> <span th:text="${study.method}">온라인</span></p>
-        <p><strong>확정 인원</strong> <span th:text="${study.acceptedCount}">0</span> / <span th:text="${study.capacity}">4</span></p>
-
-        <!-- TODO problem04-14: 관심 토글 -->
-        <form th:action="@{/studies/{id}/interest(id=${study.id})}" method="post">
-            <input type="hidden" name="memberId" value="1">
-            <button class="btn btn-secondary" type="submit">관심 있어요 (<span th:text="${interestCount}">0</span>)</button>
-        </form>
+        <h1>스터디 상세</h1>
+        <!-- TODO problem04: 스터디 기본 정보를 출력하세요. -->
     </section>
 
-    <!-- TODO problem04-15: 신청 폼 -->
-    <section class="detail-panel" style="margin-top: 16px;" th:if="${study.status.name() == 'OPEN'}">
-        <h2>스터디 신청</h2>
-        <form th:action="@{/studies/{id}/applications(id=${study.id})}" method="post">
-            <p><input class="form-control" type="number" name="applicantId" value="2" placeholder="신청자 회원 ID"></p>
-            <p><textarea class="form-control" name="message" rows="4" placeholder="지원 메시지"></textarea></p>
-            <button class="btn" type="submit">신청</button>
-        </form>
+    <section class="detail-panel">
+        <h2>신청</h2>
+        <!-- TODO problem03: 신청 폼을 작성하세요. -->
     </section>
 
-    <!-- TODO problem04-16: 대기 신청자와 합격자 목록을 따로 출력 -->
-    <section class="detail-panel" style="margin-top: 16px;">
+    <section class="detail-panel">
         <h2>합격 멤버</h2>
-        <ul>
-            <li th:each="application : ${acceptedApplications}">
-                <strong th:text="${application.applicant.nickname}">닉네임</strong>
-                <span th:text="${application.message}">지원 메시지</span>
-            </li>
-        </ul>
+        <!-- TODO problem04: 합격자 목록을 출력하세요. -->
     </section>
 
-    <section class="detail-panel" style="margin-top: 16px;">
+    <section class="detail-panel">
         <h2>대기 신청자</h2>
-        <ul>
-            <li th:each="application : ${waitingApplications}">
-                <strong th:text="${application.applicant.nickname}">닉네임</strong>
-                <span th:text="${application.message}">지원 메시지</span>
-                <form style="display:inline" th:action="@{/studies/applications/{id}/accept(id=${application.id})}" method="post">
-                    <input type="hidden" name="studyId" th:value="${study.id}">
-                    <button class="btn" type="submit">합격</button>
-                </form>
-                <form style="display:inline" th:action="@{/studies/applications/{id}/reject(id=${application.id})}" method="post">
-                    <input type="hidden" name="studyId" th:value="${study.id}">
-                    <button class="btn btn-secondary" type="submit">거절</button>
-                </form>
-            </li>
-        </ul>
+        <!-- TODO problem04: 대기 신청자 목록을 출력하세요. -->
     </section>
 
     <p><a th:href="@{/studies}">목록으로</a></p>
