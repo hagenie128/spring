@@ -13,5 +13,7 @@
   "java.project.sourcePaths": [
     "car-crup-jpa/src/main/java/com/spring/dto"
   ],
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false
 }
