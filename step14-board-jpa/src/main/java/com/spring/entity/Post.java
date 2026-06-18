@@ -52,10 +52,10 @@ public class Post {
   /**
    * 게시글 내용
    * 
-   * - columnDefinition = "TEXT": 일반적인 VARCHAR 타입은 대용량 본문을 담기 부족하므로, 
-   *   데이터베이스에서 긴 텍스트를 담을 수 있는 TEXT 데이터 타입으로 컬럼 타입을 강제 설정합니다.
+   * - columnDefinition = "LONGTEXT": Quill 에디터의 HTML 본문과 이미지 데이터까지 담을 수 있도록
+   *   MySQL의 긴 텍스트 타입으로 컬럼 타입을 강제 설정합니다.
    */
-  @Column(nullable = false, columnDefinition = "TEXT")
+  @Column(nullable = false, columnDefinition = "LONGTEXT")
   private String content;
 
   /**

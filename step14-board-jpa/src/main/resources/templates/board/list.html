@@ -25,33 +25,34 @@
     <!-- 게시글 테이블 -->
     <div class="table-wrap">
       <table class="post-table">
-      <thead>
-        <tr>
-          <th>번호</th>
-          <th>제목</th>
-          <th>작성자</th>
-          <th>작성일</th>
-          <th>조회수</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:if="${postPage.isEmpty()}">
-          <td class="empty-cell" colspan="5">
-            <p>작성된 게시글이 없습니다.</p>
-          </td>
-        </tr>
-        <tr th:each="post : ${postPage}">
-          <td th:text="${post.id}"></td>
-          <td>
-            <a class="post-title" th:href="@{/board/{id}(id=${post.id})}" th:text="${post.title}"></a>
-          </td>
-          <td th:text="${post.member.nickname}"></td>
-          <td th:text="${post.createdAt}"></td>
-          <td th:text="${post.viewCount}"></td>
-        </tr>
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+            <th>조회수</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:if="${postPage.isEmpty()}">
+            <td class="empty-cell" colspan="5">
+              <p>작성된 게시글이 없습니다.</p>
+            </td>
+          </tr>
+          <tr th:each="post : ${postPage}">
+            <td th:text="${post.id}"></td>
+            <td>
+              <a class="post-title" th:href="@{/board/{id}(id=${post.id},page=${currentPage})}"
+                th:text="${post.title}"></a>
+            </td>
+            <td th:text="${post.member.nickname}"></td>
+            <td th:text="${post.createdAt}"></td>
+            <td th:text="${post.viewCount}"></td>
+          </tr>
 
-      </tbody>
-    </table>
+        </tbody>
+      </table>
     </div>
 
     <!-- 페이징처리 -->
@@ -60,7 +61,8 @@
         <li th:if="${!postPage.first}"><a th:href="@{/board(keyword=${keyword},page=${currentPage - 1})}">이전</a></li>
 
         <li th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
-          <a th:classappend="${i == currentPage} ? 'is-active'" th:href="@{/board(keyword=${keyword},page=${i})}" th:text="${i + 1}"></a>
+          <a th:classappend="${i == currentPage} ? 'is-active'" th:href="@{/board(keyword=${keyword},page=${i})}"
+            th:text="${i + 1}"></a>
         </li>
 
         <li th:if="${!postPage.last}"><a th:href="@{/board(keyword=${keyword},page=${currentPage + 1})}">다음</a></li>

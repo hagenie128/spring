@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.spring.entity.Post;
 
@@ -56,5 +57,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       countQuery = "select count(p) from Post p join p.member m "
                 + "where p.title like %:keyword% or m.nickname like %:keyword% "
                 + "order by p.id desc")
-  Page<Post> searchWithPost(String keyword, Pageable pageable);
+  Page<Post> searchWithPost(@Param("keyword") String keyword, Pageable pageable);
 }

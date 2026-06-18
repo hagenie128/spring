@@ -66,7 +66,7 @@ public class CommentController {
    * @param member  세션에서 가져온 로그인 회원 정보 (없으면 null)
    */
   @PostMapping("/post/{id}")
-  public String addComment(@PathVariable Long id, @Valid CommentFormDTO form, BindingResult bindingResult,
+  public String addComment(@PathVariable(name = "id") Long id, @Valid CommentFormDTO form, BindingResult bindingResult,
       @SessionAttribute(value = "loginMember", required = false) Member member) {
     // 1. 비로그인 접근 차단
     if(member == null) return "redirect:/auth/login";
@@ -99,7 +99,7 @@ public class CommentController {
    * @param loginMember 세션에서 꺼낸 로그인 회원 정보
    */
   @GetMapping("/{id}/delete")
-  public String delete(@PathVariable Long id,
+  public String delete(@PathVariable(name = "id") Long id,
       @SessionAttribute(value = "loginMember", required = false) Member loginMember) {
     // 1. 삭제 대상 댓글 조회
     Comment comment = commentService.findById(id);

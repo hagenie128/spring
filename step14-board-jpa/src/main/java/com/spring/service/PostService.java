@@ -12,14 +12,16 @@ import com.spring.entity.Member;
 import com.spring.entity.Post;
 import com.spring.repository.PostRepository;
 
-
 /**
  * [게시판 비즈니스 로직 서비스 클래스]
  * 
- * @Service: 이 클래스가 서비스 레이어의 핵심 컴포넌트(Spring Bean)임을 선언하며, 컨트롤러와 DB 접근 레이어 사이에서 비즈니스적인 예외 처리 및 트랜잭션을 중재합니다.
- * @Transactional(readOnly = true): 
- *   이 클래스의 모든 메서드는 기본적으로 읽기 전용 트랜잭션(Read-Only Transaction) 환경에서 실행됩니다.
- *   - JPA 영속성 컨텍스트는 읽기 전용일 때 스냅샷 저장 및 변경 감지(Dirty Checking) 작업을 생략하여 메모리와 성능을 최적화합니다.
+ * @Service: 이 클래스가 서비스 레이어의 핵심 컴포넌트(Spring Bean)임을 선언하며, 컨트롤러와 DB 접근 레이어 사이에서
+ *           비즈니스적인 예외 처리 및 트랜잭션을 중재합니다.
+ * @Transactional(readOnly = true):
+ *                         이 클래스의 모든 메서드는 기본적으로 읽기 전용 트랜잭션(Read-Only
+ *                         Transaction) 환경에서 실행됩니다.
+ *                         - JPA 영속성 컨텍스트는 읽기 전용일 때 스냅샷 저장 및 변경 감지(Dirty
+ *                         Checking) 작업을 생략하여 메모리와 성능을 최적화합니다.
  */
 @Service
 @Transactional(readOnly = true)
@@ -65,11 +67,12 @@ public class PostService {
   /**
    * [새 게시글 등록 처리 메서드]
    * 
-   * @Transactional: 
-   *   클래스의 readOnly = true 설정을 무시하고, 데이터 생성/쓰기가 가능하도록 일반 트랜잭션을 엽니다.
-   *   메서드가 에러 없이 정상 종료되면 DB에 커밋(Commit)이 일어나고, 런타임 예외가 발생하면 롤백(Rollback)을 수행합니다.
+   * @Transactional:
+   *                 클래스의 readOnly = true 설정을 무시하고, 데이터 생성/쓰기가 가능하도록 일반 트랜잭션을 엽니다.
+   *                 메서드가 에러 없이 정상 종료되면 DB에 커밋(Commit)이 일어나고, 런타임 예외가 발생하면
+   *                 롤백(Rollback)을 수행합니다.
    * 
-   * @param form 작성할 게시글 제목과 내용이 담긴 DTO
+   * @param form        작성할 게시글 제목과 내용이 담긴 DTO
    * @param loginMember 현재 세션에 로그인되어 있는 회원 객체
    * @return DB 저장 후 자동으로 기본키(ID) 값이 채워진 영속 상태의 Post 엔티티 객체
    */
@@ -79,13 +82,13 @@ public class PostService {
     Post post = new Post();
     post.setTitle(form.getTitle());
     post.setContent(form.getContent());
-    
+
     // 2. 게시글 작성자로 현재 로그인 회원 정보 세팅 (FK 외래키 설정)
     post.setMember(loginMember);
-    
+
     // 3. 리포지토리를 통한 DB 저장 (INSERT 쿼리 수행)
     postRepository.save(post);
-    
+
     return post;
   }
 
@@ -96,11 +99,22 @@ public class PostService {
   @Transactional
   public void updateCount(Long id) {
     Post post = findById(id);
-    post.setViewCount(post.getViewCount()+1);
+    post.setViewCount(post.getViewCount() + 1);
   }
 
   @Transactional
   public void deleteById(Long id) {
     postRepository.deleteById(id);
   }
+
+  @Transactional
+  public boolean updatePost(Long id, PostFormDTO form, Member loginMember) {
+    Post post = findById(id);
+    if (loginMember.getId() != post.getMember().getId())
+      return false;
+    post.setTitle(form.getTitle());
+    post.setContent(form.getContent());
+    return true;
+  }
+
 }

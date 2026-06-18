@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>게시글</title>
 </head>
+
 <body>
   <section class="detail-page">
     <article class="post-detail-card">
       <div class="detail-header">
         <h2 th:text="${post.title}"></h2>
-        <a class="btn btn-ghost" href="javascript:history.back();">목록으로</a>
+        <!-- 현재 게시글이 있는 목록으로 -->
+        <a class="btn btn-ghost" th:href="@{/board(page=${page})}">목록으로</a>
       </div>
       <div class="post-info">
         <p>작성자 : <span th:text="${post.member.nickname}"></span></p>
         <p>작성일 : <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
-        | 조회수 : <span th:text="${post.viewCount}"></span>
+          | 조회수 : <span th:text="${post.viewCount}"></span>
         </p>
       </div>
       <div class="post-content" th:utext="${post.content}"></div>
@@ -28,12 +31,15 @@
         </p>
       </div>
       <div class="post-footer">
-        <button class="reaction-btn" type="button">👍좋아요 <span>0</span></button>
-        <button class="reaction-btn" type="button">👎싫어요 <span>0</span></button>
+        <button class="reaction-btn content-like" type="button" data-content="post" data-id="${post.id}"
+          data-type="LIKE">👍좋아요 <span th:text="${postReaction.Likes}">0</span></button>
+        <button class="reaction-btn content-dislike" type="button" data-content="post" data-id="${post.id}"
+          data-type="DISLIKE">👎싫어요
+          <span th:text="${postReaction.Dislikes}">0</span></button>
       </div>
       <div class="detail-actions" th:if="${session.loginMember != null and session.loginMember.id == post.member.id}">
         <div class="owner-actions">
-          <a class="btn btn-ghost" href="">수정</a>
+          <a class="btn btn-ghost" th:href="@{/board/{id}/edit(id=${post.id},page=${page})}">수정</a>
           <a class="btn btn-danger" th:href="@{/board/{id}/delete(id=${post.id})}">삭제</a>
         </div>
       </div>
@@ -55,27 +61,83 @@
         <p>로그인 하셔야 댓글일 입력하실 수 있습니다.</p>
       </div>
       <!-- 댓글 목록 -->
-       <div class="comment-list" id="comments">
-          <div class="empty-comments" th:if="${comments.isEmpty()}">
-            첫번째 댓글을 남겨보세요
-          </div>
-          <div class="comment-item" th:each="comment : ${comments}">
-            <ul class="comment-info">
-              <li>작성자 : <span th:text="${comment.member.nickname}"></span></li>
-              <li>작성일 : <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></li>
-              <li th:if="${session.loginMember != null and session.loginMember.id == comment.member.id}">
-                <a class="comment-delete" th:href="@{/comments/{id}/delete(id=${comment.id})}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
-              </li>
-              <li>
-                <button class="reaction-btn reaction-btn--small" type="button">👍좋아요 <span>0</span></button>
-                <button class="reaction-btn reaction-btn--small" type="button">👎싫어요 <span>0</span></button>
-              </li>
-            </ul>
-            <hr>
-            <div class="comment-content" th:text="${comment.content}"></div>
-          </div>
-       </div>
+      <div class="comment-list" id="comments">
+        <div class="empty-comments" th:if="${comments.isEmpty()}">
+          첫번째 댓글을 남겨보세요
+        </div>
+        <div class="comment-item" th:each="comment : ${comments}">
+          <input type="hidden" class="comment-id" th:value="${comment.id}">
+          <ul class="comment-info">
+            <li>작성자 : <span th:text="${comment.member.nickname}"></span></li>
+            <li>작성일 : <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></li>
+            <li th:if="${session.loginMember != null and session.loginMember.id == comment.member.id}">
+              <a class="comment-delete" th:href="@{/comments/{id}/delete(id=${comment.id})}"
+                onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
+            </li>
+            <li>
+              <button class="reaction-btn reaction-btn--small comment-like" type="button">👍좋아요 <span>0</span></button>
+              <button class="reaction-btn reaction-btn--small comment-dislike" type="button">👎싫어요
+                <span>0</span></button>
+            </li>
+          </ul>
+          <hr>
+          <div class="comment-content" th:text="${comment.content}"></div>
+        </div>
+      </div>
     </section>
+    <script th:inline="javascript">
+      const POST_ID = [[${ post.id }]];
+
+      function contentReactionClick(e) {
+        const button = e.currentTarget;
+        // alert(button)
+        // console.log(button.className);
+        let url = `/reaction/post/${POST_ID}`;
+        if (button.className.indexOf('content-like') != -1)
+          url += '/like';
+        else
+          url += '/dislike';
+
+        fetch(url).
+          then(res => res.json())
+          .then(data => {
+            // console.log(data)
+            document.querySelector('.content-like > span').innerHTML = data.likes;
+            document.querySelector('.content-dislike > span').innerHTML = data.dislikes;
+          });
+      }
+
+      function commentReactionClick(e, comm) {
+        const button = e.currentTarget;
+        const COMM_ID = button.
+          closest(".comment-item").
+          querySelector(".comment-id").value;
+
+        let url = `/reaction/comment/${COMM_ID}`;
+        if (button.className.indexOf('comment-like') != -1)
+          url += '/like';
+        else
+          url += '/dislike';
+
+        fetch(url).
+          then(res => res.text())
+          .then(data => {
+            console.log(data)
+          });
+      }
+
+      window.onload = () => {
+        document.querySelectorAll(".content-like, .content-dislike").forEach(item => {
+          item.addEventListener("click", contentReactionClick);
+        });
+
+        document.querySelectorAll(" comment-like, .comment-dislike").forEach(item => {
+          item.addEventListener("click", commentReactionClick);
+        })
+      };
+
+    </script>
   </section>
 </body>
+
 </html>

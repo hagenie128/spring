@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -48,7 +47,8 @@ public class Attachment {
   /**
    * 서버 물리 경로에 실제로 저장되는 고유한 파일명 (예: "3f82a9d1-8b2c-473d-9d41-3b7c89f53e20.pdf")
    * 
-   * 여러 사용자가 동일한 파일명("image.png")을 올렸을 때 덮어쓰기(파일 깨짐) 현상을 피하기 위해 UUID 등으로 고유하게 변형합니다.
+   * 여러 사용자가 동일한 파일명("image.png")을 올렸을 때 덮어쓰기(파일 깨짐) 현상을 피하기 위해 UUID 등으로 고유하게
+   * 변형합니다.
    */
   @Column(nullable = false, name = "stored_name")
   private String storedName;
@@ -68,10 +68,10 @@ public class Attachment {
   /**
    * 이 첨부파일이 소속된 게시글 (N:1 연관관계)
    * 
-   * - @ManyToOne(fetch = FetchType.LAZY): 
-   *   하나의 게시글(Post)에 여러 첨부파일(Attachment)이 존재할 수 있으므로 N:1 매핑을 지정하고 지연 로딩을 수행합니다.
-   * - @JoinColumn(name = "post_id"): 
-   *   외래 키(FK) 컬럼을 생성하고 이름을 'post_id'로 매핑합니다.
+   * - @ManyToOne(fetch = FetchType.LAZY):
+   * 하나의 게시글(Post)에 여러 첨부파일(Attachment)이 존재할 수 있으므로 N:1 매핑을 지정하고 지연 로딩을 수행합니다.
+   * - @JoinColumn(name = "post_id"):
+   * 외래 키(FK) 컬럼을 생성하고 이름을 'post_id'로 매핑합니다.
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "post_id", nullable = false)
