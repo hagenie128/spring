@@ -1,0 +1,30 @@
+@baseUrl = http://localhost:8888
+@accessToken = 로그인_응답의_accessToken
+
+### 회원가입
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "quest-user",
+  "password": "1234",
+  "email": "quest@example.com"
+}
+
+### 로그인
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "quest-user",
+  "password": "1234"
+}
+
+### 내 정보
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 로그아웃
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+

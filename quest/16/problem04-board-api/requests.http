@@ -1,0 +1,31 @@
+@baseUrl = http://localhost:8888
+@accessToken = 로그인_응답의_accessToken
+
+### 목록
+GET {{baseUrl}}/api/posts?page=1&size=20
+
+### 검색
+GET {{baseUrl}}/api/posts?page=1&size=20&keyword=Spring
+
+### 상세
+GET {{baseUrl}}/api/posts/1
+
+### 인증 없이 등록하면 401이어야 함
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+
+{
+  "title": "퀘스트 게시글",
+  "content": "JWT 없이 등록하면 안 됩니다."
+}
+
+### 로그인 후 등록
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "퀘스트 게시글",
+  "content": "인증 회원 번호를 작성자로 사용하세요."
+}
+

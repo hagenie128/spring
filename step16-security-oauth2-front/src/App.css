@@ -1,0 +1,302 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', source-code-pro, Menlo, Monaco, Consolas, monospace;
+  
+  /* 프리미엄 라이트 테마 색상 정의 */
+  --bg-app: #f8fafc;        /* slate-50 */
+  --bg-card: #ffffff;
+  --bg-input: #f8fafc;
+  --bg-console: #0f172a;    /* slate-900 */
+  
+  --primary: #4f46e5;       /* indigo-600 */
+  --primary-hover: #4338ca; /* indigo-700 */
+  --primary-light: #e0e7ff; /* indigo-100 */
+  
+  --text-main: #0f172a;     /* slate-900 */
+  --text-muted: #475569;    /* slate-600 */
+  --text-light: #94a3b8;    /* slate-400 */
+  
+  --border: #e2e8f0;        /* slate-200 */
+  --border-focus: #6366f1;  /* indigo-500 */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 16px rgba(0, 0, 0, 0.03);
+  
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 대시보드 레이아웃 그리드 설계 (CSS Grid) */
+.container {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "main side";
+  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-rows: auto 1fr;
+  gap: 2rem;
+  padding: 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 헤더 영역 스타일링 */
+header {
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-card);
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+header h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+header h1::before {
+  content: '🛡️';
+  font-size: 1.5rem;
+}
+
+/* 헤더 토큰 표시 박스 */
+.head-content {
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  color: var(--primary);
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.head-content:hover {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+/* 회원가입/로그인 카드 배치 메인 레이아웃 */
+main {
+  grid-area: main;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-content: start;
+}
+
+/* 개별 카드 디자인 */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--primary);
+  padding-left: 0.75rem;
+  line-height: 1.2;
+}
+
+/* 폼 인풋 그룹 스타일링 */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  background-color: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* 버튼 스타일링 */
+.btn-group {
+  margin-top: 1.75rem;
+}
+
+button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+button#register, button#login {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+button#register:hover, button#login:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+button#register:active, button#login:active {
+  transform: translateY(1px);
+}
+
+/* 우측 응답 결과 콘솔창 스타일링 */
+.result-message-box {
+  grid-area: side;
+  background-color: var(--bg-console);
+  border-radius: var(--radius-lg);
+  border: 1px solid #1e293b;
+  box-shadow: var(--shadow-lg);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: max-content;
+  min-height: 520px;
+  position: sticky;
+  top: 2.5rem;
+}
+
+/* 결과 터미널창 헤더에 macOS 스타일 윈도우 버튼 추가 */
+.result-message-box h2 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94a3b8;
+  padding: 1rem 1.5rem;
+  background-color: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-message-box h2::after {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #ef4444; /* 빨간 닫기 버튼 */
+  border-radius: 50%;
+  box-shadow: 16px 0 0 #f59e0b, 32px 0 0 #10b981; /* 노란색, 초록색 최소화/전체화 버튼 */
+  margin-right: 32px;
+}
+
+/* 터미널 출력 본문 영역 스타일링 */
+.message-content {
+  flex-grow: 1;
+  padding: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+  overflow-y: auto;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+/* 결과값이 아직 비어있을 때 프롬프트 쉘 가상 텍스트 표시 */
+.message-content:empty::before {
+  content: 'guest@localhost:~$ waiting for api response...\A\A> Send sign-up or login request to check output here._';
+  display: block;
+  white-space: pre-wrap;
+  color: #64748b;
+  font-family: var(--font-mono);
+}
+
+/* 반응형 미디어 쿼리 정의 (모바일 환경 대응) */
+@media (max-width: 1024px) {
+  .container {
+    grid-template-areas:
+      "header"
+      "main"
+      "side";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  main {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .result-message-box {
+    position: static;
+    min-height: 350px;
+  }
+}
