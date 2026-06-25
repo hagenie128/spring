@@ -345,6 +345,119 @@ Controller는 요청의 기본 `size`를 20으로 받지만 `PaggingVO`는 한 �
 검색 결과에서도 `boardCount()`가 전체 게시글 수를 반환하므로 검색 페이징의 전체 페이지가
 부정확할 수 있습니다. 이후 `searchBoardCount(keyword)` 같은 쿼리를 추가할 수 있습니다.
 
+## 6월 25일: 게시판 CRUD와 반응 기능 완성
+
+오늘 수업에서는 전날 만든 조회 API에 쓰기 기능을 붙였습니다.
+
+```text
+게시글: 등록 → 수정 → 삭제 → 좋아요/싫어요
+댓글:   등록 → 수정 → 삭제 → 좋아요/싫어요
+```
+
+### 1. HTTP 메서드와 URL
+
+| 기능 | 메서드 | URL |
+|---|---|---|
+| 게시글 등록 | `POST` | `/api/posts` |
+| 게시글 수정 | `PATCH` | `/api/posts/{bno}` |
+| 게시글 삭제 | `DELETE` | `/api/posts/{bno}` |
+| 게시글 반응 | `POST` | `/api/posts/reaction` |
+| 댓글 등록 | `POST` | `/api/comments` |
+| 댓글 수정 | `PATCH` | `/api/comments/{cno}` |
+| 댓글 삭제 | `DELETE` | `/api/comments/{cno}` |
+| 댓글 반응 | `POST` | `/api/comments/reaction` |
+
+`PATCH`는 리소스의 일부를 수정할 때 사용합니다. 현재 코드는 제목·내용 또는 댓글 내용을
+수정하며, 성공했지만 응답 본문이 필요 없을 때 `204 No Content`를 반환합니다.
+
+### 2. 요청의 작성자 번호를 믿으면 안 되는 이유
+
+게시글과 댓글을 등록할 때 프론트가 보낸 `mid`를 그대로 사용하면 다른 회원 번호를 넣어
+남의 이름으로 글을 작성할 수 있습니다. 그래서 서버가 JWT 인증 결과에서 회원을 꺼내
+작성자 번호를 덮어씁니다.
+
+```java
+@AuthenticationPrincipal UserEntity currentUser
+
+board.setMid(currentUser.getId());
+```
+
+### 3. 수정·삭제 권한 확인
+
+수정과 삭제는 다음 순서로 처리합니다.
+
+```text
+1. URL의 글/댓글 번호로 원본 조회
+2. 없으면 404 Not Found
+3. 작성자와 로그인 회원이 다르면 403 Forbidden
+4. 같으면 UPDATE 또는 DELETE
+5. 성공하면 204 No Content
+```
+
+상태 코드의 의미:
+
+- `401 Unauthorized`: 로그인 정보가 없거나 토큰이 잘못됨
+- `403 Forbidden`: 로그인은 했지만 남의 글이라 권한이 없음
+- `404 Not Found`: 대상 글이나 댓글이 없음
+
+`Long` 객체 ID를 비교할 때는 `!=`보다 `Objects.equals(a, b)`가 안전합니다. `!=`는 객체
+참조를 비교할 수 있기 때문입니다.
+
+```java
+if (!Objects.equals(board.getMid(), currentUser.getId())) {
+  return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+}
+```
+
+### 4. 좋아요·싫어요 토글 알고리즘
+
+게시글과 댓글의 반응 로직은 같습니다.
+
+```text
+기존 반응 없음
+  → 새 반응 INSERT
+
+기존 반응과 새 반응이 같음
+  → 같은 버튼을 다시 누른 것이므로 DELETE
+
+기존 반응과 새 반응이 다름
+  → LIKE ↔ DISLIKE UPDATE
+```
+
+DB의 `(회원 번호, 게시글 번호)` 또는 `(회원 번호, 댓글 번호)` unique 제약조건은 같은
+사용자가 같은 대상에 반응을 여러 행으로 저장하지 못하게 막습니다.
+
+### 5. 조건부 집계
+
+반응 처리 후 프론트가 화면 숫자를 바로 갱신할 수 있도록 좋아요와 싫어요 개수를 함께
+조회합니다.
+
+```sql
+count(case when type = 'like' then 1 end)    as likeCount,
+count(case when type = 'dislike' then 1 end) as dislikeCount
+```
+
+`ReactionCountDTO`는 이 두 결과를 받는 전용 DTO입니다. Entity나 게시글 DTO 전체를 반환하지
+않고 화면에 필요한 값만 응답하는 예입니다.
+
+### 6. 게시글과 댓글 계층을 분리한 이유
+
+- `BoardController` / `BoardService` / `BoardMapper`: 게시글 책임
+- `BoardCommentController` / `BoardCommentService` / `BoardCommentMapper`: 댓글 책임
+
+한 클래스에 모든 기능을 넣어도 실행은 되지만 파일이 빠르게 커집니다. 대상 리소스별로
+계층을 나누면 URL, SQL, 권한 검사를 찾고 수정하기 쉬워집니다.
+
+### 7. 오늘 코드에서 더 개선해 볼 부분
+
+- Service의 여러 DB 작업에 `@Transactional` 적용
+- Controller에서 반복되는 404·403 검사를 Service의 권한 검증 메서드로 이동
+- `@Valid`와 `BindingResult` 또는 전역 예외 처리로 요청 검증
+- 반응 타입을 임의 문자열 대신 Enum으로 제한
+- 게시글 삭제 시 댓글과 반응 데이터의 FK/cascade 정책 확인
+- 검색 결과 전용 count 쿼리 추가
+- 검색 SQL의 `${size}`를 `#{size}`로 변경
+
 ## 실행 순서
 
 ### Step15

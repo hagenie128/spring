@@ -1,0 +1,82 @@
+@baseUrl = http://localhost:8888
+@accessToken = 첫_번째_회원_accessToken
+@otherToken = 다른_회원_accessToken
+@bno = 1
+@cno = 1
+
+### 게시글 등록
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "6월 25일 퀘스트",
+  "content": "게시글 CRUD와 반응 기능"
+}
+
+### 게시글 수정
+PATCH {{baseUrl}}/api/posts/{{bno}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "수정된 제목",
+  "content": "수정된 내용"
+}
+
+### 다른 회원이 수정하면 403
+PATCH {{baseUrl}}/api/posts/{{bno}}
+Content-Type: application/json
+Authorization: Bearer {{otherToken}}
+
+{
+  "title": "남의 글 수정 시도",
+  "content": "실패해야 합니다."
+}
+
+### 게시글 LIKE
+POST {{baseUrl}}/api/posts/reaction
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "bno": {{bno}},
+  "type": "like"
+}
+
+### 댓글 등록
+POST {{baseUrl}}/api/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "bno": {{bno}},
+  "content": "퀘스트 댓글"
+}
+
+### 댓글 수정
+PATCH {{baseUrl}}/api/comments/{{cno}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "content": "수정된 댓글"
+}
+
+### 댓글 DISLIKE
+POST {{baseUrl}}/api/comments/reaction
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cno": {{cno}},
+  "type": "dislike"
+}
+
+### 댓글 삭제
+DELETE {{baseUrl}}/api/comments/{{cno}}
+Authorization: Bearer {{accessToken}}
+
+### 게시글 삭제
+DELETE {{baseUrl}}/api/posts/{{bno}}
+Authorization: Bearer {{accessToken}}
