@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>다음주 시험 과제 가이드</title>
+  <style>
+    :root{--bg:#f4f6f9;--surface:#fff;--line:#d6dce7;--text:#172033;--muted:#697386;--primary:#1f5fbf;--primary-soft:#eef4ff;--hint:#854d0e;--hint-bg:#fffbeb;--full:#166534;--full-bg:#f0fdf4;--exam:#7c2d12;--exam-bg:#fff7ed;--sidebar-w:252px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px}
+    .layout{display:flex}nav.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--line);padding:14px 10px 40px;font-size:12px;z-index:100}
+    nav.sidebar h1{font-size:14px;margin:0 0 2px;color:var(--exam)}nav.sidebar .sub{color:var(--muted);margin-bottom:12px;font-size:11px}
+    nav.sidebar a{display:block;padding:5px 8px;color:var(--text);text-decoration:none;border-radius:5px;margin:1px 0}nav.sidebar a:hover{background:var(--primary-soft);color:var(--primary)}
+    nav.sidebar .grp{font-weight:700;font-size:10px;color:var(--muted);margin:14px 0 4px 6px;text-transform:uppercase}
+    main{margin-left:var(--sidebar-w);flex:1;padding:20px 32px 60px;max-width:900px}
+    .intro{background:var(--exam-bg);border:1px solid #fdba74;border-radius:10px;padding:20px 24px;margin-bottom:20px}
+    .intro h2{margin:0 0 10px;font-size:20px;color:var(--exam)}
+    .map-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}th,td{border:1px solid var(--line);padding:8px}th{background:#f1f5fb}
+    .quest-title{font-size:22px;color:var(--primary);margin:32px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--primary-soft)}
+    .problem-block{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:18px;overflow:hidden}
+    .problem-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:#f8fafc;border-bottom:1px solid var(--line)}
+    .problem-header h3{margin:0;font-size:16px;flex:1}.problem-body{padding:16px 18px 18px}
+    .problem-body h4{margin:0 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase}
+    .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
+    .badge-r{background:#dbeafe;color:#1d4ed8}.badge-c{background:#dcfce7;color:#166534}.badge-u{background:#fef9c3;color:#854d0e}.badge-d{background:#fee2e2;color:#991b1b}.badge-setup{background:#e0e7ff;color:#3730a3}.badge-search{background:#f3e8ff;color:#6b21a8}.badge-react{background:#cffafe;color:#0e7490}
+    ul,ol{margin:0 0 12px;padding-left:20px}pre{background:#1e293b;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12px;line-height:1.45;margin:0}
+    code{font-family:Consolas,monospace;font-size:12px;background:#f1f5f9;padding:1px 5px;border-radius:3px}
+    .reveal-btn{display:block;width:100%;text-align:left;padding:11px 14px;margin-top:10px;border:1px dashed var(--line);border-radius:8px;background:#fafbfc;cursor:pointer;font-size:14px;font-weight:600}
+    .reveal-btn.hint{border-color:#fcd34d;color:var(--hint)}.reveal-btn.hint.open{background:var(--hint-bg);border-style:solid}
+    .reveal-btn.full{border-color:#86efac;color:var(--full)}.reveal-btn.full.open{background:var(--full-bg);border-style:solid}
+    .reveal-panel{display:none;margin-top:8px;padding:12px;border-radius:8px;border:1px solid var(--line)}.reveal-panel.open{display:block}
+    .reveal-panel.hint-panel{background:var(--hint-bg);border-color:#fcd34d}.reveal-panel.full-panel{background:var(--full-bg);border-color:#86efac}
+    .tip{background:var(--primary-soft);border-left:4px solid var(--primary);padding:10px 12px;margin:10px 0;font-size:13px;border-radius:0 6px 6px 0}
+    .checklist label{display:flex;gap:8px;padding:5px 0;font-size:13px;cursor:pointer}
+    #topBtn{position:fixed;bottom:20px;right:20px;background:var(--exam);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px}
+    @media(max-width:768px){nav.sidebar{display:none}main{margin-left:0;padding:12px}}
+  </style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <h1>다음주 시험</h1>
+  <div class="sub">문제 → 힌트 → 전체코드 (클릭)</div>
+  <a href="#intro">과제 개요</a>
+  <div class="grp">과제 1 Spring</div>
+  <a href="#a-setup">1-0 설정·DB</a>
+  <a href="#a-list">1-1 목록·검색 R</a>
+  <a href="#a-create">1-2 등록 C</a>
+  <a href="#a-update">1-3 수정 U</a>
+  <a href="#a-delete">1-4 삭제 D</a>
+  <div class="grp">과제 2 React</div>
+  <a href="#b-setup">2-0 프로젝트·키</a>
+  <a href="#b-axios">2-1 Axios GET</a>
+  <a href="#b-search">2-2 검색 파라미터</a>
+  <a href="#b-list">2-3 목록 출력</a>
+  <a href="#b-state">2-4 로딩·에러</a>
+  <a href="#check">체크리스트</a>
+  <div class="grp">기존 연습</div>
+  <a href="PRACTICE-GUIDE.html">Quest 18·19</a>
+  <a href="PRACTICE-GUIDE-12-17.html">Quest 12~17</a>
+</nav>
+
+<main>
+
+<div class="intro" id="intro">
+  <h2>다음 주 시험 — 2과제 정리</h2>
+  <table class="map-table">
+    <tr><th>과제</th><th>주제</th><th>스택</th><th>repo 연습</th></tr>
+    <tr>
+      <td><strong>과제 1</strong></td>
+      <td>학생 관리 CRUD + 키워드 검색</td>
+      <td>Spring Boot + MyBatis + Thymeleaf + MySQL</td>
+      <td><code>quest/18</code> 도서→학생으로 이름만 바꿈<br><code>schema-students.sql</code></td>
+    </tr>
+    <tr>
+      <td><strong>과제 2</strong></td>
+      <td>관광공사 API 상가 검색·목록</td>
+      <td>React + Axios (공공 API)</td>
+      <td>JWT 없음! <code>quest/19</code> Axios 패턴만 참고</td>
+    </tr>
+  </table>
+  <p class="tip"><strong>핵심:</strong> 과제1은 <code>Book</code>→<code>Student</code>, <code>/books</code>→<code>/students</code> 치환 연습. 과제2는 <code>.env</code>에 Service Key + <code>params</code> 검색 + loading/error.</p>
+</div>
+
+<h2 class="quest-title" id="task1">💻 과제 1 — 학생 관리 시스템 (Spring)</h2>
+
+<article class="problem-block" id="a-setup">
+  <div class="problem-header"><span class="badge badge-setup">SETUP</span><h3>1-0 프로젝트·DB·MyBatis</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>Initializr: Web, Thymeleaf, MySQL, Validation</li>
+      <li>MyBatis + <code>@MapperScan</code></li>
+      <li>테이블: 학번(student_id), 이름, 학과(major) 등 — <code>quest/18/.../schema-students.sql</code></li>
+      <li>폴더: controller / service / mapper / dto / templates/student</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-a-setup">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-a-setup"><pre><code>// application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/student_practice_db
+mybatis.mapper-locations=classpath:/mappers/**/*.xml
+mybatis.type-aliases-package=com.spring.dto
+mybatis.configuration.map-underscore-to-camel-case=true
+
+// StudentDTO
+@Alias("student") @Getter @Setter
+private Long studentId;  // DB student_id
+private String name;
+private String major;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-a-setup">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-a-setup"><pre><code>CREATE TABLE students (
+  student_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
+  major VARCHAR(50),
+  email VARCHAR(100),
+  grade INT,
+  enrolled_at DATE
+);
+
+@MapperScan("com.spring.mapper")
+@SpringBootApplication
+public class StudentApplication { ... }</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="a-list">
+  <div class="problem-header"><span class="badge badge-search">R</span><h3>1-1 전체 목록 + 키워드 검색 (이름·학과)</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>GET <code>/students</code> — 전체 목록</li>
+      <li><code>keyword</code> 파라미터 — 이름 <strong>또는</strong> 학과 LIKE 검색</li>
+      <li>list.html — 검색 폼 + th:each 테이블</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-a-list">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-a-list"><pre><code>&lt;select id="search" resultType="student"&gt;
+  SELECT * FROM students
+  WHERE (#{keyword} IS NULL OR #{keyword} = ''
+     OR name LIKE CONCAT('%', #{keyword}, '%')
+     OR major LIKE CONCAT('%', #{keyword}, '%'))
+  ORDER BY student_id DESC
+&lt;/select&gt;
+
+@GetMapping
+public String list(@RequestParam(defaultValue="") String keyword, Model model) {
+  model.addAttribute("students", studentService.search(keyword));
+  model.addAttribute("keyword", keyword);
+  return "student/list";
+}</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-a-list">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-a-list"><pre><code>&lt;form method="get" action="/students"&gt;
+  &lt;input name="keyword" th:value="${keyword}" placeholder="이름 또는 학과" /&gt;
+  &lt;button type="submit"&gt;검색&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;tr th:each="s : ${students}"&gt;
+  &lt;td th:text="${s.studentId}"&gt;&lt;/td&gt;
+  &lt;td&gt;&lt;a th:href="@{/students/{id}(id=${s.studentId})}"
+         th:text="${s.name}"&gt;&lt;/a&gt;&lt;/td&gt;
+  &lt;td th:text="${s.major}"&gt;&lt;/td&gt;
+&lt;/tr&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="a-create">
+  <div class="problem-header"><span class="badge badge-c">C</span><h3>1-2 학생 등록</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>GET <code>/students/new</code> — 빈 폼</li>
+      <li>POST <code>/students</code> — insert 후 redirect</li>
+      <li>th:object + th:field</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-a-create">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-a-create"><pre><code>void insert(StudentDTO student);
+
+@GetMapping("/new")
+model.addAttribute("student", new StudentDTO());
+
+@PostMapping
+studentService.save(student);
+return "redirect:/students";</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-a-create">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-a-create"><pre><code>&lt;form th:action="@{/students}" th:object="${student}" method="post"&gt;
+  &lt;p&gt;이름: &lt;input th:field="*{name}" /&gt;&lt;/p&gt;
+  &lt;p&gt;학과: &lt;input th:field="*{major}" /&gt;&lt;/p&gt;
+  &lt;p&gt;이메일: &lt;input th:field="*{email}" /&gt;&lt;/p&gt;
+  &lt;button type="submit"&gt;등록&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;insert id="insert"&gt;
+  INSERT INTO students (name, major, email, grade, enrolled_at)
+  VALUES (#{name}, #{major}, #{email}, #{grade}, #{enrolledAt})
+&lt;/insert&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="a-update">
+  <div class="problem-header"><span class="badge badge-u">U</span><h3>1-3 학생 수정</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>GET <code>/students/{id}/edit</code> — 기존값 로드</li>
+      <li>POST <code>/students/{id}/edit</code> — update</li>
+      <li>PK(studentId) 세팅 후 WHERE</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-a-update">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-a-update"><pre><code>student.setStudentId(id);
+return "redirect:/students/" + id;
+
+&lt;form th:action="@{/students/{id}/edit(id=${student.studentId})}" ...&gt;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-a-update">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-a-update"><pre><code>@GetMapping("/{id}/edit")
+public String editForm(@PathVariable Long id, Model model) {
+  model.addAttribute("student", studentService.findById(id));
+  return "student/edit";
+}
+
+@PostMapping("/{id}/edit")
+public String edit(@PathVariable Long id, @ModelAttribute StudentDTO student) {
+  student.setStudentId(id);
+  studentService.update(student);
+  return "redirect:/students";
+}
+
+&lt;update id="update"&gt;
+  UPDATE students SET name=#{name}, major=#{major}, email=#{email}
+  WHERE student_id = #{studentId}
+&lt;/update&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="a-delete">
+  <div class="problem-header"><span class="badge badge-d">D</span><h3>1-4 학생 삭제</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>POST <code>/students/{id}/delete</code> (GET 링크 X)</li>
+      <li>detail.html 삭제 폼 + confirm</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-a-delete">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-a-delete"><pre><code>@PostMapping("/{id}/delete")
+public String delete(@PathVariable Long id) {
+  studentService.deleteById(id);
+  return "redirect:/students";
+}</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-a-delete">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-a-delete"><pre><code>&lt;form th:action="@{/students/{id}/delete(id=${student.studentId})}"
+      method="post" onsubmit="return confirm('삭제?');"&gt;
+  &lt;button type="submit"&gt;삭제&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;delete id="deleteById"&gt;
+  DELETE FROM students WHERE student_id = #{studentId}
+&lt;/delete&gt;</code></pre></div>
+  </div>
+</article>
+
+<h2 class="quest-title" id="task2">⚛️ 과제 2 — 관광공사 API (React + Axios)</h2>
+<p class="tip">API 문서: <a href="https://www.data.go.kr/data/15101578/openapi.do" target="_blank">한국관광공사_국문 관광정보 서비스_GW</a><br>시험지에 <strong>정확한 URL·파라미터명</strong>이 적혀 있으면 그걸 우선 따르세요.</p>
+
+<article class="problem-block" id="b-setup">
+  <div class="problem-header"><span class="badge badge-setup">SETUP</span><h3>2-0 React 프로젝트 + Service Key</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li><code>npx create-react-app tourism-search</code></li>
+      <li><code>.env</code>에 인증키 — <strong>Git에 올리지 않기</strong></li>
+      <li>공공 API는 보통 <code>serviceKey</code> 쿼리 파라미터</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-b-setup">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-b-setup"><pre><code>// .env (CRA는 REACT_APP_ 접두사)
+REACT_APP_TOUR_API_KEY=발급받은_디코딩_키
+
+// 키는 URL 인코딩 필요할 수 있음 — 문제지 확인
+// 백엔드 프록시 없이 브라우저 호출 시 CORS 에러 날 수 있음
+// → 시험 환경에서 허용되는지 확인, 또는 proxy 설정</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-b-setup">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-b-setup"><pre><code>npm install axios
+
+// package.json (개발용 CORS 우회 — 시험 허용 시)
+"proxy": "https://apis.data.go.kr"
+
+// 또는 axios baseURL을 문제지 Base URL 그대로 사용</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="b-axios">
+  <div class="problem-header"><span class="badge badge-react">API</span><h3>2-1 Axios GET 비동기 요청</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>axios로 공공 API GET 호출</li>
+      <li>응답 JSON 구조 파악 — <code>response.data.response.body.items.item</code> 등 (문서 확인!)</li>
+      <li>배열 1건이면 객체로 올 수 있음 → 배열로 통일</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-b-axios">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-b-axios"><pre><code>// api/tourApi.js
+import axios from 'axios';
+
+const API_KEY = process.env.REACT_APP_TOUR_API_KEY;
+
+export const fetchTourList = (params) =>
+  axios.get('문제지에_적힌_URL', {
+    params: {
+      serviceKey: API_KEY,
+      MobileOS: 'ETC',
+      MobileApp: 'TestApp',
+      _type: 'json',
+      ...params,
+    },
+  });</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-b-axios">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-b-axios"><pre><code>// 응답 가공 예시 (실제 키는 API 문서대로!)
+const res = await fetchTourList({ numOfRows: 10, pageNo: 1 });
+const body = res.data.response.body;
+let items = body.items?.item ?? [];
+if (!Array.isArray(items)) items = [items];  // 1건일 때
+setList(items);</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="b-search">
+  <div class="problem-header"><span class="badge badge-search">검색</span><h3>2-2 검색어 → API 파라미터</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>input + 검색 버튼</li>
+      <li>클릭 시 keyword(또는 문제지 파라미터명)를 API에 전달</li>
+      <li>빈 검색 시 전체 또는 기본 목록</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-b-search">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-b-search"><pre><code>const [keyword, setKeyword] = useState('');
+
+const handleSearch = () => {
+  loadData({ keyword: keyword });  // 파라미터명은 문제지 확인!
+};
+
+&lt;input value={keyword} onChange={e => setKeyword(e.target.value)} /&gt;
+&lt;button onClick={handleSearch}&gt;검색&lt;/button&gt;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-b-search">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-b-search"><pre><code>const loadData = async (searchParams = {}) => {
+  setLoading(true);
+  setError('');
+  try {
+    const res = await fetchTourList({
+      numOfRows: 20,
+      pageNo: 1,
+      ...searchParams,   // keyword, areaCode 등
+    });
+    // JSON 파싱 후 setList
+  } catch (e) {
+    setError('데이터를 불러오지 못했습니다.');
+  } finally {
+    setLoading(false);
+  }
+};</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="b-list">
+  <div class="problem-header"><span class="badge badge-r">UI</span><h3>2-3 목록(테이블) 출력</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>API 필드 → 화면 컬럼 매핑 (상호명, 주소, 전화 등)</li>
+      <li><code>list.map(item => &lt;tr key={...}&gt;)</code></li>
+      <li>key는 고유값 (contentid, id 등)</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-b-list">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-b-list"><pre><code>&lt;table&gt;
+  &lt;thead&gt;&lt;tr&gt;&lt;th&gt;상호명&lt;/th&gt;&lt;th&gt;주소&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+  &lt;tbody&gt;
+    {list.map(item => (
+      &lt;tr key={item.contentid}&gt;
+        &lt;td&gt;{item.title}&lt;/td&gt;
+        &lt;td&gt;{item.addr1}&lt;/td&gt;
+      &lt;/tr&gt;
+    ))}
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-b-list">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-b-list"><pre><code>// App.jsx 구조 예시
+function App() {
+  const [list, setList] = useState([]);
+  const [keyword, setKeyword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  return (
+    &lt;div&gt;
+      &lt;SearchBar keyword={keyword} setKeyword={setKeyword} onSearch={...} /&gt;
+      {loading && &lt;p&gt;Loading...&lt;/p&gt;}
+      {error && &lt;p style={{color:'red'}}&gt;{error}&lt;/p&gt;}
+      {!loading && !error && &lt;TourTable list={list} /&gt;}
+    &lt;/div&gt;
+  );
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="b-state">
+  <div class="problem-header"><span class="badge badge-react">STATE</span><h3>2-4 로딩 · 에러 처리</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>요청 전 <code>loading = true</code> → 끝나면 false</li>
+      <li>성공: 목록 state 갱신</li>
+      <li>실패: catch에서 error 메시지, 목록 비우기</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-b-state">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-b-state"><pre><code>if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+if (error) return &lt;p&gt;에러: {error}&lt;/p&gt;;
+if (list.length === 0) return &lt;p&gt;검색 결과가 없습니다.&lt;/p&gt;;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-b-state">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-b-state"><pre><code>const loadData = async () => {
+  setLoading(true);
+  setError('');
+  try {
+    const res = await fetchTourList({ keyword });
+    const items = parseItems(res.data);  // 배열 통일 함수
+    setList(items);
+  } catch (err) {
+    console.error(err);
+    setError(err.response?.data?.message || 'API 호출 실패');
+    setList([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// resultCode !== '0000' 인 경우도 에러 처리 (공공 API)</code></pre></div>
+  </div>
+</article>
+
+<div class="intro" id="check">
+  <h2>시험 전 체크리스트</h2>
+  <h4>과제 1 (Spring)</h4>
+  <div class="checklist" data-store="exam1">
+    <label><input type="checkbox" /> MyBatis mapper XML + #{ } 파라미터</label>
+    <label><input type="checkbox" /> 목록 + keyword 검색 (name OR major)</label>
+    <label><input type="checkbox" /> 등록/수정 th:field</label>
+    <label><input type="checkbox" /> 삭제 POST form</label>
+    <label><input type="checkbox" /> /new 가 /{id} 보다 위</label>
+  </div>
+  <h4>과제 2 (React)</h4>
+  <div class="checklist" data-store="exam2">
+    <label><input type="checkbox" /> .env Service Key</label>
+    <label><input type="checkbox" /> axios GET + params</label>
+    <label><input type="checkbox" /> 검색 버튼 → API 재호출</label>
+    <label><input type="checkbox" /> map 목록 출력</label>
+    <label><input type="checkbox" /> Loading... / 에러 분기</label>
+    <label><input type="checkbox" /> 응답 JSON 키 경로 확인</label>
+  </div>
+</div>
+
+</main>
+</div>
+<button type="button" id="topBtn">↑ 맨 위</button>
+<script>
+document.querySelectorAll('.reveal-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const panel=document.getElementById(btn.dataset.panel);
+    const isOpen=panel.classList.toggle('open');
+    btn.classList.toggle('open',isOpen);
+    const isHint=btn.classList.contains('hint');
+    btn.textContent=isHint?(isOpen?'▲ 힌트 코드 숨기기':'💡 힌트 코드 보기'):(isOpen?'▲ 전체 코드 숨기기':'📋 전체 코드 보기');
+  });
+});
+document.querySelectorAll('.checklist').forEach(list=>{
+  const key='exam-'+ (list.dataset.store||'x');
+  list.querySelectorAll('input').forEach((cb,i)=>{
+    const id=key+i; cb.checked=localStorage.getItem(id)==='1';
+    cb.addEventListener('change',()=>localStorage.setItem(id,cb.checked?'1':'0'));
+  });
+});
+document.getElementById('topBtn').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+</script>
+</body>
+</html>

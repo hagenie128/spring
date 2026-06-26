@@ -6,6 +6,8 @@
 교수님이 **주제(학생/도서/메뉴 등)와 API 명세를 시험 당일에 주실 수 있으므로**,  
 정답 코드 암기보다 **프로젝트 뼈대를 혼자 세우고 CRUD/JWT 패턴을 바꿔 끼우는 연습**이 목표입니다.
 
+> **📖 다음주 시험:** [PRACTICE-GUIDE-EXAM.html](../PRACTICE-GUIDE-EXAM.html) — 학생 CRUD + 관광 API
+
 > **📖 연습 가이드 (HTML):** [PRACTICE-GUIDE.html](PRACTICE-GUIDE.html) — 문제 / 힌트 / 전체코드 클릭해서 열기
 
 > **📖 한 번에 보기:** [PRACTICE-GUIDE.html](PRACTICE-GUIDE.html) — 브라우저에서 열고 스크롤하며 연습

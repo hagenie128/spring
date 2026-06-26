@@ -24,7 +24,6 @@ import com.spring.dto.PostFormDTO;
 import com.spring.dto.ReactionDTO;
 import com.spring.entity.Attachment;
 import com.spring.entity.Comment;
-import com.spring.entity.CommentReaction;
 import com.spring.entity.Member;
 import com.spring.entity.Post;
 import com.spring.entity.PostReaction;
@@ -224,7 +223,8 @@ public class PostController {
       System.out.println(comment.getId() + " / " + comment.getContent()); // 콘솔 디버그 출력
     }
 
-    List<CommentReaction> commentReactions = commentReactionService.getCommentReactionByCommentId(comments);
+    List<ReactionDTO> commentReactions = commentReactionService.getCommentReactionByCommentId(comments);
+    view.addObject("commentReactions", commentReactions);
 
     // 3. 첨부파일 목록 조회
     List<Attachment> attachments = attachmentService.getAttachmentByPost(id);
