@@ -4,20 +4,26 @@ import { postApi } from "../api/postApi";
 
 export default () => {
 
-  const { id } = useParams();
+  const { bno } = useParams();
   const [post, setPost] = useState({});
   const [commentList, setCommentList] = useState([]);
 
   useEffect(() => {
-    postApi.getPostById(id)
+    postApi.getPost(bno)
     .then(response => {
+      console.log(response.data);
         setPost(response.data.board);
         setCommentList(response.data.commentList);
       }
-    )
-  },[id]);
+    ).catch(error => {
+      console.error('Error fetching post:', error);
+    });
+  },[bno]);
 
   return <div className="container post-detail">
+    {
+      !post ? <div>Loading...</div> : (
+        <>
     <h2 className="post-title">{post.title}</h2>
       <div className="post-meta">
         <span className="author">작성자 : {post.nickname}</span>
@@ -46,8 +52,8 @@ export default () => {
       <div className="comment-list">
         {commentList.map(item => <div className="comment-item" key={item.cno}>
           <div className="comment-info">
-            <span className="author">작성자 : {item.nickname}</span>
-            <span className="date">작성일 : {item.cdate}</span>
+            <span className="author">👤 {item.nickname}</span>
+            <span className="date">📅 {item.cdate}</span>
           </div>
           <div className="comment-content">{item.content}</div>
           <div className="comment-actions">
@@ -58,7 +64,9 @@ export default () => {
           <button type="button" className="delete-button">삭제</button>
           </div>
         </div>)}
+      </div>  
       </div>
+      </>
+      )}
     </div>
-  </div>
 }

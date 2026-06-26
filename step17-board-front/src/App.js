@@ -25,11 +25,11 @@ function App() {
       <Route path='/' element={<PostListPage/>}/>
       <Route path='/login' element={<LoginPage/>}/>
       <Route path='/signup' element={<SignupPage/>}/>
-      <Route path='/posts/:id' element={<PostDetailPage/>}/>
+      <Route path='/posts/:bno' element={<PostDetailPage/>}/>
       {/* 인증 */}
 
       <Route path='/posts/create' element={<PostWritePage/>}/>
-      <Route path='/posts/:id/edit' element={<PostWritePage/>}/>
+      <Route path='/posts/:bno/edit' element={<PostWritePage/>}/>
 
     </Routes>
   </>;

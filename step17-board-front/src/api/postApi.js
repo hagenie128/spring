@@ -8,6 +8,6 @@ export const postApi = {
         size : size
     }
   }) ,
-  getPostById : (id) => axiosInstance.get(`/api/posts/${id}`),
+  getPost : (bno) => axiosInstance.get(`/api/posts/${bno}`),
 
 };
