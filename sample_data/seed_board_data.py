@@ -1,19 +1,23 @@
-# seed_board_data.py
-# pip install pymysql
+# seed_board_data.py — step17 대량 샘플 (게시글 1000건)
+# pip install -r requirements.txt
+#
+# 페이징 연습만 하려면 seed_board_pagination.py (300건) 사용 권장
+# README.md 참고
 
-import pymysql
 import random
 from datetime import datetime, timedelta
 
-conn = pymysql.connect(
-    host="localhost",
-    port=3306,
-    user="root",
-    password="12345678",
-    database="new_board_db",
-    charset="utf8mb4",
-    autocommit=False
-)
+from db import connect
+
+try:
+    from config import BOARD_DB
+except ImportError:
+    BOARD_DB = "new_board_db"
+
+MEMBER_COUNT = 100
+BOARD_COUNT = 1000
+
+conn = connect(BOARD_DB)
 
 cursor = conn.cursor()
 
@@ -33,7 +37,7 @@ try:
     # 회원 100명 생성
     member_ids = []
 
-    for i in range(1, 101):
+    for i in range(1, MEMBER_COUNT + 1):
         username = f"user{i}"
         password = "1234"
         nickname = f"회원{i}"
@@ -51,7 +55,7 @@ try:
     # 게시글 1000건 생성
     board_ids = []
 
-    for i in range(1, 1001):
+    for i in range(1, BOARD_COUNT + 1):
         mid = random.choice(member_ids)
         title = f"샘플 게시글 제목 {i}"
         content = f"""

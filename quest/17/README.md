@@ -1,5 +1,7 @@
 # Quest 17 — 6월 26일 React 게시판 프론트 연동
 
+> **📖 통합 가이드:** [../PRACTICE-GUIDE-12-17.html](../PRACTICE-GUIDE-12-17.html) — 문제·힌트·전체코드 (클릭해서 열기)
+
 > Axios · React Router · Context API · JWT · 게시글 목록/상세 UI
 
 수업에서 `step17-board-front`와 `step17-board-backend`를 연결하며 진행한 내용을 복습하는 퀘스트입니다.

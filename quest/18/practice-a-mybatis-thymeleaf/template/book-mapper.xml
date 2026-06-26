@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.mapper.BookMapper">
+
+  <!-- TODO R 목록 -->
+  <select id="findAll" resultType="book">
+    SELECT * FROM books ORDER BY book_id DESC
+  </select>
+
+  <!-- TODO R 상세 -->
+  <select id="findById" resultType="book">
+    SELECT * FROM books WHERE book_id = #{bookId}
+  </select>
+
+  <!-- TODO C 등록 -->
+  <insert id="insert">
+    INSERT INTO books (title, author, price, published_date)
+    VALUES (#{title}, #{author}, #{price}, #{publishedDate})
+  </insert>
+
+  <!-- TODO U 수정 -->
+  <update id="update">
+    UPDATE books
+    SET title = #{title},
+        author = #{author},
+        price = #{price},
+        published_date = #{publishedDate}
+    WHERE book_id = #{bookId}
+  </update>
+
+  <!-- TODO D 삭제 -->
+  <delete id="deleteById">
+    DELETE FROM books WHERE book_id = #{bookId}
+  </delete>
+
+</mapper>

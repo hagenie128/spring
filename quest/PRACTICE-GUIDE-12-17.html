@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quest 12~17 실습 가이드</title>
+  <style>
+    :root{--bg:#f4f6f9;--surface:#fff;--line:#d6dce7;--text:#172033;--muted:#697386;--primary:#1f5fbf;--primary-soft:#eef4ff;--hint:#854d0e;--hint-bg:#fffbeb;--full:#166534;--full-bg:#f0fdf4;--sidebar-w:252px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px}
+    .layout{display:flex}nav.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--line);padding:14px 10px 40px;font-size:12px;z-index:100}
+    nav.sidebar h1{font-size:14px;margin:0 0 2px;color:var(--primary)}nav.sidebar .sub{color:var(--muted);margin-bottom:12px;font-size:11px}
+    nav.sidebar a{display:block;padding:5px 8px;color:var(--text);text-decoration:none;border-radius:5px;margin:1px 0}nav.sidebar a:hover{background:var(--primary-soft);color:var(--primary)}
+    nav.sidebar .grp{font-weight:700;font-size:10px;color:var(--muted);margin:14px 0 4px 6px;text-transform:uppercase;letter-spacing:.05em}
+    main{margin-left:var(--sidebar-w);flex:1;padding:20px 32px 60px;max-width:900px}
+    .intro{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:20px}
+    .intro h2{margin:0 0 10px;font-size:20px;color:var(--primary)}
+    .quest-title{font-size:22px;color:var(--primary);margin:32px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--primary-soft)}
+    .problem-block{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:18px;overflow:hidden;box-shadow:0 2px 8px rgba(23,32,51,.04)}
+    .problem-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:#f8fafc;border-bottom:1px solid var(--line)}
+    .problem-header h3{margin:0;font-size:16px;flex:1}.problem-body{padding:16px 18px 18px}
+    .problem-body h4{margin:0 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;flex-shrink:0}
+    .badge-r{background:#dbeafe;color:#1d4ed8}.badge-c{background:#dcfce7;color:#166534}.badge-u{background:#fef9c3;color:#854d0e}.badge-d{background:#fee2e2;color:#991b1b}.badge-setup{background:#e0e7ff;color:#3730a3}.badge-page{background:#f3e8ff;color:#6b21a8}
+    ul,ol{margin:0 0 12px;padding-left:20px}pre{background:#1e293b;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12px;line-height:1.45;margin:0}
+    code{font-family:Consolas,monospace;font-size:12px;background:#f1f5f9;padding:1px 5px;border-radius:3px}
+    .reveal-btn{display:block;width:100%;text-align:left;padding:11px 14px;margin-top:10px;border:1px dashed var(--line);border-radius:8px;background:#fafbfc;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s}
+    .reveal-btn:hover{background:#f1f5f9}.reveal-btn.hint{border-color:#fcd34d;color:var(--hint)}.reveal-btn.hint.open{background:var(--hint-bg);border-style:solid}
+    .reveal-btn.full{border-color:#86efac;color:var(--full)}.reveal-btn.full.open{background:var(--full-bg);border-style:solid}
+    .reveal-panel{display:none;margin-top:8px;padding:12px;border-radius:8px;border:1px solid var(--line)}.reveal-panel.open{display:block}
+    .reveal-panel.hint-panel{background:var(--hint-bg);border-color:#fcd34d}.reveal-panel.full-panel{background:var(--full-bg);border-color:#86efac}
+    .tip{background:var(--primary-soft);border-left:4px solid var(--primary);padding:10px 12px;margin:10px 0;font-size:13px;border-radius:0 6px 6px 0}
+    .checklist label{display:flex;gap:8px;padding:5px 0;font-size:13px;cursor:pointer}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}th,td{border:1px solid var(--line);padding:6px 8px}th{background:#f1f5fb}
+    #topBtn{position:fixed;bottom:20px;right:20px;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px}
+    @media(max-width:768px){nav.sidebar{display:none}main{margin-left:0;padding:12px}}
+  </style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <h1>Quest 12~17</h1>
+  <div class="sub">문제 → 힌트 → 전체코드 (클릭)</div>
+  <a href="#intro">사용법</a>
+  <div class="grp">Quest 12 JPA Join</div>
+  <a href="#q12-1">12-1 JOIN FETCH</a>
+  <a href="#q12-2">12-2 검색</a>
+  <a href="#q12-3">12-3 등록 폼</a>
+  <a href="#q12-4">12-4 CRUD 종합</a>
+  <div class="grp">Quest 13 동네마켓</div>
+  <a href="#q13-1">13-1 판매글 CRUD</a>
+  <a href="#q13-2">13-2 회원·세션</a>
+  <a href="#q13-3">13-3 댓글·사진</a>
+  <a href="#q13-4">13-4 찜 AJAX</a>
+  <div class="grp">Quest 14 스터디</div>
+  <a href="#q14-1">14-1 목록·페이징</a>
+  <a href="#q14-2">14-2 모집글 등록</a>
+  <a href="#q14-3">14-3 신청·합격</a>
+  <a href="#q14-4">14-4 상세·반응</a>
+  <div class="grp">Quest 15 분리</div>
+  <a href="#q15-1">15 REST + React</a>
+  <div class="grp">Quest 16 Security</div>
+  <a href="#q16-1">16-1 JWT 백엔드</a>
+  <a href="#q16-2">16-2 React JWT</a>
+  <a href="#q16-3">16-3 OAuth2</a>
+  <a href="#q16-4">16-4 Board API</a>
+  <a href="#q16-5">16-5 CRUD·반응</a>
+  <div class="grp">Quest 17 React</div>
+  <a href="#q17-1">17-1 목록·상세</a>
+  <a href="#q17-2">17-2 AuthContext</a>
+  <a href="#q17-3">17-3 상세 UI</a>
+  <a href="#q17-4">17-4 댓글 작성</a>
+  <a href="#q17-5">17-5 글쓰기·NavBar</a>
+  <a href="#check">체크리스트</a>
+</nav>
+
+<main>
+
+<div class="intro" id="intro">
+  <h2>Quest 12~17 통합 실습 가이드</h2>
+  <ol>
+    <li><strong>문제</strong>만 보고 직접 구현</li>
+    <li>막히면 <strong>힌트 코드 보기</strong> 클릭</li>
+    <li>그래도 안 되면 <strong>전체 코드 보기</strong> 클릭</li>
+  </ol>
+  <p>Quest 18·19는 <a href="PRACTICE-GUIDE.html">PRACTICE-GUIDE.html</a> 참고</p>
+</div>
+
+<h2 class="quest-title" id="quest12">Quest 12 — JPA Join + MVC (도서관 대출)</h2>
+<p class="tip">실행: <code>cd quest/12/problem0N</code> → <code>gradlew.bat bootRun</code> → http://localhost:8080/loans<br>참고: <code>step13-boot-jpa-join</code> (Order ↔ Loan 도메인만 다름)</p>
+
+<article class="problem-block" id="q12-1">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>12-1 연관관계 &amp; JOIN FETCH</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>Loan ↔ LoanItem ↔ Book 연관관계 매핑</li>
+      <li>addLoanItem 편의 메서드, @PrePersist 대출일</li>
+      <li>JOIN FETCH로 N+1 없이 목록 조회</li>
+      <li>GET /loans + list.html th:each</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q12-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q12-1"><pre><code>@ManyToOne @JoinColumn(name="loan_id")
+private Loan loan;
+
+@OneToMany(mappedBy="loan", cascade=ALL, orphanRemoval=true)
+private List&lt;LoanItem&gt; loanItems = new ArrayList<>();
+
+@Query("select l from Loan l join fetch l.student order by l.loanDate desc")
+List&lt;Loan&gt; findAllWithStudent();</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q12-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q12-1"><pre><code>public void addLoanItem(LoanItem item) {
+  loanItems.add(item);
+  item.setLoan(this);
+}
+
+@GetMapping
+public String list(Model model) {
+  model.addAttribute("loans", loanService.findAll());
+  return "loan/list";
+}
+
+&lt;tr th:each="loan : ${loans}"&gt;
+  &lt;td th:text="${loan.student.name}"&gt;&lt;/td&gt;
+  &lt;td th:text="${loan.loanItems.size()}"&gt;&lt;/td&gt;
+  &lt;td th:text="${loan.loanDate}"&gt;&lt;/td&gt;
+&lt;/tr&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q12-2">
+  <div class="problem-header"><span class="badge badge-setup">검색</span><h3>12-2 @RequestParam 검색 필터</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>studentId, status 파라미터 — null이면 조건 무시</li>
+      <li>검색 후 select 선택값 유지 (th:selected)</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q12-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q12-2"><pre><code>@Query("select l from Loan l join fetch l.student s "
+  + "where (:studentId is null or s.id = :studentId) "
+  + "and (:status is null or l.status = :status)")
+List&lt;Loan&gt; search(@Param("studentId") Long studentId,
+                  @Param("status") LoanStatus status);</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q12-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q12-2"><pre><code>@GetMapping
+public String list(
+    @RequestParam(value="studentId", required=false) Long studentId,
+    @RequestParam(value="status", required=false) LoanStatus status,
+    Model model) {
+  model.addAttribute("loans", loanService.search(studentId, status));
+  model.addAttribute("students", studentService.findAll());
+  model.addAttribute("studentId", studentId);
+  model.addAttribute("status", status);
+  return "loan/list";
+}
+
+&lt;option th:each="s : ${students}" th:value="${s.id}"
+  th:text="${s.name}" th:selected="${s.id == studentId}"&gt;&lt;/option&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q12-3">
+  <div class="problem-header"><span class="badge badge-c">C</span><h3>12-3 대출 등록 폼</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>GET /loans/new, POST — studentId + bookIds + quantities (List)</li>
+      <li>수량 0 건너뛰기, 빈 대출 예외</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q12-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q12-3"><pre><code>@PostMapping
+public String save(
+    @RequestParam Long studentId,
+    @RequestParam List&lt;Long&gt; bookIds,
+    @RequestParam List&lt;Integer&gt; quantities, RedirectAttributes ra)</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q12-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q12-3"><pre><code>for (int i = 0; i &lt; bookIds.size(); i++) {
+  if (quantities.get(i) == 0) continue;
+  Book book = bookRepo.findById(bookIds.get(i)).orElseThrow();
+  LoanItem item = new LoanItem(book, quantities.get(i));
+  loan.addLoanItem(item);
+}
+if (loan.getLoanItems().isEmpty()) throw new IllegalArgumentException("도서 선택");
+loanRepo.save(loan);
+return "redirect:/loans";</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q12-4">
+  <div class="problem-header"><span class="badge badge-d">CRUD</span><h3>12-4 상세 · 상태 · 삭제</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>상세: student + items + book 다중 JOIN FETCH</li>
+      <li>POST 상태변경, POST 삭제 (GET 링크 X)</li>
+      <li>/new 가 /{id} 위에 매핑</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q12-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q12-4"><pre><code>@Query("select distinct l from Loan l "
+  + "join fetch l.student join fetch l.loanItems li join fetch li.book "
+  + "where l.id = :id")
+Optional&lt;Loan&gt; findByIdWithDetails(@Param("id") Long id);</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q12-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q12-4"><pre><code>@PostMapping("/{id}/delete")
+public String delete(@PathVariable Long id) {
+  loanService.delete(id);
+  return "redirect:/loans";
+}
+
+&lt;form th:action="@{/loans/{id}/status(id=${loan.id})}" method="post"&gt;
+  &lt;select name="status"&gt;...&lt;/select&gt;
+  &lt;button&gt;상태 변경&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;form method="post" th:action="@{/loans/{id}/delete(id=${loan.id})}"
+      onsubmit="return confirm('삭제?');"&gt;
+  &lt;button&gt;삭제&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+  </div>
+</article>
+
+<h2 class="quest-title" id="quest13">Quest 13 — 동네 마켓 (JPA 게시판 변형)</h2>
+<p class="tip">URL: http://localhost:8080/listings · Post→Listing, Comment→ListingComment</p>
+
+<article class="problem-block" id="q13-1">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>13-1 판매글 CRUD + 카테고리·페이징</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>Listing 엔티티 — title, price, category, status, createdAt</li>
+      <li>검색 + Pageable 목록, 피드형 list.html</li>
+      <li>등록/상세/삭제</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q13-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q13-1"><pre><code>@PrePersist void prePersist() { createdAt = LocalDateTime.now(); status = SELLING; }
+
+Page&lt;Listing&gt; search(String keyword, Category cat, Pageable pageable);</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q13-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q13-1"><pre><code>@GetMapping
+public String list(@RequestParam(defaultValue="") String keyword,
+    @RequestParam(required=false) Category category,
+    @PageableDefault(size=12) Pageable pageable, Model model) {
+  Page&lt;Listing&gt; page = listingService.search(keyword, category, pageable);
+  model.addAttribute("listings", page.getContent());
+  model.addAttribute("page", page);
+  return "listing/list";
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q13-2">
+  <div class="problem-header"><span class="badge badge-setup">AUTH</span><h3>13-2 회원·세션·판매자만 수정</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>User 가입/로그인 BCrypt, HttpSession</li>
+      <li>Listing ↔ User ManyToOne, 본인만 수정</li>
+      <li>Quill 상세설명 (선택)</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q13-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q13-2"><pre><code>if (!listing.getSeller().getId().equals(loginUser.getId()))
+  throw new AccessDeniedException("본인 글만 수정");
+
+session.setAttribute("loginUser", user);</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q13-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q13-2"><pre><code>@PostMapping("/signup")
+public String signup(@ModelAttribute UserForm form) {
+  userService.signup(form.getUsername(), form.getPassword(), form.getNickname());
+  return "redirect:/auth/login";
+}
+
+@ManyToOne(fetch=LAZY) @JoinColumn(name="seller_id")
+private User seller;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q13-3">
+  <div class="problem-header"><span class="badge badge-c">댓글</span><h3>13-3 구매 문의 댓글 + 사진</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>ListingComment — "아직 있나요?" 댓글</li>
+      <li>ListingImage 업로드/다운로드</li>
+      <li>detail.html 갤러리 + 댓글 목록</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q13-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q13-3"><pre><code>@PostMapping("/{id}/comments")
+public String addComment(@PathVariable Long id, @RequestParam String content, ...)
+
+MultipartFile → 저장 경로 + DB에 originalName, storedName</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q13-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q13-3"><pre><code>@GetMapping("/images/{storedName}")
+public ResponseEntity&lt;Resource&gt; download(@PathVariable String storedName) {
+  Path path = Paths.get(uploadDir, storedName);
+  return ResponseEntity.ok()
+    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""+original+"\"")
+    .body(new FileSystemResource(path));
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q13-4">
+  <div class="problem-header"><span class="badge badge-u">AJAX</span><h3>13-4 찜 ❤️ 토글</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>ListingWish + WishController API</li>
+      <li>fetch로 토글, 찜 수 실시간 갱신</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q13-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q13-4"><pre><code>@PostMapping("/api/listings/{id}/wish")
+@ResponseBody
+public WishResponse toggle(@PathVariable Long id, @AuthenticationPrincipal ...)</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q13-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q13-4"><pre><code>fetch(`/api/listings/${listingId}/wish`, { method: 'POST' })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('wishCount').textContent = data.count;
+    btn.classList.toggle('active', data.wished);
+  });</code></pre></div>
+  </div>
+</article>
+
+<h2 class="quest-title" id="quest14">Quest 14 — 스터디 모집 (JPA + Thymeleaf)</h2>
+<p class="tip">URL: http://localhost:8080/studies · 참고: step14</p>
+
+<article class="problem-block" id="q14-1">
+  <div class="problem-header"><span class="badge badge-page">R</span><h3>14-1 목록·검색·페이징</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>StudyRecruit — title, techStack, capacity, acceptedCount, RecruitStatus</li>
+      <li>keyword + status 검색, Page 조회</li>
+      <li>카드에 합격인원/정원 표시</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q14-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q14-1"><pre><code>@ManyToOne(fetch=LAZY) @JoinColumn(name="leader_id")
+private Member leader;
+
+Page&lt;StudyRecruit&gt; search(String keyword, RecruitStatus status, Pageable p);</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q14-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q14-1"><pre><code>@GetMapping
+public String list(
+    @RequestParam(defaultValue="") String keyword,
+    @RequestParam(required=false) RecruitStatus status,
+    @RequestParam(defaultValue="0") int page,
+    @RequestParam(defaultValue="10") int size, Model model) {
+  Page&lt;StudyRecruit&gt; result = service.search(keyword, status, PageRequest.of(page, size));
+  model.addAttribute("studies", result.getContent());
+  model.addAttribute("page", result);
+  return "study/list";
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q14-2">
+  <div class="problem-header"><span class="badge badge-c">C</span><h3>14-2 모집글 등록·정원·마감</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>RecruitStatus OPEN/CLOSED, isFull(), closeIfFull()</li>
+      <li>정원 1명 이상 검증, 기본 OPEN</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q14-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q14-2"><pre><code>public boolean isFull() { return acceptedCount >= capacity; }
+public void closeIfFull() { if (isFull()) status = CLOSED; }</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q14-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q14-2"><pre><code>@PostMapping
+public String create(@ModelAttribute StudyRecruit form,
+    @SessionAttribute("loginMember") Member leader) {
+  form.setLeader(leader);
+  form.setStatus(OPEN);
+  if (form.getCapacity() &lt; 1) throw new IllegalArgumentException();
+  service.save(form);
+  return "redirect:/studies";
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q14-3">
+  <div class="problem-header"><span class="badge badge-u">신청</span><h3>14-3 스터디 신청·합격/대기</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>StudyApplication — WAITING/ACCEPTED/REJECTED</li>
+      <li>중복 신청 unique, 정원 초과 방지</li>
+      <li>합격 시 acceptedCount++, closeIfFull()</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q14-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q14-3"><pre><code>@Table(uniqueConstraints=@UniqueConstraint(columnNames={"study_id","applicant_id"}))
+
+if (recruit.getStatus() == CLOSED) throw ...;
+if (recruit.isFull()) throw ...;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q14-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q14-3"><pre><code>public void accept(Long applicationId) {
+  StudyApplication app = repo.findById(applicationId).orElseThrow();
+  if (app.getStudyRecruit().isFull()) throw new IllegalStateException("정원 초과");
+  app.setStatus(ACCEPTED);
+  StudyRecruit recruit = app.getStudyRecruit();
+  recruit.setAcceptedCount(recruit.getAcceptedCount() + 1);
+  recruit.closeIfFull();
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q14-4">
+  <div class="problem-header"><span class="badge badge-d">종합</span><h3>14-4 상세·조회수·파일·좋아요/싫어요</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>조회수 증가, 대기/합격자 목록 분리 표시</li>
+      <li>StudyInterest LIKE/DISLIKE 토글</li>
+      <li>StudyMaterial 업로드/다운로드, 수정 폼</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q14-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q14-4"><pre><code>// 반응: 없으면 INSERT, 같으면 DELETE, 다르면 UPDATE
+StudyInterest existing = repo.findByMemberAndStudy(...);
+if (existing == null) insert;
+else if (existing.getType() == type) delete;
+else update type;</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q14-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q14-4"><pre><code>@GetMapping("/{id}")
+public String detail(@PathVariable Long id, Model model) {
+  StudyRecruit study = service.findByIdAndIncreaseView(id);
+  model.addAttribute("study", study);
+  model.addAttribute("waiting", appService.findWaiting(id));
+  model.addAttribute("accepted", appService.findAccepted(id));
+  model.addAttribute("likeCount", interestService.countLike(id));
+  return "study/detail";
+}</code></pre></div>
+  </div>
+</article>
+
+<h2 class="quest-title" id="quest15">Quest 15 — REST API + React 분리</h2>
+<p class="tip">백엔드 :8080 · 프론트 :5173 · quest/15/problem01</p>
+
+<article class="problem-block" id="q15-1">
+  <div class="problem-header"><span class="badge badge-setup">종합</span><h3>15-1 Spring REST + React Axios</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ol>
+      <li>백엔드: entity → repository → service → StudyApiController</li>
+      <li>CORS WebConfig 설정</li>
+      <li>프론트: api/ → pages/ → components/ (카드, 페이징)</li>
+    </ol>
+    <button type="button" class="reveal-btn hint" data-panel="h-q15-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q15-1"><pre><code>// WebConfig — CORS
+registry.addMapping("/api/**").allowedOrigins("http://localhost:5173");
+
+// axios
+const api = axios.create({ baseURL: 'http://localhost:8080/api' });</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q15-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q15-1"><pre><code>@RestController @RequestMapping("/api/studies")
+public class StudyApiController {
+  @GetMapping
+  public PageResponse&lt;StudyDto&gt; list(
+      @RequestParam(defaultValue="0") int page,
+      @RequestParam(defaultValue="10") int size) {
+    return service.findPage(page, size);
+  }
+  @GetMapping("/{id}") public StudyDto detail(@PathVariable Long id) { ... }
+  @PostMapping public StudyDto create(@RequestBody StudyDto dto) { ... }
+}
+
+// React
+useEffect(() => { studyApi.getList(page).then(res => setStudies(res.data.content)); }, [page]);</code></pre></div>
+  </div>
+</article>
+
+<h2 class="quest-title" id="quest16">Quest 16 — Security · JWT · OAuth2 · Board API</h2>
+<p class="tip">백엔드 포트 8888 · 참고: step15~step17</p>
+
+<article class="problem-block" id="q16-1">
+  <div class="problem-header"><span class="badge badge-setup">JWT</span><h3>16-1 JWT 인증 백엔드</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>SecurityConfig STATELESS, 공개/보호 URL</li>
+      <li>JwtTokenProvider — 생성·검증·username 추출</li>
+      <li>JwtAuthenticationFilter → SecurityContextHolder</li>
+      <li>AuthService — BCrypt, login, Refresh Token 1개</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q16-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q16-1"><pre><code>sessionManagement().sessionCreationPolicy(STATELESS)
+.requestMatchers("/auth/login","/auth/signup").permitAll()
+.anyRequest().authenticated()
+
+String token = header.replace("Bearer ", "");
+String username = jwtProvider.getUsername(token);</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q16-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q16-1"><pre><code>public TokenResponse login(LoginRequest req) {
+  Authentication auth = authManager.authenticate(
+    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
+  String access = jwtProvider.createAccessToken(auth.getName());
+  String refresh = jwtProvider.createRefreshToken(auth.getName());
+  userRepo.updateRefreshToken(auth.getName(), refresh);
+  return new TokenResponse(access, refresh);
+}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q16-2">
+  <div class="problem-header"><span class="badge badge-setup">React</span><h3>16-2 React에서 JWT</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>axiosInstance + localStorage 토큰</li>
+      <li>인터셉터 Bearer 헤더, 401 처리</li>
+      <li>새로고침 후 토큰 복원</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q16-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q16-2"><pre><code>axiosInstance.interceptors.request.use(config => {
+  const token = localStorage.getItem('accessToken');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q16-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q16-2"><pre><code>const login = async (username, password) => {
+  const res = await axiosInstance.post('/auth/login', { username, password });
+  localStorage.setItem('accessToken', res.data.accessToken);
+  localStorage.setItem('refreshToken', res.data.refreshToken);
+  const me = await axiosInstance.get('/auth/me');
+  setUser(me.data);
+};
+
+const logout = async () => {
+  await axiosInstance.post('/auth/logout');
+  localStorage.clear();
+  setUser(null);
+};</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q16-3">
+  <div class="problem-header"><span class="badge badge-setup">OAuth</span><h3>16-3 Google OAuth2</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>oauth2Login() + CustomOAuth2UserService</li>
+      <li>최초 로그인 DB 자동 등록</li>
+      <li>OAuth2SuccessHandler → 자체 JWT 발급 → React callback</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q16-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q16-3"><pre><code>// Google Console 리다이렉트 URI
+http://localhost:8888/login/oauth2/code/google
+
+// 구분: Google Token ≠ 우리 JWT</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q16-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q16-3"><pre><code>// SuccessHandler
+String email = oauth2User.getAttribute("email");
+Member member = memberService.findOrCreateByOAuth(email, name);
+String access = jwtProvider.createAccessToken(member.getUsername());
+response.sendRedirect("http://localhost:3000/oauth2/callback?accessToken="+access);
+
+// React App.js — /oauth2/callback
+const params = new URLSearchParams(location.search);
+localStorage.setItem('accessToken', params.get('accessToken'));</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q16-4">
+  <div class="problem-header"><span class="badge badge-r">API</span><h3>16-4 JWT + MyBatis 게시판 API</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>board.sql, board-mapper.xml 페이징 #{size}</li>
+      <li>목록/상세 공개, 등록은 인증 필요</li>
+      <li>PaggingVO와 Controller size 통일</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q16-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q16-4"><pre><code>WHERE CEIL(bv.rw / #{size}) = #{page}   // ${size} 금지!
+
+@AuthenticationPrincipal CustomUserDetails user
+board.setMid(user.getMember().getId());</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q16-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q16-4"><pre><code>@GetMapping("/api/posts")
+public Map&lt;String,Object&gt; list(
+    @RequestParam(defaultValue="1") int page,
+    @RequestParam(defaultValue="20") int size,
+    @RequestParam(defaultValue="") String keyword) {
+  List&lt;BoardDTO&gt; list = service.findPage(page, keyword, size);
+  int total = service.count(keyword);
+  return Map.of("list", list, "pagging", new PaggingVO(total, page, size));
+}
+
+@PostMapping("/api/posts")
+public ResponseEntity&lt;?&gt; create(@RequestBody BoardDTO dto,
+    @AuthenticationPrincipal CustomUserDetails user) { ... }</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q16-5">
+  <div class="problem-header"><span class="badge badge-d">CRUD</span><h3>16-5 게시글·댓글 CRUD + 반응 토글</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>본인만 수정/삭제 (403), 비로그인 쓰기 401</li>
+      <li>반응: LIKE→LIKE(취소)→DISLIKE→LIKE</li>
+      <li>Objects.equals() ID 비교, @Transactional, @Valid</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q16-5">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q16-5"><pre><code>if (!Objects.equals(board.getMid(), user.getId()))
+  throw new AccessDeniedException();
+
+// 반응 토글 순서 테스트
+LIKE → LIKE → DISLIKE → LIKE</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q16-5">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q16-5"><pre><code>@PatchMapping("/api/posts/{bno}")
+public void update(@PathVariable Long bno, @RequestBody @Valid BoardDTO dto,
+    @AuthenticationPrincipal CustomUserDetails user) {
+  BoardDTO board = service.findById(bno);
+  if (!Objects.equals(board.getMid(), user.getMember().getId()))
+    throw new ForbiddenException();
+  service.update(bno, dto);
+}
+
+@PostMapping("/api/posts/{bno}/reactions")
+public ReactionCount toggle(@PathVariable Long bno,
+    @RequestBody ReactionRequest req, ...) {
+  return reactionService.toggle(bno, user, req.getType());
+}</code></pre></div>
+  </div>
+</article>
+
+<h2 class="quest-title" id="quest17">Quest 17 — React 게시판 프론트 (6/26 진도)</h2>
+<p class="tip">백엔드 step17-board-backend :8888 · 프론트 step17-board-front :3000</p>
+
+<article class="problem-block" id="q17-1">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>17-1 목록·상세 API 연동</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>axiosInstance, postApi.getPage / getPost</li>
+      <li>useEffect + list/pagging state</li>
+      <li>Link + Route /posts/:bno + useParams</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q17-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q17-1"><pre><code>postApi.getPage(1, '', 20).then(res => {
+  setPosts(res.data.list);      // list 키 확인!
+  setPagging(res.data.pagging);
+});
+
+const { bno } = useParams();  // 라우트 :bno 와 이름 일치</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q17-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q17-1"><pre><code>// postApi.js
+getPage: (page, keyword, size) =>
+  axiosInstance.get('/api/posts', { params: { page, keyword, size } }),
+getPost: (bno) => axiosInstance.get(`/api/posts/${bno}`),
+
+// App.js
+&lt;Route path="/posts/:bno" element={&lt;PostDetailPage /&gt;} /&gt;
+
+&lt;Link to={`/posts/${item.bno}`}&gt;{item.title}&lt;/Link&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q17-2">
+  <div class="problem-header"><span class="badge badge-setup">AUTH</span><h3>17-2 AuthContext + 로그인</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>AuthProvider → App 감싸기</li>
+      <li>login → token → /auth/me → setUser</li>
+      <li>useRef면 .current.value 필수</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q17-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q17-2"><pre><code>// index.js
+&lt;BrowserRouter&gt;&lt;AuthProvider&gt;&lt;App /&gt;&lt;/AuthProvider&gt;&lt;/BrowserRouter&gt;
+
+// ❌ login(usernameRef, passwordRef)
+// ✅ login(usernameRef.current.value, passwordRef.current.value)</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q17-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q17-2"><pre><code>const login = async (username, password) => {
+  const loginRes = await authApi.login({ username, password });
+  localStorage.setItem('accessToken', loginRes.data.accessToken);
+  const meRes = await authApi.me();
+  setUser(meRes.data);
+};
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('AuthProvider 안에서만 useAuth 사용');
+  return ctx;
+};</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q17-3">
+  <div class="problem-header"><span class="badge badge-u">UI</span><h3>17-3 상세 UI + CSS</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>board: title, content, nickname, bcount, writeUpdateDate</li>
+      <li>commentList: cno, content, nickname, cdate</li>
+      <li>App.css — .post-detail, .comment-item, pre-wrap</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q17-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q17-3"><pre><code>setPost(res.data.board);
+setCommentList(res.data.commentList);
+
+commentList.map(c => &lt;div key={c.cno}&gt;{c.content}&lt;/div&gt;)</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q17-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q17-3"><pre><code>.post-content { white-space: pre-wrap; line-height: 1.7; }
+.comment-item { border-bottom: 1px solid #eee; padding: 12px 0; }
+.comment-form textarea { resize: none; height: 80px; width: 100%; }
+
+&lt;div className="post-meta"&gt;
+  &lt;span&gt;{post.nickname}&lt;/span&gt;
+  &lt;span&gt;조회 {post.bcount}&lt;/span&gt;
+  &lt;span&gt;{post.writeUpdateDate}&lt;/span&gt;
+&lt;/div&gt;</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q17-4">
+  <div class="problem-header"><span class="badge badge-c">댓글</span><h3>17-4 댓글 작성 API</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>POST /api/comments — Body: bno, content</li>
+      <li>성공 후 getPost로 목록 갱신</li>
+      <li>비로그인 안내</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q17-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q17-4"><pre><code>// 게시글: POST /api/posts  { title, content }
+// 댓글:   POST /api/comments { bno, content }
+
+create: (data) => axiosInstance.post('/api/comments', data)</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q17-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q17-4"><pre><code>const handleCommentSubmit = async () => {
+  await commentApi.create({ bno, content });
+  setContent('');
+  const res = await postApi.getPost(bno);
+  setCommentList(res.data.commentList);
+};
+
+{!isAuthenticated && &lt;p&gt;로그인이 필요합니다&lt;/p&gt;}</code></pre></div>
+  </div>
+</article>
+
+<article class="problem-block" id="q17-5">
+  <div class="problem-header"><span class="badge badge-c">C</span><h3>17-5 글쓰기 + NavBar</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>POST /api/posts (끝에 숫자 없음!)</li>
+      <li>PostWritePage 폼, NavBar isAuthenticated 분기</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="h-q17-5">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="h-q17-5"><pre><code>// ❌ POST /api/posts/1 → 403
+create: (data) => axiosInstance.post('/api/posts', data)
+
+const { isAuthenticated, user, logout } = useAuth();</code></pre></div>
+    <button type="button" class="reveal-btn full" data-panel="f-q17-5">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="f-q17-5"><pre><code>{isAuthenticated ? (
+  &lt;&gt;
+    &lt;span&gt;{user.nickname}&lt;/span&gt;
+    &lt;Link to="/posts/create"&gt;글쓰기&lt;/Link&gt;
+    &lt;button onClick={logout}&gt;로그아웃&lt;/button&gt;
+  &lt;/&gt;
+) : (
+  &lt;Link to="/login"&gt;로그인&lt;/Link&gt;
+)}
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  await postApi.create({ title, content });
+  navigate('/');
+};</code></pre></div>
+  </div>
+</article>
+
+<div class="intro" id="check">
+  <h2>체크리스트</h2>
+  <h4>Quest 12</h4>
+  <div class="checklist" data-store="q12">
+    <label><input type="checkbox" /> JOIN FETCH N+1 없음</label>
+    <label><input type="checkbox" /> 검색 필터 유지</label>
+    <label><input type="checkbox" /> 등록·상세·삭제</label>
+  </div>
+  <h4>Quest 13~14</h4>
+  <div class="checklist" data-store="q13q14">
+    <label><input type="checkbox" /> 페이징·검색</label>
+    <label><input type="checkbox" /> 권한·세션</label>
+    <label><input type="checkbox" /> 반응/찜 토글</label>
+  </div>
+  <h4>Quest 15~17</h4>
+  <div class="checklist" data-store="q15q17">
+    <label><input type="checkbox" /> REST + CORS</label>
+    <label><input type="checkbox" /> JWT + AuthContext</label>
+    <label><input type="checkbox" /> Postman CRUD 확인</label>
+    <label><input type="checkbox" /> 프론트 글/댓글 작성</label>
+  </div>
+</div>
+
+</main>
+</div>
+<button type="button" id="topBtn">↑ 맨 위</button>
+<script>
+document.querySelectorAll('.reveal-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const panel=document.getElementById(btn.dataset.panel);
+    const isOpen=panel.classList.toggle('open');
+    btn.classList.toggle('open',isOpen);
+    const isHint=btn.classList.contains('hint');
+    btn.textContent=isHint?(isOpen?'▲ 힌트 코드 숨기기':'💡 힌트 코드 보기'):(isOpen?'▲ 전체 코드 숨기기':'📋 전체 코드 보기');
+  });
+});
+document.querySelectorAll('.checklist').forEach(list=>{
+  const key='pg12-17-'+(list.dataset.store||'x');
+  list.querySelectorAll('input').forEach((cb,i)=>{
+    const id=key+i; cb.checked=localStorage.getItem(id)==='1';
+    cb.addEventListener('change',()=>localStorage.setItem(id,cb.checked?'1':'0'));
+  });
+});
+document.getElementById('topBtn').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+</script>
+</body>
+</html>

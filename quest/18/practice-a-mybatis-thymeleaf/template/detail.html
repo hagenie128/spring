@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<h2 th:text="${book.title}">제목</h2>
+<p>저자: <span th:text="${book.author}"></span></p>
+<p>가격: <span th:text="${book.price}"></span>원</p>
+<p>출판일: <span th:text="${book.publishedDate}"></span></p>
+
+<a th:href="@{/books}">목록</a>
+<a th:href="@{/books/{id}/edit(id=${book.bookId})}">수정</a>
+
+<!-- TODO D — 삭제 form (POST) -->
+<form th:action="@{/books/{id}/delete(id=${book.bookId})}" method="post"
+      onsubmit="return confirm('삭제할까요?');">
+  <button type="submit">삭제</button>
+</form>
+</body>
+</html>

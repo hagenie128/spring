@@ -1,5 +1,7 @@
 # Quest 15 — 프론트/백엔드 분리 스터디 모집 앱
 
+> **📖 통합 가이드:** [../PRACTICE-GUIDE-12-17.html](../PRACTICE-GUIDE-12-17.html) — 문제·힌트·전체코드 (클릭해서 열기)
+
 > Spring Boot REST API + React + Axios
 
 ## 문제 목록

@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Spring 게시판 · 보안 · OAuth2 · 백엔드 통합 완전 정복 (6/19~6/24)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +40,7 @@
   --shadow-lg:0 10px 30px rgba(20,30,45,.12);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden}
 body{
   margin:0;
   background:
@@ -56,7 +57,7 @@ a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 
 /* ===== Layout ===== */
-.shell{display:flex;min-height:100vh}
+.shell{display:flex;min-height:100vh;width:100%;overflow-x:hidden}
 .sidebar{
   width:var(--sidebar);
   flex:0 0 var(--sidebar);
@@ -121,7 +122,7 @@ a:hover{text-decoration:underline}
 .nav .allbtns button:hover{background:var(--green-bg);color:var(--green-deep);border-color:var(--green)}
 
 /* ===== Main ===== */
-.main{flex:1;min-width:0}
+.main{flex:1;min-width:0;overflow-x:hidden;width:0}
 .topbar{
   position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
   background:rgba(246,247,249,.82);border-bottom:1px solid var(--line);
@@ -199,6 +200,9 @@ pre[class*="language-"]{
   border-radius:12px !important;border:1px solid var(--line);
   font-size:13.2px !important;line-height:1.7 !important;margin:14px 0 !important;
   background:var(--code-bg) !important;box-shadow:var(--shadow-sm);
+  overflow-x:auto !important;
+  max-width:100% !important;
+  -webkit-overflow-scrolling:touch;
 }
 :not(pre)>code{
   background:var(--panel-2);color:var(--green-deep);padding:2px 6px;border-radius:6px;
@@ -218,10 +222,9 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:#f9fbfa}
 td code{font-size:.84em}
 
-/* ===== Flow / mermaid ===== */
+/* ===== 다이어그램 ===== */
 .diagram{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;
   padding:20px;margin:18px 0;text-align:center;overflow-x:auto;box-shadow:var(--shadow-sm)}
-.mermaid{font-family:"IBM Plex Sans KR" !important}
 
 /* ascii flow */
 .flow{font-family:"JetBrains Mono";font-size:12.5px;color:var(--green-deep);background:var(--green-bg);
@@ -257,14 +260,109 @@ footer{border-top:1px solid var(--line);padding:30px 26px;text-align:center;colo
 
 .overlay{display:none;position:fixed;inset:0;background:rgba(20,30,45,.35);z-index:25}
 
-@media(max-width:920px){
-  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:.25s;box-shadow:var(--shadow-lg)}
+/* iOS/iPad: 가로 넘침·자동 확대 방지, 부드러운 스크롤 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overflow-x:hidden}
+.sidebar,.content{-webkit-overflow-scrolling:touch}
+img,svg,pre,table,.diagram,.flow{max-width:100%}
+
+/* iPad 가로(1024~1366px): 사이드바 살짝 좁혀 본문 공간 확보 */
+@media(min-width:921px) and (max-width:1366px){
+  :root{--sidebar:280px;--maxw:760px}
+  .content{padding:36px 28px 110px}
+}
+
+/* iPad 세로 및 그 이하(≤1024px): 사이드바를 메뉴로 전환 */
+@media(max-width:1024px){
+  .sidebar{
+    position:fixed;left:0;top:0;z-index:50;width:330px;flex-basis:330px;
+    transform:translateX(-100%);transition:transform .25s ease;
+    box-shadow:var(--shadow-lg);
+    padding-top:calc(20px + env(safe-area-inset-top));
+  }
   .sidebar.open{transform:translateX(0)}
   .menu-btn{display:block}
   .overlay.show{display:block}
-  .content{padding:26px 18px 100px}
-  .hero{padding:28px 22px}
-  .hero h1{font-size:24px}
+  .topbar{padding-top:calc(11px + env(safe-area-inset-top))}
+  .content{max-width:820px;padding:30px 26px 110px}
+  /* 터치 영역 키우기 */
+  .nav a{padding:10px 12px 10px 20px}
+  .nav .group{padding:11px 8px}
+  .nav .allbtns button{padding:9px}
+  .search-box input{padding:11px 12px 11px 34px}
+  .backtop{width:52px;height:52px;font-size:22px;
+    right:calc(18px + env(safe-area-inset-right));
+    bottom:calc(18px + env(safe-area-inset-bottom))}
+}
+
+/* 휴대폰·작은 화면 */
+@media(max-width:680px){
+  body{font-size:15.5px}
+  .content{padding:24px 16px 100px}
+  .hero{padding:26px 20px;border-radius:18px}
+  .hero h1{font-size:23px}
+  .sec-head h2{font-size:20px}
+  .sidebar{width:86vw;flex-basis:86vw}
+  .toc-mini{grid-template-columns:1fr 1fr}
+}
+
+/* ── 아이폰 전용 (430px 이하) ── */
+@media(max-width:430px){
+  /* topbar 한 줄 유지 */
+  .topbar{padding:10px 14px;gap:10px}
+  .topbar .crumb{font-size:12px;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;max-width:calc(100vw - 120px)}
+
+  /* 본문 여백 */
+  .content{padding:18px 14px 90px}
+
+  /* 히어로 */
+  .hero{padding:22px 18px;border-radius:14px}
+  .hero h1{font-size:21px;line-height:1.3}
+  .hero p{font-size:14px}
+  .chips{gap:6px}
+  .chip{font-size:11px;padding:4px 9px}
+
+  /* 섹션 제목 */
+  .sec-head{flex-wrap:wrap;gap:8px}
+  .sec-head h2{font-size:18px}
+  h3{font-size:16px}
+
+  /* 코드블록 — 핵심 수정 */
+  pre[class*="language-"]{font-size:11px !important;padding:12px 10px !important;
+    -webkit-overflow-scrolling:touch}
+  /* 코드블록 가로 스크롤 힌트 그라데이션 */
+  .tablewrap,.diagram{-webkit-overflow-scrolling:touch}
+  :not(pre)>code{font-size:.79em}
+
+  /* 표 — 가로 스크롤 + 폰트 축소 */
+  .tablewrap{border-radius:10px}
+  table{font-size:12.5px;min-width:360px}
+  th,td{padding:8px 10px}
+
+  /* 박스 */
+  .box{padding:13px 14px;font-size:13.5px}
+  .box .bt{font-size:12px}
+
+  /* flow (ASCII 다이어그램) */
+  .flow{font-size:11px;padding:12px 14px}
+
+  /* 사이드바 폭 */
+  .sidebar{width:90vw;padding:16px 10px 60px}
+  .nav a{font-size:13px;padding:9px 10px 9px 18px}
+  .nav .group{font-size:10.5px;padding:10px 6px}
+  .brand .t{font-size:14px}
+
+  /* 다이어그램 박스 */
+  .diagram{padding:14px 10px}
+
+  /* 맨위로 버튼 */
+  .backtop{width:46px;height:46px;font-size:20px;
+    right:calc(14px + env(safe-area-inset-right));
+    bottom:calc(14px + env(safe-area-inset-bottom))}
+
+  /* keyword pill 줄바꿈 */
+  .kw{font-size:11px;padding:3px 7px}
 }
 </style>
 </head>
@@ -416,15 +514,56 @@ step17  백엔드 통합     →  위 기술을 하나의 REST API 백엔드로 
     <p>“<strong>사용자가 누구인지 확인하고(인증), 확인된 사용자만 기능을 쓰게 만드는(인가)</strong>” 수업입니다. step14가 몸통, step15는 자물쇠, step16은 또 다른 열쇠(구글 계정), 그리고 step17은 이 모든 걸 모아 <em>실전 배포 가능한 백엔드 한 채</em>로 짓는 단계입니다.</p></div>
 
     <h3>웹 요청이 처리되는 기본 구조 (MVC + 계층)</h3>
-    <div class="diagram"><div class="mermaid">
-flowchart LR
-    A["🌐 브라우저<br/>요청"] --> B["Controller<br/>(입구)"]
-    B --> C["Service<br/>(처리 로직)"]
-    C --> D["Repository / Mapper<br/>(DB 접근)"]
-    D --> E[("🗄️ MySQL")]
-    C -.-> F["Entity / DTO<br/>(데이터 객체)"]
-    B --> G["JSON / 화면<br/>(응답)"]
-    </div></div>
+    <div class="diagram">
+      <svg viewBox="0 0 700 130" width="100%" style="max-width:700px;font-family:IBM Plex Sans KR,sans-serif;overflow:visible">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1f9d4d"/></marker>
+          <marker id="arrD" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#aaa"/></marker>
+        </defs>
+        <!-- 브라우저 -->
+        <rect x="2" y="40" width="100" height="46" rx="10" fill="#eafaef" stroke="#1f9d4d" stroke-width="1.5"/>
+        <text x="52" y="60" text-anchor="middle" font-size="12" fill="#137a3a" font-weight="700">🌐 브라우저</text>
+        <text x="52" y="76" text-anchor="middle" font-size="11" fill="#46505e">요청</text>
+        <!-- Controller -->
+        <rect x="120" y="40" width="100" height="46" rx="10" fill="#e6f0fd" stroke="#1d6fd1" stroke-width="1.5"/>
+        <text x="170" y="60" text-anchor="middle" font-size="12" fill="#1d6fd1" font-weight="700">Controller</text>
+        <text x="170" y="76" text-anchor="middle" font-size="11" fill="#46505e">(입구)</text>
+        <!-- Service -->
+        <rect x="238" y="40" width="100" height="46" rx="10" fill="#fff8e6" stroke="#b5810b" stroke-width="1.5"/>
+        <text x="288" y="60" text-anchor="middle" font-size="12" fill="#b5810b" font-weight="700">Service</text>
+        <text x="288" y="76" text-anchor="middle" font-size="11" fill="#46505e">(처리 로직)</text>
+        <!-- Repository -->
+        <rect x="356" y="40" width="108" height="46" rx="10" fill="#f0eafc" stroke="#7a4ed1" stroke-width="1.5"/>
+        <text x="410" y="60" text-anchor="middle" font-size="12" fill="#7a4ed1" font-weight="700">Repository</text>
+        <text x="410" y="76" text-anchor="middle" font-size="11" fill="#46505e">(DB 접근)</text>
+        <!-- MySQL -->
+        <ellipse cx="566" cy="63" rx="50" ry="26" fill="#eafaef" stroke="#1f9d4d" stroke-width="1.5"/>
+        <text x="566" y="59" text-anchor="middle" font-size="12" fill="#137a3a" font-weight="700">🗄️ MySQL</text>
+        <text x="566" y="74" text-anchor="middle" font-size="10" fill="#46505e">DB</text>
+        <!-- Entity/DTO (위) -->
+        <rect x="238" y="8" width="100" height="26" rx="8" fill="#fdeaf1" stroke="#d23b6b" stroke-width="1.2"/>
+        <text x="288" y="25" text-anchor="middle" font-size="11" fill="#d23b6b" font-weight="600">Entity / DTO</text>
+        <!-- 응답 (아래) -->
+        <rect x="2" y="93" width="100" height="26" rx="8" fill="#f2f4f7" stroke="#aaa" stroke-width="1.2"/>
+        <text x="52" y="110" text-anchor="middle" font-size="11" fill="#46505e">JSON / 화면</text>
+        <!-- 화살표들 -->
+        <line x1="102" y1="63" x2="118" y2="63" stroke="#1f9d4d" stroke-width="1.8" marker-end="url(#arr)"/>
+        <line x1="220" y1="63" x2="236" y2="63" stroke="#1f9d4d" stroke-width="1.8" marker-end="url(#arr)"/>
+        <line x1="338" y1="63" x2="354" y2="63" stroke="#1f9d4d" stroke-width="1.8" marker-end="url(#arr)"/>
+        <line x1="464" y1="63" x2="514" y2="63" stroke="#1f9d4d" stroke-width="1.8" marker-end="url(#arr)"/>
+        <!-- Service → Entity/DTO 점선 -->
+        <line x1="288" y1="40" x2="288" y2="36" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrD)"/>
+        <!-- Controller → 응답 점선 -->
+        <path d="M170,86 L170,106 L104,106" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrD)"/>
+      </svg>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;font-size:12px;color:#46505e">
+        <span>🌐 브라우저</span><span style="color:#1f9d4d">→</span>
+        <span style="color:#1d6fd1;font-weight:600">Controller</span><span style="color:#1f9d4d">→</span>
+        <span style="color:#b5810b;font-weight:600">Service</span><span style="color:#1f9d4d">→</span>
+        <span style="color:#7a4ed1;font-weight:600">Repository/Mapper</span><span style="color:#1f9d4d">→</span>
+        <span style="color:#137a3a;font-weight:600">🗄️ MySQL</span>
+      </div>
+    </div>
 
     <div class="box logic"><div class="bt">🟩 각 층의 역할</div>
     <p>식당에 비유하면, <strong>Controller</strong>는 주문받는 <em>웨이터</em>, <strong>Service</strong>는 요리하는 <em>주방</em>, <strong>Repository/Mapper</strong>는 재료를 꺼내오는 <em>창고지기</em>, <strong>Entity/DTO</strong>는 <em>재료와 접시</em>입니다.</p></div>
@@ -563,15 +702,53 @@ app.upload.dir=uploads</code></pre>
     <div class="sec-head"><span class="idx">05</span><h2>Entity 관계 설계 — 이번 수업의 심장</h2></div>
     <p>게시판이 “게시판답게” 동작하려면 회원·게시글·댓글·첨부파일·좋아요가 서로 <strong>연결</strong>돼 있어야 합니다. 이 연결을 표현하는 게 Entity 관계입니다.</p>
 
-    <div class="diagram"><div class="mermaid">
-erDiagram
-    MEMBER ||--o{ POST : "글을 쓴다"
-    MEMBER ||--o{ COMMENT : "댓글을 쓴다"
-    POST ||--o{ COMMENT : "댓글이 달린다"
-    POST ||--o{ ATTACHMENT : "파일이 붙는다"
-    POST ||--o{ POST_REACTION : "반응을 받는다"
-    COMMENT ||--o{ COMMENT_REACTION : "반응을 받는다"
-    </div></div>
+    <div class="diagram" style="padding:24px 16px">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;font-size:13px">
+        <!-- MEMBER -->
+        <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:10px;padding:10px 16px;text-align:center;min-width:90px">
+          <div style="font-weight:700;color:#137a3a">MEMBER</div>
+          <div style="color:#46505e;font-size:11px">회원</div>
+        </div>
+        <div style="color:#1f9d4d;font-size:18px;display:flex;flex-direction:column;gap:4px;align-items:center">
+          <span style="font-size:11px;color:#46505e">1 ─── N</span>
+          <span>⇕</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:#e6f0fd;border:2px solid #1d6fd1;border-radius:10px;padding:8px 14px;text-align:center">
+            <div style="font-weight:700;color:#1d6fd1">POST</div>
+            <div style="color:#46505e;font-size:11px">게시글</div>
+          </div>
+          <div style="background:#f0eafc;border:2px solid #7a4ed1;border-radius:10px;padding:8px 14px;text-align:center">
+            <div style="font-weight:700;color:#7a4ed1">COMMENT</div>
+            <div style="color:#46505e;font-size:11px">댓글</div>
+          </div>
+        </div>
+        <div style="color:#1f9d4d;font-size:18px;display:flex;flex-direction:column;gap:4px;align-items:center">
+          <span style="font-size:11px;color:#46505e">1 ─── N</span>
+          <span>⇕</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:#fff8e6;border:2px solid #b5810b;border-radius:10px;padding:8px 14px;text-align:center">
+            <div style="font-weight:700;color:#b5810b">COMMENT</div>
+            <div style="color:#46505e;font-size:11px">댓글</div>
+          </div>
+          <div style="background:#fdeaf1;border:2px solid #d23b6b;border-radius:10px;padding:8px 14px;text-align:center">
+            <div style="font-weight:700;color:#d23b6b">ATTACHMENT</div>
+            <div style="color:#46505e;font-size:11px">첨부파일</div>
+          </div>
+          <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:10px;padding:8px 14px;text-align:center">
+            <div style="font-weight:700;color:#137a3a">POST_REACTION</div>
+            <div style="color:#46505e;font-size:11px">게시글 반응</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:#f6f7f9;border-radius:10px;padding:12px 16px;font-size:12.5px;color:#46505e;line-height:1.8">
+        <strong style="color:#137a3a">MEMBER</strong> 1명 → POST 여러 개 &nbsp;|&nbsp;
+        <strong style="color:#137a3a">MEMBER</strong> 1명 → COMMENT 여러 개 &nbsp;|&nbsp;
+        <strong style="color:#1d6fd1">POST</strong> 1개 → COMMENT, ATTACHMENT, POST_REACTION 여러 개 &nbsp;|&nbsp;
+        <strong style="color:#7a4ed1">COMMENT</strong> 1개 → COMMENT_REACTION 여러 개
+      </div>
+    </div>
 
     <div class="box basic"><div class="bt">🟦 말로 풀면</div>
     <ul class="tick">
@@ -1086,15 +1263,44 @@ public void addReaction(Long postId, ReactionType reactionType, Long memberId) {
 }</code></pre>
 
     <div class="box logic"><div class="bt">🟩 알고리즘을 흐름도로</div></div>
-    <div class="diagram"><div class="mermaid">
-flowchart TD
-    A["좋아요/싫어요 클릭"] --> B["기존 반응 조회"]
-    B --> C{"기존 반응<br/>있나?"}
-    C -->|없음| D["새 반응 저장 (추가)"]
-    C -->|있음| E{"같은 종류<br/>버튼인가?"}
-    E -->|같음| F["반응 삭제 (취소)"]
-    E -->|다름| G["타입 변경<br/>(좋아요↔싫어요)"]
-    </div></div>
+    <div class="diagram" style="padding:20px 16px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;font-size:13px;font-family:IBM Plex Sans KR,sans-serif">
+        <!-- 시작 -->
+        <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:10px;padding:9px 22px;font-weight:700;color:#137a3a">좋아요 / 싫어요 클릭</div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.2">↓</div>
+        <div style="background:#e6f0fd;border:2px solid #1d6fd1;border-radius:10px;padding:9px 22px;color:#1d6fd1;font-weight:600">기존 반응 조회</div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.2">↓</div>
+        <!-- 분기 -->
+        <div style="background:#fff8e6;border:2px solid #b5810b;border-radius:50px;padding:9px 26px;color:#b5810b;font-weight:700">기존 반응이 있나?</div>
+        <!-- 분기 아래 두 갈래 -->
+        <div style="display:flex;gap:24px;margin-top:6px;align-items:flex-start">
+          <!-- 없음 -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:11px;color:#46505e;font-weight:600">없음</div>
+            <div style="color:#1f9d4d;font-size:16px">↓</div>
+            <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:10px;padding:8px 14px;color:#137a3a;font-weight:600;text-align:center">새 반응 저장<br><span style="font-size:11px;font-weight:400">(추가)</span></div>
+          </div>
+          <!-- 있음 -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:11px;color:#46505e;font-weight:600">있음</div>
+            <div style="color:#1f9d4d;font-size:16px">↓</div>
+            <div style="background:#fff8e6;border:2px solid #b5810b;border-radius:50px;padding:8px 18px;color:#b5810b;font-weight:700;text-align:center">같은 버튼?</div>
+            <div style="display:flex;gap:16px;margin-top:4px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:11px;color:#46505e;font-weight:600">같음</div>
+                <div style="color:#d23b6b;font-size:16px">↓</div>
+                <div style="background:#fdeaf1;border:2px solid #d23b6b;border-radius:10px;padding:7px 12px;color:#d23b6b;font-weight:600;text-align:center">반응 삭제<br><span style="font-size:11px;font-weight:400">(취소)</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:11px;color:#46505e;font-weight:600">다름</div>
+                <div style="color:#7a4ed1;font-size:16px">↓</div>
+                <div style="background:#f0eafc;border:2px solid #7a4ed1;border-radius:10px;padding:7px 12px;color:#7a4ed1;font-weight:600;text-align:center">타입 변경<br><span style="font-size:11px;font-weight:400">(좋아요↔싫어요)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="tablewrap"><table>
       <tr><th>기존 상태</th><th>누른 것</th><th>결과</th></tr>
@@ -1489,19 +1695,30 @@ JwtAuthenticationFilter가 Authorization 헤더 확인
 12. React /oauth2/callback 으로 토큰 붙여 redirect
 13. React가 URL에서 토큰 꺼내 localStorage 저장</div>
 
-    <div class="diagram"><div class="mermaid">
-flowchart TD
-    A["구글 로그인 클릭"] --> B["/oauth2/authorization/google"]
-    B --> C["구글 로그인 / 동의"]
-    C --> D["Spring OAuth2 callback"]
-    D --> E["CustomOAuth2UserService"]
-    E --> F["회원 조회 또는 자동가입"]
-    F --> G["OAuth2SuccessHandler"]
-    G --> H["우리 JWT 발급"]
-    H --> I["React /oauth2/callback?token=..."]
-    I --> J["localStorage 저장"]
-    J --> K["Bearer Token으로 API 호출"]
-    </div></div>
+    <div class="diagram" style="padding:20px 16px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;font-size:13px">
+        <div style="display:flex;flex-direction:column;gap:0;width:100%;max-width:400px">
+          <!-- 단계들 -->
+          <div style="display:flex;align-items:center;gap:10px"><div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:8px;padding:8px 14px;flex:1;color:#137a3a;font-weight:600">① React — 구글 로그인 클릭</div></div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#e6f0fd;border:1.5px solid #1d6fd1;border-radius:8px;padding:8px 14px;color:#1d6fd1;font-weight:600">/oauth2/authorization/google</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#f0eafc;border:1.5px solid #7a4ed1;border-radius:8px;padding:8px 14px;color:#7a4ed1;font-weight:600">③ 구글 로그인 페이지 → 사용자 동의</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#fff8e6;border:1.5px solid #b5810b;border-radius:8px;padding:8px 14px;color:#b5810b;font-weight:600">④ Spring OAuth2 callback 수신</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#eef1f5;border:1.5px solid #7a8694;border-radius:8px;padding:8px 14px;color:#46505e;font-weight:600">⑤ CustomOAuth2UserService — 회원 조회 / 자동가입</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#eef1f5;border:1.5px solid #7a8694;border-radius:8px;padding:8px 14px;color:#46505e;font-weight:600">⑥ OAuth2SuccessHandler</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:8px;padding:8px 14px;color:#137a3a;font-weight:700">⑦ 우리 서비스 JWT 발급 (Access + Refresh)</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#e6f0fd;border:1.5px solid #1d6fd1;border-radius:8px;padding:8px 14px;color:#1d6fd1;font-weight:600">⑧ React /oauth2/callback?token=... 로 redirect</div>
+          <div style="text-align:center;color:#1f9d4d;font-size:16px;line-height:1.3">↓</div>
+          <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:8px;padding:8px 14px;color:#137a3a;font-weight:700">⑨ localStorage 저장 → Bearer Token으로 API 호출</div>
+        </div>
+      </div>
+    </div>
     <div class="box tip"><div class="bt">🟨 authorization code가 뭐죠?</div>
     <p>구글이 “이 사람 로그인 성공했어요”라는 의미로 주는 <strong>일회용 임시 교환권</strong>입니다. 이 교환권을 다시 구글에 제출해야 진짜 access token을 받습니다. 이렇게 한 단계를 더 두는 이유는, 토큰이 브라우저 주소창에 직접 노출되는 걸 막기 위해서입니다.</p></div>
   </section>
@@ -1712,16 +1929,33 @@ response.sendRedirect(url);   // React로 토큰 들고 redirect</code></pre>
     </table></div>
 
     <h3>전체 요청 흐름</h3>
-    <div class="diagram"><div class="mermaid">
-flowchart TD
-    A["React / Swagger / Postman"] -->|HTTP + JWT| B["SecurityFilterChain"]
-    B --> C["JwtAuthenticationFilter"]
-    C --> D["BoardController"]
-    D --> E["BoardService"]
-    E --> F["BoardMapper"]
-    F --> G["board-mapper.xml"]
-    G --> H[("MySQL<br/>new_board_db")]
-    </div></div>
+    <div class="diagram" style="padding:20px 16px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;font-size:13px;width:100%;max-width:420px;margin:0 auto">
+        <div style="background:#eafaef;border:2px solid #1f9d4d;border-radius:10px;padding:9px 20px;font-weight:700;color:#137a3a;text-align:center;width:100%">React / Swagger / Postman<br><span style="font-size:11px;font-weight:400;color:#46505e">HTTP + JSON  |  Authorization: Bearer JWT</span></div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.3">↓</div>
+        <div style="background:#fdeaf1;border:1.5px solid #d23b6b;border-radius:10px;padding:8px 20px;color:#d23b6b;font-weight:600;text-align:center;width:100%">SecurityFilterChain<br><span style="font-size:11px;font-weight:400;color:#46505e">CORS · URL 접근 규칙 · STATELESS</span></div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.3">↓</div>
+        <div style="background:#fff8e6;border:1.5px solid #b5810b;border-radius:10px;padding:8px 20px;color:#b5810b;font-weight:600;text-align:center;width:100%">JwtAuthenticationFilter<br><span style="font-size:11px;font-weight:400;color:#46505e">JWT 추출 · 검증 · 사용자 인증 복원</span></div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.3">↓</div>
+        <div style="background:#e6f0fd;border:1.5px solid #1d6fd1;border-radius:10px;padding:8px 20px;color:#1d6fd1;font-weight:600;text-align:center;width:100%">AuthController / BoardController</div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.3">↓</div>
+        <div style="background:#f0eafc;border:1.5px solid #7a4ed1;border-radius:10px;padding:8px 20px;color:#7a4ed1;font-weight:600;text-align:center;width:100%">AuthService / BoardService</div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.3">↓</div>
+        <!-- 두 갈래 -->
+        <div style="display:flex;gap:14px;width:100%">
+          <div style="flex:1;background:#eafaef;border:2px solid #1f9d4d;border-radius:10px;padding:10px 12px;text-align:center">
+            <div style="font-weight:700;color:#137a3a;font-size:12.5px">JPA Repository</div>
+            <div style="font-size:11px;color:#46505e;margin-top:3px">User<br>Refresh Token</div>
+          </div>
+          <div style="flex:1;background:#fff8e6;border:2px solid #b5810b;border-radius:10px;padding:10px 12px;text-align:center">
+            <div style="font-weight:700;color:#b5810b;font-size:12.5px">MyBatis Mapper</div>
+            <div style="font-size:11px;color:#46505e;margin-top:3px">Board<br>Comment</div>
+          </div>
+        </div>
+        <div style="color:#1f9d4d;font-size:18px;line-height:1.3">↓</div>
+        <div style="background:#eef1f5;border:2px solid #1f9d4d;border-radius:10px;padding:9px 20px;font-weight:700;color:#137a3a;text-align:center;width:100%">🗄️ MySQL — new_board_db</div>
+      </div>
+    </div>
   </section>
 
   <!-- ===== S32 JPA + MyBatis ===== -->
@@ -2403,39 +2637,6 @@ Content-Type: application/json
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>
-// ---- Mermaid (라이트 테마) — 로드 실패해도 나머지 기능에 영향 없게 ----
-try {
-  if (typeof mermaid !== 'undefined') {
-    mermaid.initialize({
-      startOnLoad:true,
-      theme:'base',
-      themeVariables:{
-        primaryColor:'#e7f6ec', primaryTextColor:'#1c2430',
-        primaryBorderColor:'#1f9d4d', lineColor:'#7a8694',
-        secondaryColor:'#eef1f5', tertiaryColor:'#ffffff',
-        fontFamily:'IBM Plex Sans KR'
-      }
-    });
-  }
-} catch(e){ console.warn('mermaid init skipped', e); }
-// mermaid 로드 실패 대비: 잠시 후에도 SVG가 안 그려지면 안내 표시
-window.addEventListener('load', ()=>{
-  setTimeout(()=>{
-    if (typeof mermaid === 'undefined') {
-      document.querySelectorAll('.mermaid').forEach(el=>{
-        if(!el.querySelector('svg')){
-          el.style.whiteSpace='pre-wrap';
-          el.style.fontFamily='JetBrains Mono, monospace';
-          el.style.fontSize='12px';
-          el.style.color='#7a8694';
-        }
-      });
-    }
-  }, 1500);
-});
-</script>
 <script>
 // ---- 접이식 목차 ----
 const groups = Array.from(document.querySelectorAll('#nav .group'));
@@ -2485,7 +2686,7 @@ const menuBtn = document.getElementById('menuBtn');
 function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
 menuBtn.addEventListener('click', ()=>{ sidebar.classList.add('open'); overlay.classList.add('show'); });
 overlay.addEventListener('click', closeSidebar);
-navLinks.forEach(a=> a.addEventListener('click', ()=>{ if(window.innerWidth<=920) closeSidebar(); }));
+navLinks.forEach(a=> a.addEventListener('click', ()=>{ if(window.innerWidth<=1024) closeSidebar(); }));
 
 // ---- 검색 ----
 const searchInput = document.getElementById('searchInput');

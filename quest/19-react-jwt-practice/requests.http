@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:8888
+@accessToken = 로그인후_붙여넣기
+
+### 회원가입 (최초 1회)
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "reactlab",
+  "password": "1234",
+  "nickname": "리액트연습"
+}
+
+### 로그인
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "reactlab",
+  "password": "1234"
+}
+
+### 내 정보 (Step 4)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 게시글 목록 (Step 1 — 토큰 불필요)
+GET {{baseUrl}}/api/posts?page=1&size=20
+
+### 게시글 상세 (Step 5)
+GET {{baseUrl}}/api/posts/1
+
+### 게시글 등록 (Step 7 — C)
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "리액트에서 쓴 글",
+  "content": "CRUD 연습"
+}
+
+### 게시글 수정 (Step 8 — U)
+PATCH {{baseUrl}}/api/posts/1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "수정된 제목",
+  "content": "수정된 내용"
+}
+
+### 게시글 삭제 (Step 9 — D)
+DELETE {{baseUrl}}/api/posts/1
+Authorization: Bearer {{accessToken}}
+
+### 댓글 등록 (Step 10 보너스)
+POST {{baseUrl}}/api/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "bno": 1,
+  "content": "댓글 CRUD 연습"
+}

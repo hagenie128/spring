@@ -1,5 +1,7 @@
 # Quest 16 — 6월 19일~25일 보충 실습
 
+> **📖 통합 가이드:** [../PRACTICE-GUIDE-12-17.html](../PRACTICE-GUIDE-12-17.html) — 문제·힌트·전체코드 (클릭해서 열기)
+
 > Spring Security · JWT · React · OAuth2 · MyBatis 게시판 API
 
 수업이 진행된 평일 기준으로 다섯 문제를 순서대로 풀도록 구성했습니다.

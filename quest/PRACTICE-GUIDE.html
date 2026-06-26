@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quest 18·19 실습 가이드</title>
+  <style>
+    :root {
+      --bg: #f4f6f9; --surface: #fff; --line: #d6dce7;
+      --text: #172033; --muted: #697386; --primary: #1f5fbf;
+      --primary-soft: #eef4ff; --hint: #854d0e; --hint-bg: #fffbeb;
+      --full: #166534; --full-bg: #f0fdf4; --sidebar-w: 248px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px; }
+    .layout { display: flex; }
+    nav.sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+      overflow-y: auto; background: var(--surface); border-right: 1px solid var(--line);
+      padding: 14px 10px 40px; font-size: 12px; z-index: 100;
+    }
+    nav.sidebar h1 { font-size: 14px; margin: 0 0 2px; color: var(--primary); }
+    nav.sidebar .sub { color: var(--muted); margin-bottom: 12px; font-size: 11px; }
+    nav.sidebar a { display: block; padding: 5px 8px; color: var(--text); text-decoration: none;
+      border-radius: 5px; margin: 1px 0; }
+    nav.sidebar a:hover { background: var(--primary-soft); color: var(--primary); }
+    nav.sidebar .grp { font-weight: 700; font-size: 10px; color: var(--muted); margin: 14px 0 4px 6px;
+      text-transform: uppercase; letter-spacing: .05em; }
+    main { margin-left: var(--sidebar-w); flex: 1; padding: 20px 32px 60px; max-width: 880px; }
+    .intro { background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+      padding: 20px 24px; margin-bottom: 20px; }
+    .intro h2 { margin: 0 0 10px; font-size: 20px; color: var(--primary); }
+    .problem-block {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+      margin-bottom: 18px; overflow: hidden; box-shadow: 0 2px 8px rgba(23,32,51,.04);
+    }
+    .problem-header {
+      display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+      background: #f8fafc; border-bottom: 1px solid var(--line);
+    }
+    .problem-header h3 { margin: 0; font-size: 16px; flex: 1; }
+    .problem-body { padding: 16px 18px 18px; }
+    .problem-body h4 { margin: 0 0 8px; font-size: 13px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .04em; }
+    .badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+    .badge-r { background: #dbeafe; color: #1d4ed8; }
+    .badge-c { background: #dcfce7; color: #166534; }
+    .badge-u { background: #fef9c3; color: #854d0e; }
+    .badge-d { background: #fee2e2; color: #991b1b; }
+    .badge-setup { background: #e0e7ff; color: #3730a3; }
+    .badge-page { background: #f3e8ff; color: #6b21a8; }
+    ul, ol { margin: 0 0 12px; padding-left: 20px; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 12px 14px; border-radius: 8px;
+      overflow-x: auto; font-size: 12px; line-height: 1.45; margin: 0; }
+    code { font-family: Consolas, monospace; font-size: 12px; background: #f1f5f9;
+      padding: 1px 5px; border-radius: 3px; }
+    .reveal-btn {
+      display: block; width: 100%; text-align: left; padding: 11px 14px; margin-top: 10px;
+      border: 1px dashed var(--line); border-radius: 8px; background: #fafbfc;
+      cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text);
+      transition: background .15s;
+    }
+    .reveal-btn:hover { background: #f1f5f9; }
+    .reveal-btn.hint { border-color: #fcd34d; color: var(--hint); }
+    .reveal-btn.hint.open { background: var(--hint-bg); border-style: solid; }
+    .reveal-btn.full { border-color: #86efac; color: var(--full); }
+    .reveal-btn.full.open { background: var(--full-bg); border-style: solid; }
+    .reveal-panel {
+      display: none; margin-top: 8px; padding: 12px; border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .reveal-panel.open { display: block; }
+    .reveal-panel.hint-panel { background: var(--hint-bg); border-color: #fcd34d; }
+    .reveal-panel.full-panel { background: var(--full-bg); border-color: #86efac; }
+    .tip { background: var(--primary-soft); border-left: 4px solid var(--primary);
+      padding: 10px 12px; margin: 10px 0; font-size: 13px; border-radius: 0 6px 6px 0; }
+    .checklist label { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+    th, td { border: 1px solid var(--line); padding: 6px 8px; }
+    th { background: #f1f5fb; }
+    #topBtn { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff;
+      border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 12px; }
+    @media (max-width: 768px) { nav.sidebar { display: none; } main { margin-left: 0; padding: 12px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <h1>Quest 18·19</h1>
+  <div class="sub">문제 → 힌트 → 전체코드 (클릭해서 열기)</div>
+  <div class="grp">시작</div>
+  <a href="#intro">소개·일정</a>
+  <a href="#sample">샘플 300건</a>
+  <div class="grp">Quest 18 Thymeleaf</div>
+  <a href="#q18-setup">0. 프로젝트 설정</a>
+  <a href="#q18-1">1. 목록 R</a>
+  <a href="#q18-2">2. 상세 R</a>
+  <a href="#q18-3">3. 등록 C</a>
+  <a href="#q18-4">4. 수정 U</a>
+  <a href="#q18-5">5. 삭제 D</a>
+  <a href="#q18-7">7. 페이징</a>
+  <div class="grp">Quest 19 React</div>
+  <a href="#q19-1">1. Axios 목록</a>
+  <a href="#q19-2">2. Router</a>
+  <a href="#q19-3">3. 로그인</a>
+  <a href="#q19-4">4. AuthContext</a>
+  <a href="#q19-5">5. 상세</a>
+  <a href="#q19-6">6. NavBar</a>
+  <a href="#q19-7">7. 등록 C</a>
+  <a href="#q19-8">8. 수정 U</a>
+  <a href="#q19-9">9. 삭제 D</a>
+  <a href="#q19-11">11. 페이징</a>
+  <a href="#check">체크리스트</a>
+</nav>
+
+<main>
+
+<div class="intro" id="intro">
+  <h2>실습 가이드 사용법</h2>
+  <ol>
+    <li><strong>문제</strong>만 보고 직접 구현해 보세요.</li>
+    <li>막히면 <strong>「힌트 코드 보기」</strong> 박스를 클릭하세요.</li>
+    <li>그래도 안 되면 <strong>「전체 코드 보기」</strong> 박스를 클릭하세요.</li>
+  </ol>
+  <p><strong>2일 × 3h:</strong> 1일차 Thymeleaf Step 1~5+7 / 2일차 React Step 1~9+11</p>
+  <p>Quest 12~17은 <a href="PRACTICE-GUIDE-12-17.html">PRACTICE-GUIDE-12-17.html</a> 참고</p>
+</div>
+
+<!-- ===== SAMPLE ===== -->
+<article class="problem-block" id="sample">
+  <div class="problem-header"><span class="badge badge-setup">DATA</span><h3>샘플 데이터 300건 (sample_data)</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li><code>sample_data</code> 폴더에서 Python으로 페이징 연습용 데이터 삽입</li>
+      <li>Thymeleaf: <code>book_practice_db</code> / React: <code>new_board_db</code></li>
+      <li>건수 확인 후 목록·페이징 연습</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-sample">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-sample">
+      <pre><code>cd c:\work_spring\sample_data
+pip install -r requirements.txt
+python seed_books.py          # 도서 300
+python seed_board_pagination.py  # 게시글 300</code></pre>
+      <p>건수 변경: 파일 상단 <code>BOOK_COUNT</code> / <code>BOARD_COUNT</code></p>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-sample">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-sample">
+      <table>
+        <tr><th>스크립트</th><th>건수</th><th>페이지(예)</th></tr>
+        <tr><td>seed_books.py</td><td>300</td><td>÷10 = 30페이지</td></tr>
+        <tr><td>seed_board_pagination.py</td><td>300</td><td>÷20 = 15페이지</td></tr>
+      </table>
+      <p>선행: <code>schema.sql</code> 또는 <code>board.sql</code> 실행</p>
+    </div>
+  </div>
+</article>
+
+<!-- ===== Q18 SETUP ===== -->
+<article class="problem-block" id="q18-setup">
+  <div class="problem-header"><span class="badge badge-setup">Q18</span><h3>0. 프로젝트 설정 (Thymeleaf + MyBatis)</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>Initializr: Web, Thymeleaf, MySQL, Validation</li>
+      <li>MyBatis + <code>@MapperScan</code></li>
+      <li><code>schema.sql</code> + <code>seed_books.py</code></li>
+      <li>폴더: controller / service / mapper / dto / templates/book</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-setup">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-setup">
+      <pre><code>// build.gradle
+implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+// application.properties
+mybatis.mapper-locations=classpath:/mappers/**/*.xml
+mybatis.type-aliases-package=com.spring.dto
+mybatis.configuration.map-underscore-to-camel-case=true
+
+// @SpringBootApplication
+@MapperScan("com.spring.mapper")</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-setup">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-setup">
+      <pre><code>spring.datasource.url=jdbc:mysql://localhost:3306/book_practice_db
+spring.datasource.username=root
+spring.datasource.password=본인비번
+server.port=8080
+spring.thymeleaf.cache=false
+
+// BookDTO
+@Alias("book") @Getter @Setter
+public class BookDTO {
+  private Long bookId;
+  private String title;
+  private String author;
+  private Integer price;
+  private String publishedDate;
+}</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q18-1 -->
+<article class="problem-block" id="q18-1">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>1. 목록 조회 — GET /books</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>Mapper <code>findAll()</code> + XML SELECT</li>
+      <li>Service → Controller <code>GET /books</code></li>
+      <li>list.html <code>th:each</code>로 테이블 출력</li>
+      <li>제목 클릭 시 상세 링크</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-1">
+      <pre><code>// BookMapper.java
+List&lt;BookDTO&gt; findAll();
+
+// XML
+&lt;select id="findAll" resultType="book"&gt;
+  SELECT * FROM books ORDER BY book_id DESC
+&lt;/select&gt;
+
+// Controller
+model.addAttribute("books", bookService.findAll());
+return "book/list";</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-1">
+      <pre><code>@GetMapping
+public String list(Model model) {
+  model.addAttribute("books", bookService.findAll());
+  return "book/list";
+}
+
+&lt;!-- list.html --&gt;
+&lt;tr th:each="book : ${books}"&gt;
+  &lt;td th:text="${book.bookId}"&gt;&lt;/td&gt;
+  &lt;td&gt;&lt;a th:href="@{/books/{id}(id=${book.bookId})}"
+         th:text="${book.title}"&gt;&lt;/a&gt;&lt;/td&gt;
+  &lt;td th:text="${book.author}"&gt;&lt;/td&gt;
+  &lt;td th:text="${book.price}"&gt;&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q18-2 -->
+<article class="problem-block" id="q18-2">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>2. 상세 조회 — GET /books/{id}</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li><code>findById(Long bookId)</code></li>
+      <li>detail.html에 제목·저자·가격 표시</li>
+      <li>목록/수정/삭제 버튼 자리</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-2">
+      <pre><code>BookDTO findById(Long bookId);
+// WHERE book_id = #{bookId}
+
+@GetMapping("/{id}")
+public String detail(@PathVariable Long id, Model model) {
+  model.addAttribute("book", bookService.findById(id));
+  return "book/detail";
+}</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-2">
+      <pre><code>&lt;h2 th:text="${book.title}"&gt;&lt;/h2&gt;
+&lt;p&gt;저자: &lt;span th:text="${book.author}"&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;가격: &lt;span th:text="${book.price}"&gt;&lt;/span&gt;원&lt;/p&gt;
+&lt;a th:href="@{/books}"&gt;목록&lt;/a&gt;
+&lt;a th:href="@{/books/{id}/edit(id=${book.bookId})}"&gt;수정&lt;/a&gt;</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q18-3 -->
+<article class="problem-block" id="q18-3">
+  <div class="problem-header"><span class="badge badge-c">C</span><h3>3. 등록 — GET /books/new, POST /books</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>insert Mapper XML</li>
+      <li>등록 폼: 빈 BookDTO</li>
+      <li>th:object + th:field</li>
+      <li>성공 시 redirect:/books</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-3">
+      <pre><code>void insert(BookDTO book);
+// INSERT INTO books (title, author, price, published_date) VALUES (...)
+
+@GetMapping("/new")
+model.addAttribute("book", new BookDTO());
+
+@PostMapping
+bookService.save(book);
+return "redirect:/books";</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-3">
+      <pre><code>&lt;form th:action="@{/books}" th:object="${book}" method="post"&gt;
+  &lt;p&gt;제목: &lt;input th:field="*{title}" /&gt;&lt;/p&gt;
+  &lt;p&gt;저자: &lt;input th:field="*{author}" /&gt;&lt;/p&gt;
+  &lt;p&gt;가격: &lt;input th:field="*{price}" type="number" /&gt;&lt;/p&gt;
+  &lt;p&gt;출판일: &lt;input th:field="*{publishedDate}" type="date" /&gt;&lt;/p&gt;
+  &lt;button type="submit"&gt;등록&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q18-4 -->
+<article class="problem-block" id="q18-4">
+  <div class="problem-header"><span class="badge badge-u">U</span><h3>4. 수정 — GET/POST /books/{id}/edit</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>update XML — WHERE book_id = #{bookId}</li>
+      <li>수정 폼에 기존값 로드 (findById)</li>
+      <li>th:action을 edit URL로</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-4">
+      <pre><code>book.setBookId(id);  // POST 시 PK 세팅
+return "redirect:/books/" + id;
+
+&lt;form th:action="@{/books/{id}/edit(id=${book.bookId})}" ...&gt;</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-4">
+      <pre><code>@GetMapping("/{id}/edit")
+public String editForm(@PathVariable Long id, Model model) {
+  model.addAttribute("book", bookService.findById(id));
+  return "book/edit";
+}
+
+@PostMapping("/{id}/edit")
+public String edit(@PathVariable Long id, @ModelAttribute BookDTO book) {
+  book.setBookId(id);
+  bookService.update(book);
+  return "redirect:/books/" + id;
+}</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q18-5 -->
+<article class="problem-block" id="q18-5">
+  <div class="problem-header"><span class="badge badge-d">D</span><h3>5. 삭제 — POST /books/{id}/delete</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>deleteById Mapper</li>
+      <li>detail.html에 <strong>POST form</strong> (GET 링크 X)</li>
+      <li>confirm 후 redirect:/books</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-5">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-5">
+      <pre><code>@PostMapping("/{id}/delete")
+public String delete(@PathVariable Long id) {
+  bookService.deleteById(id);
+  return "redirect:/books";
+}</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-5">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-5">
+      <pre><code>&lt;form th:action="@{/books/{id}/delete(id=${book.bookId})}"
+      method="post" onsubmit="return confirm('삭제?');"&gt;
+  &lt;button type="submit"&gt;삭제&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;delete id="deleteById"&gt;
+  DELETE FROM books WHERE book_id = #{bookId}
+&lt;/delete&gt;</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q18-7 -->
+<article class="problem-block" id="q18-7">
+  <div class="problem-header"><span class="badge badge-page">PAGE</span><h3>7. 페이징 (300건)</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li><code>findPage(page, size)</code> — ROW_NUMBER + CEIL</li>
+      <li><code>countAll()</code></li>
+      <li>PaggingVO + 페이지 링크</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q18-7">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q18-7">
+      <pre><code>WHERE CEIL(bv.rw / #{size}) = #{page}
+
+@GetMapping
+public String list(@RequestParam(defaultValue="1") int page,
+    @RequestParam(defaultValue="10") int size, Model model)</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q18-7">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q18-7">
+      <pre><code>&lt;select id="findPage" resultType="book"&gt;
+  SELECT * FROM (
+    SELECT ROW_NUMBER() OVER (ORDER BY book_id DESC) AS rw, b.*
+    FROM books b
+  ) bv WHERE CEIL(bv.rw / #{size}) = #{page}
+&lt;/select&gt;
+
+model.addAttribute("books", bookService.findPage(page, size));
+model.addAttribute("pagging", new PaggingVO(bookService.countAll(), page));</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- ===== Q19-1 ===== -->
+<article class="problem-block" id="q19-1">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>React 1. Axios 목록</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>axiosInstance (baseURL .env)</li>
+      <li>postApi.getPage</li>
+      <li>useEffect + useState — response.data.<strong>list</strong></li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-1">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-1">
+      <pre><code>const [posts, setPosts] = useState([]);
+useEffect(() => {
+  postApi.getPage(1, '', 20).then(res => {
+    setPosts(res.data.list);  // 키 이름 확인!
+  });
+}, []);</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-1">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-1">
+      <pre><code>// axiosInstance.js
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8888';
+const axiosInstance = axios.create({ baseURL: API_URL });
+
+// postApi.js
+getPage: (page, keyword, size) =>
+  axiosInstance.get('/api/posts', { params: { page, keyword, size } }),
+
+// .env
+REACT_APP_API_URL=http://localhost:8888</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-2 -->
+<article class="problem-block" id="q19-2">
+  <div class="problem-header"><span class="badge badge-setup">Q19</span><h3>React 2. Router</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>BrowserRouter in index.js</li>
+      <li>Routes: / 목록, /login 로그인</li>
+      <li>Link로 페이지 이동 (백엔드 URL 아님!)</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-2">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-2">
+      <pre><code>&lt;BrowserRouter&gt;&lt;App /&gt;&lt;/BrowserRouter&gt;
+&lt;Route path="/" element={&lt;PostListPage /&gt;} /&gt;
+&lt;Route path="/login" element={&lt;LoginPage /&gt;} /&gt;
+// X navigate('/auth/login')  O navigate('/login')</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-2">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-2">
+      <pre><code>import { Routes, Route, Link } from "react-router-dom";
+
+function App() {
+  return (
+    &lt;&gt;
+      &lt;nav&gt;
+        &lt;Link to="/"&gt;게시판&lt;/Link&gt;
+        &lt;Link to="/login"&gt;로그인&lt;/Link&gt;
+      &lt;/nav&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;PostListPage /&gt;} /&gt;
+        &lt;Route path="/login" element={&lt;LoginPage /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-3 -->
+<article class="problem-block" id="q19-3">
+  <div class="problem-header"><span class="badge badge-setup">Q19</span><h3>React 3. 로그인</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>authApi.login → POST /auth/login</li>
+      <li>localStorage에 accessToken 저장</li>
+      <li>useRef면 .current.value 필수</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-3">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-3">
+      <pre><code>// useState 방식 (추천)
+await login(username, password);
+
+// useRef 방식
+await login(usernameRef.current.value, passwordRef.current.value);
+
+localStorage.setItem('accessToken', res.data.accessToken);</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-3">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-3">
+      <pre><code>// authApi.js
+login: (data) => axiosInstance.post('/auth/login', data),
+
+// LoginPage.jsx
+const [username, setUsername] = useState("");
+const { login } = useAuth();
+const handleLogin = async () => {
+  await login(username, password);
+  navigate("/");
+};</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-4 -->
+<article class="problem-block" id="q19-4">
+  <div class="problem-header"><span class="badge badge-setup">Q19</span><h3>React 4. AuthContext</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>AuthProvider로 App 감싸기</li>
+      <li>login → token → me → setUser</li>
+      <li>JWT 인터셉터 Bearer 헤더</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-4">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-4">
+      <pre><code>// index.js
+&lt;AuthProvider&gt;&lt;App /&gt;&lt;/AuthProvider&gt;
+
+// useAuth 없이 Provider 밖 → 에러
+
+config.headers.Authorization = `Bearer ${token}`;</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-4">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-4">
+      <pre><code>const login = async (username, password) => {
+  const loginRes = await authApi.login({ username, password });
+  localStorage.setItem('accessToken', loginRes.data.accessToken);
+  const meRes = await authApi.me();
+  setUser(meRes.data);
+};
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('AuthProvider 안에서만 사용');
+  return ctx;
+};</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-5 -->
+<article class="problem-block" id="q19-5">
+  <div class="problem-header"><span class="badge badge-r">R</span><h3>React 5. 상세 useParams</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>Route <code>/posts/:bno</code></li>
+      <li>useParams().bno — 이름 일치!</li>
+      <li>getPost(bno) → board, commentList</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-5">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-5">
+      <pre><code>const { bno } = useParams();
+useEffect(() => {
+  postApi.getPost(bno).then(res => {
+    setPost(res.data.board);
+    setCommentList(res.data.commentList);
+  });
+}, [bno]);</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-5">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-5">
+      <pre><code>&lt;Route path="/posts/:bno" element={&lt;PostDetailPage /&gt;} /&gt;
+
+&lt;Link to={`/posts/${item.bno}`}&gt;{item.title}&lt;/Link&gt;
+
+getPost: (bno) => axiosInstance.get(`/api/posts/${bno}`),</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-6 -->
+<article class="problem-block" id="q19-6">
+  <div class="problem-header"><span class="badge badge-setup">Q19</span><h3>React 6. NavBar</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>isAuthenticated 분기</li>
+      <li>로그인: 닉네임 + 글쓰기 + 로그아웃</li>
+      <li>비로그인: 로그인 링크</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-6">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-6">
+      <pre><code>const { isAuthenticated, user, logout } = useAuth();
+isAuthenticated ? &lt;...&gt; : &lt;...&gt;</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-6">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-6">
+      <pre><code>{isAuthenticated ? (
+  &lt;&gt;
+    &lt;span&gt;{user.nickname}&lt;/span&gt;
+    &lt;Link to="/posts/create"&gt;글쓰기&lt;/Link&gt;
+    &lt;button onClick={logout}&gt;로그아웃&lt;/button&gt;
+  &lt;/&gt;
+) : (
+  &lt;Link to="/login"&gt;로그인&lt;/Link&gt;
+)}</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-7 -->
+<article class="problem-block" id="q19-7">
+  <div class="problem-header"><span class="badge badge-c">C</span><h3>React 7. 등록 POST /api/posts</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>postApi.create — URL 끝에 숫자 없음!</li>
+      <li>Bearer Token 필요</li>
+      <li>Body: title, content</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-7">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-7">
+      <pre><code>// O POST /api/posts
+// X POST /api/posts/1  → 403
+
+create: (data) => axiosInstance.post('/api/posts', data)</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-7">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-7">
+      <pre><code>const handleSubmit = async (e) => {
+  e.preventDefault();
+  await postApi.create({ title, content });
+  navigate("/");
+};
+
+&lt;Route path="/posts/create" element={&lt;PostWritePage /&gt;} /&gt;</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-8 -->
+<article class="problem-block" id="q19-8">
+  <div class="problem-header"><span class="badge badge-u">U</span><h3>React 8. 수정 PATCH</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>postApi.update(bno, data)</li>
+      <li>PostWritePage 등록/수정 분기</li>
+      <li>수정 시 기존값 load</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-8">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-8">
+      <pre><code>const { bno } = useParams();
+const isEdit = Boolean(bno);
+if (isEdit) await postApi.update(bno, { title, content });</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-8">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-8">
+      <pre><code>update: (bno, data) => axiosInstance.patch(`/api/posts/${bno}`, data),
+
+useEffect(() => {
+  if (isEdit) postApi.getPost(bno).then(res => {
+    setTitle(res.data.board.title);
+    setContent(res.data.board.content);
+  });
+}, [bno, isEdit]);</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-9 -->
+<article class="problem-block" id="q19-9">
+  <div class="problem-header"><span class="badge badge-d">D</span><h3>React 9. 삭제 DELETE</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>postApi.remove(bno)</li>
+      <li>confirm 후 navigate('/')</li>
+      <li>작성자만 가능 (403)</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-9">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-9">
+      <pre><code>remove: (bno) => axiosInstance.delete(`/api/posts/${bno}`)
+
+if (!window.confirm('삭제?')) return;</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-9">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-9">
+      <pre><code>const handleDelete = async () => {
+  if (!window.confirm("삭제하시겠습니까?")) return;
+  await postApi.remove(bno);
+  navigate("/");
+};</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- Q19-11 -->
+<article class="problem-block" id="q19-11">
+  <div class="problem-header"><span class="badge badge-page">PAGE</span><h3>React 11. 페이징 PaggingBar</h3></div>
+  <div class="problem-body">
+    <h4>문제</h4>
+    <ul>
+      <li>seed_board_pagination.py (300건)</li>
+      <li>pagging state + onPageChange</li>
+      <li>◀▶ 그룹 버튼</li>
+    </ul>
+    <button type="button" class="reveal-btn hint" data-panel="hint-q19-11">💡 힌트 코드 보기</button>
+    <div class="reveal-panel hint-panel" id="hint-q19-11">
+      <pre><code>setPagging(res.data.pagging);
+onPageChange(pageNo) => getPage(pageNo, '', 20)</code></pre>
+    </div>
+    <button type="button" class="reveal-btn full" data-panel="full-q19-11">📋 전체 코드 보기</button>
+    <div class="reveal-panel full-panel" id="full-q19-11">
+      <pre><code>for (let i = pagging.startPageOfPageGroup;
+     i &lt;= pagging.endPageOfPageGroup; i++)
+  pageNumbers.push(i);
+
+&lt;button disabled={item === pagging.currentPage}
+  onClick={() => onPageChange(item)}&gt;{item}&lt;/button&gt;
+
+&lt;button disabled={!pagging.priviousPageGroup}
+  onClick={() => onPageChange(pagging.startPageOfPageGroup - 1)}&gt;◀◀&lt;/button&gt;</code></pre>
+    </div>
+  </div>
+</article>
+
+<!-- CHECKLIST -->
+<div class="intro" id="check">
+  <h2>체크리스트</h2>
+  <h4>Quest 18</h4>
+  <div class="checklist" data-store="q18">
+    <label><input type="checkbox" /> CRUD 5종 + 페이징</label>
+    <label><input type="checkbox" /> sample 300건</label>
+    <label><input type="checkbox" /> 90분 재구현</label>
+  </div>
+  <h4>Quest 19</h4>
+  <div class="checklist" data-store="q19">
+    <label><input type="checkbox" /> postApi 5함수</label>
+    <label><input type="checkbox" /> AuthContext</label>
+    <label><input type="checkbox" /> PaggingBar</label>
+    <label><input type="checkbox" /> Postman CRUD 6단계</label>
+  </div>
+</div>
+
+</main>
+</div>
+
+<button type="button" id="topBtn">↑ 맨 위</button>
+
+<script>
+  document.querySelectorAll('.reveal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = document.getElementById(btn.dataset.panel);
+      const isOpen = panel.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      const isHint = btn.classList.contains('hint');
+      btn.textContent = isHint
+        ? (isOpen ? '▲ 힌트 코드 숨기기' : '💡 힌트 코드 보기')
+        : (isOpen ? '▲ 전체 코드 숨기기' : '📋 전체 코드 보기');
+    });
+  });
+
+  document.querySelectorAll('.checklist').forEach(list => {
+    const key = 'pg-' + (list.dataset.store || 'x');
+    list.querySelectorAll('input').forEach((cb, i) => {
+      const id = key + i;
+      cb.checked = localStorage.getItem(id) === '1';
+      cb.addEventListener('change', () => localStorage.setItem(id, cb.checked ? '1' : '0'));
+    });
+  });
+
+  document.getElementById('topBtn').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+</script>
+</body>
+</html>

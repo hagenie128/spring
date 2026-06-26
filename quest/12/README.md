@@ -1,5 +1,7 @@
 # quest/12 — Spring Boot JPA Join + MVC 연습
 
+> **📖 통합 가이드:** [../PRACTICE-GUIDE-12-17.html](../PRACTICE-GUIDE-12-17.html) — 문제·힌트·전체코드 (클릭해서 열기)
+
 > Spring Boot 3.4 | Java 17 | JPA | Thymeleaf | H2  
 > **참고 완성본:** [step13-boot-jpa-join](../step13-boot-jpa-join) — 패턴은 같고 도메인만 **도서관 대출**입니다.
 
