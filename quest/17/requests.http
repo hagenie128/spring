@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:8888
+@accessToken = 로그인_응답의_accessToken
+
+### 회원가입
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "quest17",
+  "password": "1234",
+  "nickname": "퀘스트17"
+}
+
+### 로그인
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "quest17",
+  "password": "1234"
+}
+
+### 내 정보
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 게시글 목록 (공개)
+GET {{baseUrl}}/api/posts?page=1&size=20
+
+### 게시글 상세 (공개)
+GET {{baseUrl}}/api/posts/1
+
+### 게시글 작성 — URL 끝에 숫자 없음!
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "글 제목",
+  "content": "글 내용"
+}
+
+### 댓글 작성
+POST {{baseUrl}}/api/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "bno": 1,
+  "content": "댓글 내용"
+}
+
+### 잘못된 예 — 403 발생
+POST {{baseUrl}}/api/posts/1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "이 URL은 등록 API가 아님",
+  "content": "상세 조회는 GET /api/posts/1"
+}

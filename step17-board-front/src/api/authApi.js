@@ -1,15 +1,17 @@
 import axiosInstance from "./axiosInstance";
 
 /**
- * 인증 관련 API 함수
+ * [6/26 진도] 인증 API 레이어
+ * 백엔드 AuthController(/auth/**)와 1:1로 대응한다.
+ * AuthContext에서 login/logout/me 호출 시 이 모듈을 사용한다.
  */
 export const authApi = {
-  // 회원가입
+  /** POST /auth/signup — Body: { username, password, nickname } */
   signup : (data) => axiosInstance.post('/auth/signup', data),
-  // 로그인
+  /** POST /auth/login — Body: { username, password } → accessToken, refreshToken 반환 */
   login : (data) => axiosInstance.post('/auth/login', data),
-  // 로그아웃
+  /** POST /auth/logout — Bearer 토큰 필요 */
   logout : () => axiosInstance.post('/auth/logout'),
-  // 내 정보
+  /** GET /auth/me — Bearer 토큰으로 현재 로그인 사용자 정보 조회 */
   me : () => axiosInstance.get('/auth/me'),
 };

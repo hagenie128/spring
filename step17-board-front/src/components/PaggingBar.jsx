@@ -1,3 +1,8 @@
+/**
+ * [6/26 진도] 페이징 컴포넌트
+ * 백엔드 PaggingVO의 startPageOfPageGroup ~ endPageOfPageGroup 범위를 버튼으로 표시
+ * onPageChange(페이지번호)를 부모(PostListPage)에 전달해 목록을 다시 조회한다
+ */
 export default ({ pagging, onPageChange } ) => {
 
   const pageNumbers = [];
