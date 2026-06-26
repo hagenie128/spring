@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { postApi } from "../api/postApi";
 import PaggingBar from "../components/PaggingBar";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default () => {
   const [posts, setPosts] = useState([]);
@@ -46,9 +46,11 @@ export default () => {
       </thead>
       <tbody>
         {
-          posts && posts.map(item => <tr>
+          posts && posts.map(item => <tr key={item.bno}>
             <td>{item.bno}</td>
-            <td><a onClick={() => navigate(`/posts/${item.bno}`)}>{item.title}</a></td>
+            <td>
+              <Link to={`/posts/${item.bno}`}>{item.title}</Link>
+            </td>
             <td>{item.nickname}</td>
             <td>{item.writeUpdateDate}</td>
             <td>{item.bcount}</td>
@@ -60,7 +62,9 @@ export default () => {
 
       </tbody>
       <tfoot>
-        <td colSpan={2}><PaggingBar pagging={pagging} onPageChange={fetchPostData}/> </td>
+        <tr>
+          <td colSpan={7}><PaggingBar pagging={pagging} onPageChange={fetchPostData}/> </td>
+        </tr>
       </tfoot>
     </table>
   </div>
