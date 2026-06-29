@@ -1,20 +1,13 @@
 import { useCallback, useEffect, useState } from "react"
 import { postApi } from "../api/postApi";
 import PaggingBar from "../components/PaggingBar";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-/**
- * [6/26 진도] 게시글 목록 페이지
- * 1. useEffect로 마운트 시 1페이지 조회 (GET /api/posts)
- * 2. PaggingBar에서 페이지 클릭 시 fetchPostData로 재조회
- * 3. Link로 상세 페이지 이동 (/posts/{bno})
- */
 export default () => {
   const [posts, setPosts] = useState([]);
   const [pagging, setPagging] = useState({});
-  const navigate = useNavigate();
 
-  // [진도] 최초 로딩 — page=1, size=20, keyword=''(전체)
+  // 게시글 첫번째 페이지 로드해서 출력
   useEffect(() => {
     postApi.getPage(1, '', 20)
     .then(response => {
@@ -24,7 +17,7 @@ export default () => {
       }
     )
   },[]);
-  // [진도] 페이징 바 클릭 시 해당 페이지 데이터 다시 요청
+  // 페이지 번호에 해당하는 게시글 조회
   const fetchPostData = useCallback((pageNo) => {
     postApi.getPage(pageNo, '', 20)
     .then(response => {
@@ -36,43 +29,50 @@ export default () => {
   },[]);
 
 
-  return <div className="container">
-    <h2>게시글 목록</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>글번호</th>
-          <th>제목</th>
-          <th>작성자</th>
-          <th>작성일</th>
-          <th>조회수</th>
-          <th>좋아요</th>
-          <th>싫어요</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          posts && posts.map(item => <tr key={item.bno}>
-            <td>{item.bno}</td>
-            <td>
-              {/* [진도] react-router-dom Link — 클릭 시 SPA 방식으로 상세 이동 */}
-              <Link to={`/posts/${item.bno}`}>{item.title}</Link>
+  return <div className="post-list-container">
+    <div className="post-list-header">
+      <h2 className="post-list-title">게시글 목록</h2>
+    </div>
+    <div className="table-responsive">
+      <table className="post-table">
+        <thead>
+          <tr>
+            <th className="td-center" style={{ width: '80px' }}>글번호</th>
+            <th>제목</th>
+            <th className="td-center" style={{ width: '120px' }}>작성자</th>
+            <th className="td-center" style={{ width: '150px' }}>작성일</th>
+            <th className="td-center" style={{ width: '90px' }}>조회수</th>
+            <th className="td-center" style={{ width: '90px' }}>좋아요</th>
+            <th className="td-center" style={{ width: '90px' }}>싫어요</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            posts && posts.map(item => <tr key={item.bno}>
+              <td className="td-center">{item.bno}</td>
+              <td><Link to={`/posts/${item.bno}`}>{item.title}</Link></td>
+              <td className="td-center">{item.nickname}</td>
+              <td className="td-center">{item.writeUpdateDate}</td>
+              <td className="td-center">
+                <span className="stat-badge stat-count">{item.bcount}</span>
+              </td>
+              <td className="td-center">
+                <span className="stat-badge stat-like">👍 {item.blike}</span>
+              </td>
+              <td className="td-center">
+                <span className="stat-badge stat-hate">👎 {item.bhate}</span>
+              </td>
+            </tr>)
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={7} className="pagination-cell">
+              <PaggingBar pagging={pagging} onPageChange={fetchPostData}/>
             </td>
-            <td>{item.nickname}</td>
-            <td>{item.writeUpdateDate}</td>
-            <td>{item.bcount}</td>
-            <td>{item.blike}</td>
-            <td>{item.bhate}</td>
-          </tr>)
-
-        }
-
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colSpan={7}><PaggingBar pagging={pagging} onPageChange={fetchPostData}/> </td>
-        </tr>
-      </tfoot>
-    </table>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
 }

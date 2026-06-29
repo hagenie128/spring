@@ -64,7 +64,7 @@ public class BoardController {
   @GetMapping("/{bno}")
   public ResponseEntity<Map<String,Object>> boardContent(@PathVariable int bno) {
     Map<String, Object> map = new HashMap<>();
-    
+    System.out.println("boardContent : " + bno);
     BoardDTO board = boardService.selectBoard(bno);
     List<BoardCommentDTO> commentList = boardService.selectBoardComment(bno);    
     map.put("board", board);

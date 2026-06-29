@@ -1,82 +1,68 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router-dom"
 import { postApi } from "../api/postApi";
 
-/**
- * [6/26 진도] 게시글 상세 페이지
- * 1. useParams()로 URL의 :bno(글번호) 추출
- * 2. GET /api/posts/{bno} → board, commentList를 state에 저장
- * 3. 상세 UI + 댓글 목록 표시 (App.css의 .post-detail 스타일)
- * TODO: 댓글 작성 버튼에 POST /api/comments 연동 필요
- * TODO: post 초기값 {} 대신 null 사용 시 로딩 처리가 정확해짐
- */
 export default () => {
-
-  const { bno } = useParams(); // App.js 라우트 /posts/:bno 와 이름 일치
-  const [post, setPost] = useState({});
+  const {bno} = useParams();
+  const [post ,setPost] = useState({});
   const [commentList, setCommentList] = useState([]);
-
-  // [진도] bno가 바뀔 때마다(다른 글 클릭) 상세 API 재호출
+  console.log(bno);
   useEffect(() => {
-    postApi.getPost(bno)
-    .then(response => {
-      console.log(response.data);
-        setPost(response.data.board);
-        setCommentList(response.data.commentList);
-      }
-    ).catch(error => {
-      console.error('Error fetching post:', error);
+    postApi.getPost(bno).then(reponse => {
+      setPost(reponse.data.board);
+      setCommentList(reponse.data.commentList);
+      console.log(reponse.data);
+    }).catch(error=>{
+      console.log(error);
     });
   },[bno]);
 
-  return <div className="container post-detail">
+  return <div className="post-detail-container">
     {
-      !post ? <div>Loading...</div> : (
-        <>
-    <h2 className="post-title">{post.title}</h2>
-      <div className="post-meta">
-        <span className="author">작성자 : {post.nickname}</span>
-        <span className="view-count">조회수 : {post.bcount}</span>
-        <span className="write-date">최종 수정일 : {post.writeUpdateDate}</span>
-      </div>
-      <div className="post-content">{post.content}</div>
-      <div className="post-footer">
-        <div className="post-footer-group">
-
-        <button type="button" className="like-button">좋아요 👍 {post.blike}</button>
-        <button type="button" className="hate-button">싫어요 👎 {post.bhate}</button>
+      !post ? <div className="post-loading">현재 게시글 읽어오고 있습니다.</div> :
+      <>
+        <h2 className="post-detail-title">{post.title}</h2>
+        <div className="post-detail-meta">
+          <span className="meta-item"><span className="meta-label">작성자</span> {post.nickname}</span>
+          <span className="meta-item"><span className="meta-label">조회수</span> {post.bcount}</span>
+          <span className="meta-item"><span className="meta-label">작성일</span> {post.writeUpdateDate}</span>
         </div>
-        <div className="post-footer-group">
-          <button type="button" className="edit-button">수정</button>
-          <button type="button" className="delete-button">삭제</button>
-          <button type="button" className="list-button">목록으로</button>
+        <div className="post-detail-content">{post.content}</div>
+        <div className="post-detail-footer">
+          <div className="post-footer-group">
+            <button className="btn btn-success-outline">좋아요 👍</button>
+            <button className="btn btn-danger-outline">싫어요 👎</button>
+          </div>
+          <div className="post-footer-group">
+            <button className="btn btn-secondary">수정</button>
+            <button className="btn btn-danger-outline">삭제</button>
+          </div>
         </div>
-      </div>
-      <div className="comment-area">
-      <h3 className="comment-heading">댓글 {commentList.length}개</h3>
-      {/* TODO: 댓글 작성 — POST /api/comments, Body: { bno, content }, JWT 필요 */}
-      <div className="comment-form">
-        <textarea name="content" placeholder="댓글을 입력하세요" rows={4} />
-        <button type="submit" className="comment-submit">댓글 작성</button>
-      </div>
-      <div className="comment-list">
-        {commentList.map(item => <div className="comment-item" key={item.cno}>
-          <div className="comment-info">
-            <span className="author">👤 {item.nickname}</span>
-            <span className="date">📅 {item.cdate}</span>
+        <div className="comment-section">
+          <h3 className="comment-title">댓글 목록 ({commentList ? commentList.length : 0})</h3>
+          <div className="comment-form">
+            <textarea className="comment-textarea" placeholder="댓글을 입력해 주세요."></textarea>
+            <button className="comment-submit-btn">댓글<br/>등록</button>
           </div>
-          <div className="comment-content">{item.content}</div>
-          <div className="comment-actions">
-          <button type="button" className="like-button">좋아요 👍</button>
-          <button type="button" className="hate-button">싫어요 👎</button>
-
-          <button type="button" className="edit-button">수정</button>
-          <button type="button" className="delete-button">삭제</button>
+          <div className="comment-list">
+            {commentList && commentList.map((item, index) => <div key={item.cno || index} className="comment-item">
+              <div className="comment-header">
+                <div className="comment-info">
+                  <span>👤 {item.nickname}</span>
+                  <span>📅 {item.cdate}</span>
+                </div>
+                <div className="comment-action">
+                  <button className="btn-comment-action">좋아요 👍</button>
+                  <button className="btn-comment-action">싫어요 👎</button>
+                  <button className="btn-comment-action">수정</button>
+                  <button className="btn-comment-action btn-comment-danger">삭제</button>
+                </div>
+              </div>
+              <div className="comment-content">{item.content}</div>
+            </div>)}
           </div>
-        </div>)}
-      </div>  
-      </div>
+        </div>
       </>
-      )}
-    </div>
+    }
+  </div>
 }

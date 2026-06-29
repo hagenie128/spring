@@ -1,45 +1,42 @@
-import { useRef, useState } from "react"
+import { useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-/**
- * [6/26 진도] 로그인 페이지
- * - useAuth()로 AuthContext의 login 함수 사용
- * - useRef로 input DOM 참조 (값은 .current.value로 꺼내야 함)
- * - TODO: login(username.current.value, password.current.value) 로 수정 필요
- * - TODO: 성공 후 navigate('/') — 프론트 라우트로 이동 (백엔드 URL 아님)
- */
 export default () => {
   const username = useRef(null);
   const password = useRef(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoding] = useState(false);
   const {login} = useAuth();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async () => {
-    setLoading(true);
-    try {
-      // TODO: useRef 사용 시 .current.value로 문자열 전달
-      await login(username,password);
-      navigate('/api/board/list');
-    } catch (error) {
-      setErrorMessage(error.response?.data?.message || '로그인 실패');
+    setLoding(true);
+    try{
+      await login(username.current.value,password.current.value);
+      navigate('/');
+    }catch(error){
+      console.log(error);
+      setErrorMessage(error.response?.data?.message || '로그인 실패했습니다.');
     }finally{
-      setLoading(false);
+      setLoding(false);
     }
   };
 
-  return (  <>
-  <div className="container">
-    <h2>로그인 페이지</h2>
-    <div className="login-form">
-        <input type="text" placeholder="아이디 입력" ref={username} />
-        <input type="password" placeholder="비밀번호 입력" ref={password} />
-        <div className="error-message">{errorMessage}</div>
-        {loading? <p>현재 로그인 중입니다</p> : <button type="button" onClick={handleLogin}>로그인</button>}
-        <button type="button" onClick={() => {navigate('/api/auth/signup')}}>회원가입</button>
+  // 로그인 폼
+  return <div className="login-container">
+    <div className="login-card">
+      <div className="login-header">
+        <h2 className="login-title">로그인</h2>
+        <p className="login-subtitle">Spring Board 계정으로 계속하세요.</p>
+      </div>
+      <div className="frm-login">
+        <input className="login-input" type="text" placeholder="아이디를 입력하세요" ref={username}/>
+        <input className="login-input" type="password" placeholder="암호를 입력하세요" ref={password}/>
+        {errorMessage && <div className="error-message-box">{errorMessage}</div>}
+        {loading ? <p className="login-loading">현재 로그인 중입니다.</p> : <button className="btn btn-primary login-submit-btn" onClick={handleLogin}>로그인</button>}
+        <button className="btn btn-secondary login-signup-btn" onClick={() => navigate('/signup')}>회원가입</button>
       </div>
     </div>
-  </>);
+  </div>
 }
