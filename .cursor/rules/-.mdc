@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+---
+
+------------------
+-- 1. 기존 FK 제거
+ALTER TABLE board_comment
+  DROP FOREIGN KEY FK_board_TO_board_comment;
+
+-- 2. 리액션 테이블 컬럼 타입을 부모 PK와 맞춤
+ALTER TABLE board_reaction
+  MODIFY bno BIGINT NOT NULL;
+
+ALTER TABLE board_comment_reaction
+  MODIFY cno BIGINT NOT NULL;
+
+-- 3. CASCADE FK 다시 생성
+ALTER TABLE board_comment
+  ADD CONSTRAINT FK_board_TO_board_comment
+    FOREIGN KEY (bno)
+    REFERENCES board (bno)
+    ON DELETE CASCADE;
+
+ALTER TABLE board_reaction
+  ADD CONSTRAINT FK_board_TO_board_reaction
+    FOREIGN KEY (bno)
+    REFERENCES board (bno)
+    ON DELETE CASCADE;
+
+ALTER TABLE board_comment_reaction
+  ADD CONSTRAINT FK_board_comment_TO_board_comment_reaction
+    FOREIGN KEY (cno)
+    REFERENCES board_comment (cno)
+    ON DELETE CASCADE;
+
+ALTER TABLE board_reaction
+ADD CONSTRAINT FK_board_member_TO_board_reaction
+  FOREIGN KEY (mid)
+  REFERENCES board_member (id);
+
+ALTER TABLE board_comment_reaction
+  ADD CONSTRAINT FK_board_member_TO_board_comment_reaction
+    FOREIGN KEY (mid)
+    REFERENCES board_member (id);

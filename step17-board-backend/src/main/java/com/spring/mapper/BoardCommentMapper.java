@@ -28,4 +28,6 @@ public interface BoardCommentMapper {
 
   ReactionCountDTO selectBoardCommentReactionCount(int cno);
 
+  void deleteBoardCommentByBno(int bno);
+
 }

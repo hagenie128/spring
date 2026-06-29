@@ -2,57 +2,62 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { useEffect, useRef } from "react";
 
-export default ({onChange, defaultVale}) => {
-  // 에디터를 가리킬 Ref
+export default ({ onChange, defaultValue }) => {
   const editorRef = useRef(null);
   const quillInstance = useRef(null);
+  const onChangeRef = useRef(onChange);
+  const initializedRef = useRef(false);
 
+  onChangeRef.current = onChange;
+
+  // Quill 인스턴스는 최초 1회만 생성
   useEffect(() => {
-    if(editorRef.current && !quillInstance.current){
-      quillInstance.current = new Quill(editorRef.current,{
-        theme:'snow',
-        modules : {
-          toolbar : [['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-          ['blockquote', 'code-block'],
-          ['link', 'image', 'video', 'formula'],
-      
-          [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-          [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-          [{ 'direction': 'rtl' }],                         // text direction
-      
-          [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      
-          [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-          [{ 'font': [] }],
-          [{ 'align': [] }],
-      
-          ['clean'] ]
+    if (editorRef.current && !quillInstance.current) {
+      quillInstance.current = new Quill(editorRef.current, {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "code-block"],
+            ["link", "image", "video", "formula"],
+            [{ header: 1 }, { header: 2 }],
+            [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+            [{ script: "sub" }, { script: "super" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ direction: "rtl" }],
+            [{ size: ["small", false, "large", "huge"] }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ color: [] }, { background: [] }],
+            [{ font: [] }],
+            [{ align: [] }],
+            ["clean"],
+          ],
+        },
+      });
+
+      quillInstance.current.on("text-change", () => {
+        if (onChangeRef.current) {
+          onChangeRef.current(quillInstance.current.getSemanticHTML());
         }
-    });
-
+      });
     }
-     // 초기값 설정. 수정모드일때 이전에 입력했던 게시글 값
-    if(defaultVale){
-      quillInstance.current.root.innerHTML = defaultVale;
+  }, []);
+
+  // 수정 모드: API에서 본문을 받아온 뒤 최초 1회만 반영
+  useEffect(() => {
+    if (
+      quillInstance.current &&
+      defaultValue &&
+      !initializedRef.current
+    ) {
+      quillInstance.current.root.innerHTML = defaultValue;
+      initializedRef.current = true;
     }
-
-    // 내용이 변경될 때 실행할 이벤트 리스너 등록
-    quillInstance.current.on('text-change', () => {
-      if(onChange){
-        console.log(quillInstance.current.getSemanticHTML());
-        onChange(quillInstance.current.getSemanticHTML());
-      }
-    });
-  },[]);
-
- 
+  }, [defaultValue]);
 
   return (
-    <div style={{margin:'50px'}}>
-      <div ref={editorRef} style={{height:'500px'}}></div>      
+    <div style={{ margin: "50px" }}>
+      <div ref={editorRef} style={{ height: "500px" }}></div>
     </div>
   );
-}
+};

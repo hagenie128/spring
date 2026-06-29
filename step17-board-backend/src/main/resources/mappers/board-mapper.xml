@@ -26,7 +26,7 @@
   <select id="selectBoardComment" resultType="comment">
     select * from board_comment_view bcv where bcv.bno = #{bno}
   </select>
-  <insert id="insertBoard">
+  <insert id="insertBoard" useGeneratedKeys="true" keyProperty="bno">
     insert into board(title,content,mid)
     values(#{title},#{content},#{mid})
   </insert>

@@ -14,11 +14,11 @@ import com.spring.dto.ReactionCountDTO;
 public interface BoardMapper {
 
   List<BoardDTO> selectBoardList(@Param("page") int page,
-                                 @Param("size") int size);
+      @Param("size") int size);
 
-  List<BoardDTO> searchBoardList(@Param("keyword") String keyword, 
-                                 @Param("page") int page,
-                                 @Param("size") int size);
+  List<BoardDTO> searchBoardList(@Param("keyword") String keyword,
+      @Param("page") int page,
+      @Param("size") int size);
 
   int boardCount();
 
@@ -32,7 +32,7 @@ public interface BoardMapper {
 
   void updateBoard(BoardDTO reqBoard);
 
-  BoardReactionReq selectBoardReaction(@Param("bno") int bno,@Param("id") Long id);
+  BoardReactionReq selectBoardReaction(@Param("bno") int bno, @Param("id") Long id);
 
   void insertBoardReaction(BoardReactionReq reactionReq);
 

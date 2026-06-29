@@ -20,12 +20,12 @@ public class BoardService {
   private final BoardMapper boardMapper;
 
   public List<BoardDTO> getBoardList(int page, int size) {
-    return boardMapper.selectBoardList(page,size);
+    return boardMapper.selectBoardList(page, size);
   }
 
-	public List<BoardDTO> searchBoardList(String keyword, int page, int size) {
-    return boardMapper.searchBoardList(keyword,page,size);
-	}
+  public List<BoardDTO> searchBoardList(String keyword, int page, int size) {
+    return boardMapper.searchBoardList(keyword, page, size);
+  }
 
   public int boardCount() {
     return boardMapper.boardCount();
@@ -52,7 +52,7 @@ public class BoardService {
   }
 
   public BoardReactionReq selectBoardReaction(int bno, Long id) {
-    return boardMapper.selectBoardReaction(bno,id);
+    return boardMapper.selectBoardReaction(bno, id);
   }
 
   public void addBoardReaction(BoardReactionReq reactionReq) {

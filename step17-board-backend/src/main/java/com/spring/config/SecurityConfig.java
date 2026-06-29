@@ -20,17 +20,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.spring.security.JwtAuthenticationFilter;
 
-
 import lombok.RequiredArgsConstructor;
 
 /**
  * Spring Security의 인증 방식, URL 접근 규칙, 보안 관련 객체를 설정한다.
  *
- * <p><b>인증(Authentication)</b>은 "누구인지" 확인하는 과정이고,
+ * <p>
+ * <b>인증(Authentication)</b>은 "누구인지" 확인하는 과정이고,
  * <b>인가(Authorization)</b>는 인증된 사용자가 해당 기능을 사용할 수 있는지 확인하는 과정이다.
- * 이 프로젝트는 서버 세션 대신 JWT를 사용하므로 요청마다 토큰을 검증해 인증 정보를 만든다.</p>
+ * 이 프로젝트는 서버 세션 대신 JWT를 사용하므로 요청마다 토큰을 검증해 인증 정보를 만든다.
+ * </p>
  *
- * <p>요청 흐름: 클라이언트 요청 → CORS/보안 필터 → JWT 필터 → URL 인가 검사 → Controller</p>
+ * <p>
+ * 요청 흐름: 클라이언트 요청 → CORS/보안 필터 → JWT 필터 → URL 인가 검사 → Controller
+ * </p>
  */
 @Configuration
 @EnableWebSecurity
@@ -41,21 +44,20 @@ public class SecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-    .csrf(crsf -> crsf.disable())
-    .cors(cors -> cors.configurationSource(corsConfigrationSource()))
-    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-    .authorizeHttpRequests(auth -> auth
-      .requestMatchers("/auth/**").permitAll()
-      .requestMatchers("/v3/api-docs/**").permitAll()
-      .requestMatchers("/swagger-ui.html").permitAll()
-      .requestMatchers("/swagger-ui/**").permitAll()
-      .requestMatchers(HttpMethod.GET,"/api/posts/**").permitAll()
-      .anyRequest().authenticated()
-    ) 
-    // 필터 추가
-    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        .csrf(crsf -> crsf.disable())
+        .cors(cors -> cors.configurationSource(corsConfigrationSource()))
+        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/v3/api-docs/**").permitAll()
+            .requestMatchers("/swagger-ui.html").permitAll()
+            .requestMatchers("/swagger-ui/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+            .anyRequest().authenticated())
+        // 필터 추가
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
@@ -67,7 +69,7 @@ public class SecurityConfig {
     // 허용할 프론트엔드 주소를 정확히 지정한다. 운영 환경에서는 실제 도메인으로 바꿔야 한다.
     config.setAllowedOrigins(List.of("http://localhost:3000"));
     // 브라우저가 사용할 수 있는 HTTP 메서드와 요청 헤더를 허용한다.
-    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     // 쿠키나 Authorization 같은 인증 정보를 포함한 교차 출처 요청을 허용한다.
     config.setAllowCredentials(true);
@@ -82,7 +84,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  public PasswordEncoder passwordEncoder(){
+  public PasswordEncoder passwordEncoder() {
     // 비밀번호를 복호화 가능한 형태로 저장하지 않고 BCrypt 단방향 해시로 변환한다.
     return new BCryptPasswordEncoder();
   }
