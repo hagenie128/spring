@@ -279,6 +279,8 @@ cd 만든-spring-프로젝트
 | [quest/20-openapi-practice/README.md](20-openapi-practice/README.md) | 공공 API 연습 |
 | [quest/18/README.md](18/README.md) | Thymeleaf CRUD |
 | [quest/19-react-jwt-practice/README.md](19-react-jwt-practice/README.md) | React JWT 단계별 |
+| [quest/21-security-practice/README.md](21-security-practice/README.md) | Security 인덱스 |
+| [quest/21-security-practice/보안-완전정리.md](21-security-practice/보안-완전정리.md) | **보안 교재 (실무·유출대비 포함)** |
 
 ---
 

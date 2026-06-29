@@ -1,0 +1,83 @@
+# step17-board-backend Security 실습용
+# 사용법: 백엔드 bootRun 후 각 블록 위 "Send Request" 클릭
+# 로그인 응답의 accessToken을 아래 @accessToken에 붙여넣기
+
+@baseUrl = http://localhost:8888
+@accessToken = 여기에_로그인_후_accessToken_붙여넣기
+
+### ── 실습 A: 회원가입 ──
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "sec-test-a",
+  "password": "1234",
+  "nickname": "보안테스트A"
+}
+
+### ── 실습 B: 로그인 (토큰 복사!) ──
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "sec-test-a",
+  "password": "1234"
+}
+
+### ── 실습 B: 내 정보 (토큰 필요) ──
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### ── 실습 C: 토큰 없이 글쓰기 → 401 기대 ──
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+
+{
+  "title": "토큰 없는 글",
+  "content": "<p>401 나와야 정상</p>"
+}
+
+### ── 실습 D: 토큰 있으면 글쓰기 → 200 기대 ──
+POST {{baseUrl}}/api/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "로그인 후 글",
+  "content": "<p>성공</p>"
+}
+
+### ── 실습 E: 토큰 없이 목록/상세 → 200 기대 (permitAll) ──
+GET {{baseUrl}}/api/posts?page=1&size=10
+
+###
+GET {{baseUrl}}/api/posts/1
+
+### ── 실습 F: 본인 글 삭제 (bno를 본인 글 번호로 바꾸기) ──
+DELETE {{baseUrl}}/api/posts/1
+Authorization: Bearer {{accessToken}}
+
+### ── 로그아웃 ──
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### ── 두 번째 계정 (실습 F: 남의 글 삭제용) ──
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "sec-test-b",
+  "password": "1234",
+  "nickname": "보안테스트B"
+}
+
+###
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "sec-test-b",
+  "password": "1234"
+}
+
+# userB 토큰으로 userA 글 DELETE → 403 기대

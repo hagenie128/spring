@@ -15,6 +15,8 @@
 | 6월 24일 | [problem04-board-api](problem04-board-api/) | JWT + MyBatis 게시판 API | `step17-board-backend` |
 | 6월 25일 | [problem05-board-crud-reaction](problem05-board-crud-reaction/) | 게시글·댓글 CRUD와 반응 토글 | `step17-board-backend` |
 
+> **시큐리티 교재 (실무·유출대비·실습 사용법):** [quest/21-security-practice/보안-완전정리.md](../21-security-practice/보안-완전정리.md)
+
 ## 추천 진행 방식
 
 1. 각 문제의 README와 `TODO`를 먼저 읽습니다.
