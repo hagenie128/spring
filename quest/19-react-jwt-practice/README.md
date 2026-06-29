@@ -58,8 +58,12 @@ python seed_board_pagination.py
 | 9 | [step09-post-delete](step09-post-delete/) | 30분 | DELETE | **D** 삭제 |
 | 10 | [step10-crud-종합](step10-crud-종합/) | 60분 | 댓글 + 90분 재시험 | **C** 댓글 |
 | 11 | [step11-페이징](step11-페이징/) | 40분 | PaggingBar | **R** 페이징 |
+| 12 | [step12-quill-write](step12-quill-write/) | 50분 | Quill 에디터 + 글쓰기/수정 | **C/U** |
+| 13 | [step13-reaction-owner](step13-reaction-owner/) | 30분 | 좋아요/삭제/작성자 버튼 | **D**+반응 |
 
 📋 CRUD 요약: [CRUD-한눈에.md](CRUD-한눈에.md)
+
+**공공 API 실기 (내일 과제 2):** [quest/20-openapi-practice](../20-openapi-practice/)
 
 **이틀 × 3시간:** [2일-플랜.md](2일-플랜.md) (CRUD 포함 압축版)  
 **삼일 있으면:** Step 1~4 / 5~7 / 8~10 권장

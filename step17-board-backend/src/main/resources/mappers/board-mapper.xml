@@ -26,6 +26,9 @@
   <select id="selectBoardComment" resultType="comment">
     select * from board_comment_view bcv where bcv.bno = #{bno}
   </select>
+  <!-- 수업 포인트:
+       MyBatis가 INSERT 후 DB가 생성한 AUTO_INCREMENT 글번호를 BoardDTO.bno에 다시 채워 준다.
+       프론트는 이 값을 사용해 등록 직후 상세 페이지(/posts/{bno})로 이동할 수 있다. -->
   <insert id="insertBoard" useGeneratedKeys="true" keyProperty="bno">
     insert into board(title,content,mid)
     values(#{title},#{content},#{mid})

@@ -51,11 +51,21 @@
 | 6 | 90분 종합 |
 | 7 | **페이징** ([step07](practice-a-mybatis-thymeleaf/step07-페이징/)) |
 
+**INSERT 후 PK 받기 (오늘 수업 연계):**
+
+```xml
+<insert id="insert" useGeneratedKeys="true" keyProperty="bookId">
+```
+
+등록 후 `redirect:/books/{bookId}` 에 쓸 때 필요합니다.
+
 📋 [CRUD-한눈에](practice-a-mybatis-thymeleaf/CRUD-한눈에.md) · [체크리스트](practice-a-mybatis-thymeleaf/체크리스트.md)
 
 **샘플 300건:** [sample_data/](../sample_data/) → `python seed_books.py`
 
 ### React CRUD → [quest/19-react-jwt-practice](../19-react-jwt-practice/)
+
+### 공공 API 실기 (내일 과제 2) → [quest/20-openapi-practice](../20-openapi-practice/)
 
 ---
 

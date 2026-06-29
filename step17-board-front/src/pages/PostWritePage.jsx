@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import QuillEditor from "../components/QuillEditor"
 import { useNavigate, useParams } from "react-router-dom";
 import { postApi } from "../api/postApi";
@@ -9,8 +9,6 @@ export default () => {
   
   // 수정인지? 작성인지?
   const isEditorMode = !!bno;
-  console.log('isEditorMode',isEditorMode);
-  console.log('bno',bno);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -18,17 +16,20 @@ export default () => {
   const [form, setForm] = useState({title:'',content:''});
   const [error, setError] = useState('');
   
-  useEffect(() => {// 수정일때 게시글 정보 가져오기 useEffect 사용해야 렌더링 될때 게시글 정보 가져옴
+  useEffect(() => {
+    // 수업 포인트:
+    // 수정 페이지는 URL에 이미 글번호가 있으므로, 진입 시 기존 글을 한 번 불러와 폼 초기값으로 사용한다.
     if(!isEditorMode) return; // 수정모드가 아니면 실행하지 않음
       postApi.getPost(bno).then((reponse) => {
         setForm(prev => ({...prev, title: reponse.data.board.title, content: reponse.data.board.content}));
       }).catch(error=>{
+        console.log(error);
         alert('게시글 정보를 불러오는데 실패했습니다.');
         navigate('/');
       }).finally(() => {
         setLoading(false);
       });
-    },[bno,isEditorMode]);
+    },[bno,isEditorMode, navigate]);
   const onChangePostDetail = (newPostDetail) => {
     setForm(prevForm => ({...prevForm, content : newPostDetail}));
   }
@@ -47,16 +48,20 @@ export default () => {
 
       setLoading(true);
       if(isEditorMode){
-        // 수정일때 (PATCH는 204 No Content → bno는 URL에서 이미 알고 있음)
+        // 수업 포인트:
+        // PATCH 응답은 204 No Content라서 서버가 글번호를 다시 주지 않는다.
+        // 그래서 수정 후 이동은 응답값이 아니라 URL의 bno를 그대로 사용한다.
         await postApi.update(bno, form);
         navigate(`/posts/${bno}`);
       }else{
-        // 글쓰기 일때 (POST는 201 Created → 생성된 게시글의 bno를 반환)
+        // 수업 포인트:
+        // create 응답에는 생성된 게시글 객체가 들어오므로, 그 안의 bno로 상세 페이지 이동 가능하다.
         const res = await postApi.create(form);
         navigate(`/posts/${res.data.board.bno}`);
       }
     }catch(err){
       console.log(err);
+      setError(err.response?.data?.message || '저장에 실패했습니다.');
     }finally{
       setLoading(false);
     }
@@ -76,7 +81,7 @@ export default () => {
     </div>
     { error && <div className="error-box">{error}</div>}
     <div className="post-actions">
-      <button onClick={handleSubmit} disable={loading}>{
+      <button onClick={handleSubmit} disabled={loading}>{
       loading ? '저장 중.....' : (isEditorMode ? '수정하기' : '글쓰기')}</button>
       <button onClick={() => navigate(-1)}>취소</button>
     </div>

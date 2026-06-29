@@ -10,7 +10,9 @@ export default ({ onChange, defaultValue }) => {
 
   onChangeRef.current = onChange;
 
-  // Quill 인스턴스는 최초 1회만 생성
+  // 수업 포인트:
+  // Quill은 React의 일반 input처럼 value로 완전히 제어하지 않는다.
+  // 그래서 인스턴스 생성과 text-change 이벤트 등록은 최초 1회만 수행해야 한다.
   useEffect(() => {
     if (editorRef.current && !quillInstance.current) {
       quillInstance.current = new Quill(editorRef.current, {
@@ -43,7 +45,9 @@ export default ({ onChange, defaultValue }) => {
     }
   }, []);
 
-  // 수정 모드: API에서 본문을 받아온 뒤 최초 1회만 반영
+  // 수업 포인트:
+  // 수정 모드에서 서버 본문을 받아온 뒤 최초 1회만 editor에 밀어 넣는다.
+  // 타이핑할 때마다 defaultValue를 다시 반영하면 커서가 끝으로 튄다.
   useEffect(() => {
     if (
       quillInstance.current &&

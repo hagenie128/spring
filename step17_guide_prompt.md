@@ -67,24 +67,27 @@
 - 19: index.js & App.js (BrowserRouter, Routes 구조)
 - 20: AuthContext (전역 인증 상태 관리 — Context API)
 - 21: axiosInstance (Axios 공통 설정 & JWT 자동 첨부 인터셉터)
-- 22: API 레이어 (authApi.js, postApi.js)
+- 22: API 레이어 (authApi.js, postApi.js, commentApi.js)
 - 23: NavBar 컴포넌트 (TODO 미완성 포함 설명)
-- 24: 게시글 목록 페이지 (PostListPage — useEffect, useState, map)
-- 25: 게시글 상세 페이지 (PostDetailPage — useParams, 댓글 목록)
-- 26: 로그인 페이지 (LoginPage — useRef, useAuth, 버그 3개 해설)
-- 27: 페이징 컴포넌트 (PaggingBar — props, 버튼 생성 알고리즘)
-- 28: 미완성 페이지 (SignupPage, PostWritePage — 앞으로 만들어야 할 것)
+- 24: QuillEditor 컴포넌트 (Quill.js 리치 텍스트 에디터 — 설치·초기화·useRef 활용)
+- 25: 게시글 목록 페이지 (PostListPage — useEffect, useState, map)
+- 26: 게시글 상세 페이지 (PostDetailPage — useParams, 좋아요/싫어요, 수정/삭제, 댓글 목록)
+- 27: 로그인 페이지 (LoginPage — useRef, useAuth, 버그 3개 해설)
+- 28: 페이징 컴포넌트 (PaggingBar — props, 버튼 생성 알고리즘)
+- 29: 게시글 작성/수정 페이지 (PostWritePage — isEditorMode 분기, QuillEditor 연동)
+- 30: 미완성 페이지 (SignupPage — 앞으로 만들어야 할 것)
 
 ### PART 3 · 연동 흐름
-- 29: 로그인 전체 흐름 (React → Spring Security → JWT → localStorage)
-- 30: 게시글 목록 조회 흐름 (useEffect → axiosInstance → Controller → MyBatis → MySQL → 화면)
-- 31: CORS 설정 (왜 필요한지, SecurityConfig에서 어떻게 설정하는지)
-- 32: 자주 막히는 오류 & 해결법
+- 31: 로그인 전체 흐름 (React → Spring Security → JWT → localStorage)
+- 32: 게시글 목록 조회 흐름 (useEffect → axiosInstance → Controller → MyBatis → MySQL → 화면)
+- 33: 글쓰기/수정 흐름 (PostWritePage → postApi.create/update → BoardController → insertBoard useGeneratedKeys)
+- 34: CORS 설정 (왜 필요한지, SecurityConfig에서 어떻게 설정하는지)
+- 35: 자주 막히는 오류 & 해결법
 
 ### 마무리
-- 33: 요즘 트렌드 (Next.js, TanStack Query, Zustand, MSW, Docker 등)
-- 34: 핵심 용어 사전
-- 35: 공부 순서 & 다음 단계
+- 36: 요즘 트렌드 (Next.js, TanStack Query, Zustand, MSW, Docker 등)
+- 37: 핵심 용어 사전
+- 38: 공부 순서 & 다음 단계
 
 ---
 
@@ -153,8 +156,8 @@ app.frontend-url=http://localhost:3000
 ```java
 package com.spring.config;
 
-import com.spring.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -170,49 +173,79 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.List;
 
+import com.spring.security.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Spring Security의 인증 방식, URL 접근 규칙, 보안 관련 객체를 설정한다.
+ *
+ * 인증(Authentication)은 "누구인지" 확인하는 과정이고,
+ * 인가(Authorization)는 인증된 사용자가 해당 기능을 사용할 수 있는지 확인하는 과정이다.
+ * 이 프로젝트는 서버 세션 대신 JWT를 사용하므로 요청마다 토큰을 검증해 인증 정보를 만든다.
+ *
+ * 요청 흐름: 클라이언트 요청 → CORS/보안 필터 → JWT 필터 → URL 인가 검사 → Controller
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+  // 모든 요청에서 JWT를 먼저 확인하도록 필터 체인에 등록할 필터이다.
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(crsf -> crsf.disable())
+        .cors(cors -> cors.configurationSource(corsConfigrationSource()))
+        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/v3/api-docs/**").permitAll()
+            .requestMatchers("/swagger-ui.html").permitAll()
+            .requestMatchers("/swagger-ui/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+            .anyRequest().authenticated())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+  @Bean
+  public CorsConfigurationSource corsConfigrationSource() {
+    // CORS는 출처(origin)가 다른 프론트엔드가 브라우저를 통해 API를 호출할 수 있게 하는 규칙이다.
+    // localhost라도 포트가 다르면 서로 다른 출처이다(React 3000, Spring Boot 8888).
+    CorsConfiguration config = new CorsConfiguration();
+    // 허용할 프론트엔드 주소를 정확히 지정한다. 운영 환경에서는 실제 도메인으로 바꿔야 한다.
+    config.setAllowedOrigins(List.of("http://localhost:3000"));
+    // 브라우저가 사용할 수 있는 HTTP 메서드와 요청 헤더를 허용한다.
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("*"));
+    // 쿠키나 Authorization 같은 인증 정보를 포함한 교차 출처 요청을 허용한다.
+    config.setAllowCredentials(true);
+    // OPTIONS 사전 요청(Preflight)의 결과를 브라우저가 1시간 동안 재사용한다.
+    config.setMaxAge(3600L);
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    // 비밀번호를 복호화 가능한 형태로 저장하지 않고 BCrypt 단방향 해시로 변환한다.
+    return new BCryptPasswordEncoder();
+  }
+
+  /**
+   * AuthService의 로그인 기능에서 아이디와 비밀번호 인증을 시작할 객체를 Bean으로 등록한다.
+   * authenticate()가 호출되면 UserDetailsService로 회원을 찾고 PasswordEncoder로 비밀번호를 비교한다.
+   */
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+  }
 }
 ```
 
@@ -540,84 +573,133 @@ public class AuthController {
 ```java
 package com.spring.controller;
 
-import com.spring.dto.*;
-import com.spring.entity.UserEntity;
-import com.spring.service.BoardService;
-import com.spring.vo.PaggingVO;
-import lombok.RequiredArgsConstructor;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
+
+import com.spring.dto.BoardCommentDTO;
+import com.spring.dto.BoardDTO;
+import com.spring.dto.BoardReactionReq;
+import com.spring.dto.ReactionCountDTO;
+import com.spring.entity.UserEntity;
+import com.spring.service.BoardService;
+import com.spring.vo.PaggingVO;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class BoardController {
-    private final BoardService boardService;
 
-    @GetMapping
-    public ResponseEntity<?> getBoardList(
-        @RequestParam(defaultValue = "") String keyword,
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "20") int size
-    ) {
-        int total = boardService.boardCount();
-        PaggingVO pagging = new PaggingVO(total, page, size);
-        var list = keyword.isBlank()
-            ? boardService.selectBoardList(page, size)
-            : boardService.searchBoardList(keyword, page, size);
-        return ResponseEntity.ok(Map.of("list", list, "pagging", pagging));
+  private final BoardService boardService;
+
+  // 게시글 목록 조회 (페이징 + 검색)
+  @GetMapping
+  public ResponseEntity<Map<String,Object>> boardList(
+    @RequestParam(defaultValue = "") String keyword,
+    @RequestParam(defaultValue = "1") int page,
+    @RequestParam(defaultValue = "20") int size
+  ){
+    List<BoardDTO> boardList;
+    if(keyword.isBlank())
+      boardList = boardService.getBoardList(page, size);
+    else
+      boardList = boardService.searchBoardList(keyword, page, size);
+
+    int count = boardService.boardCount();
+    PaggingVO paggingVO = new PaggingVO(count, page); // 2인자 생성자
+
+    Map<String,Object> map = new HashMap<>();
+    map.put("list", boardList);
+    map.put("pagging", paggingVO);
+    return ResponseEntity.ok(map);
+  }
+
+  // 게시글 상세 조회 + 댓글 목록
+  @GetMapping("/{bno}")
+  public ResponseEntity<Map<String,Object>> boardContent(@PathVariable int bno) {
+    Map<String, Object> map = new HashMap<>();
+    BoardDTO board = boardService.selectBoard(bno);
+    List<BoardCommentDTO> commentList = boardService.selectBoardComment(bno);
+    map.put("board", board);
+    map.put("commentList", commentList);
+    return ResponseEntity.ok(map);
+  }
+
+  // 게시글 작성 → 생성된 bno를 응답으로 반환 (useGeneratedKeys)
+  @PostMapping
+  public ResponseEntity<Map<String,Object>> addBoard(
+    @RequestBody BoardDTO board,
+    @AuthenticationPrincipal UserEntity entity
+  ) {
+    Map<String, Object> map = new HashMap<>();
+    map.put("board", board);
+    board.setMid(entity.getId());
+    boardService.addBoard(board);   // insertBoard 후 board.bno 자동 설정
+    return ResponseEntity.ok(map);
+  }
+
+  // 게시글 삭제 — 작성자 본인만 가능
+  @DeleteMapping("/{bno}")
+  public ResponseEntity<Map<String,Object>> deleteBoard(
+    @PathVariable int bno,
+    @AuthenticationPrincipal UserEntity userEntity
+  ){
+    Map<String, Object> map = new HashMap<>();
+    BoardDTO board = boardService.selectBoard(bno);
+    if(board == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    if(board.getMid() != userEntity.getId())
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(map);
+    boardService.deleteBoard(bno);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  // 게시글 수정 — 작성자 본인만 가능
+  @PatchMapping("/{bno}")
+  public ResponseEntity<?> updateBoard(
+    @PathVariable int bno,
+    @RequestBody BoardDTO reqBoard,
+    @AuthenticationPrincipal UserEntity userEntity
+  ){
+    BoardDTO board = boardService.selectBoard(bno);
+    if(board == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    if(board.getMid() != userEntity.getId())
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    reqBoard.setBno(bno);
+    boardService.updateBoard(reqBoard);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  // 좋아요/싫어요 토글 — 응답: { count: { likeCount, dislikeCount } }
+  @PostMapping("/reaction")
+  public ResponseEntity<Map<String,Object>> boardReaction(
+    @RequestBody BoardReactionReq reactionReq,
+    @AuthenticationPrincipal UserEntity userEntity
+  ) {
+    Map<String, Object> map = new HashMap<>();
+    BoardReactionReq req = boardService.selectBoardReaction(reactionReq.getBno(), userEntity.getId());
+
+    if(req == null){
+      reactionReq.setMid(userEntity.getId());
+      boardService.addBoardReaction(reactionReq);
+    } else {
+      reactionReq.setId(req.getId());
+      if(reactionReq.getType().equals(req.getType()))
+        boardService.deleteBoardReaction(reactionReq);
+      else
+        boardService.updateBoardReaction(reactionReq);
     }
 
-    @GetMapping("/{bno}")
-    public ResponseEntity<?> getBoard(@PathVariable int bno) {
-        BoardDTO board = boardService.selectBoard(bno);
-        var commentList = boardService.selectBoardComment(bno);
-        return ResponseEntity.ok(Map.of("board", board, "commentList", commentList));
-    }
-
-    @PostMapping
-    public ResponseEntity<?> createBoard(@RequestBody BoardDTO board,
-                                         @AuthenticationPrincipal UserEntity user) {
-        board.setMid(user.getId().intValue());
-        boardService.insertBoard(board);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping("/{bno}")
-    public ResponseEntity<?> deleteBoard(@PathVariable int bno,
-                                         @AuthenticationPrincipal UserEntity user) {
-        boardService.deleteBoard(bno);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{bno}")
-    public ResponseEntity<?> updateBoard(@PathVariable int bno,
-                                         @RequestBody BoardDTO board,
-                                         @AuthenticationPrincipal UserEntity user) {
-        board.setBno(bno);
-        boardService.updateBoard(board);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/reaction")
-    public ResponseEntity<?> reaction(@RequestBody BoardReactionReq req,
-                                      @AuthenticationPrincipal UserEntity user) {
-        req.setMid(user.getId().intValue());
-        BoardReactionReq existing = boardService.selectBoardReaction(user.getId().intValue(), req.getBno());
-        if (existing == null) {
-            boardService.insertBoardReaction(req);
-        } else if (existing.getType().equals(req.getType())) {
-            boardService.deleteBoardReaction(existing.getId());
-        } else {
-            existing.setType(req.getType());
-            boardService.updateBoardReaction(existing);
-        }
-        ReactionCountDTO counts = boardService.selectBoardReactionCount(req.getBno());
-        return ResponseEntity.ok(counts);
-    }
+    ReactionCountDTO reactionCount = boardService.getBoardReactionCount(reactionReq.getBno());
+    map.put("count", reactionCount);
+    return ResponseEntity.ok(map);
+  }
 }
 ```
 
@@ -687,37 +769,55 @@ public class BoardCommentController {
 ```java
 package com.spring.vo;
 
-import lombok.Getter;
-
-@Getter
+/**
+ * 게시판 하단에 페이지 번호(1, 2, 3, 4, 5 ...)를 보여주기 위해
+ * 필요한 계산을 담당하는 클래스입니다.
+ * Lombok @Getter 대신 직접 get 메서드를 작성해 계산 로직을 포함시켰습니다.
+ */
 public class PaggingVO {
-    private static final int PAGE_CONTENT_COUNT = 30; // 한 페이지에 보여줄 게시글 수
-    private static final int PAGE_GROUP_COUNT = 5;    // 한 페이지 그룹에 보여줄 페이지 번호 수
+  private int count;          // 전체 게시글 개수
+  private int currentPage;    // 현재 페이지 번호
+  private final int PAGE_CONTENT_COUNT = 30; // 한 페이지에 보여줄 게시글 수 (고정)
+  private final int PAGE_GROUP_COUNT = 5;    // 하단에 보여줄 페이지 번호 개수 (고정)
 
-    private int totalCount;       // 전체 게시글 수
-    private int currentPage;      // 현재 페이지
-    private int size;             // 페이지당 항목 수
-    private int totalPage;        // 전체 페이지 수
-    private int totalPageGroup;   // 전체 페이지 그룹 수
-    private int currentPageGroupNo; // 현재 페이지 그룹 번호
-    private int startPageOfPageGroup; // 현재 그룹의 시작 페이지
-    private int endPageOfPageGroup;   // 현재 그룹의 끝 페이지
-    private boolean priviousPageGroup; // 이전 그룹 존재 여부
-    private boolean nextPageGroup;     // 다음 그룹 존재 여부
+  // 2인자 생성자: size는 PAGE_CONTENT_COUNT(30)로 고정
+  public PaggingVO(int count, int currentPage) {
+    this.count = count;
+    this.currentPage = currentPage;
+  }
 
-    public PaggingVO(int totalCount, int currentPage, int size) {
-        this.totalCount = totalCount;
-        this.currentPage = currentPage;
-        this.size = size;
+  public int getCurrentPage() { return currentPage; }
 
-        this.totalPage = (int) Math.ceil((double) totalCount / size);
-        this.totalPageGroup = (int) Math.ceil((double) totalPage / PAGE_GROUP_COUNT);
-        this.currentPageGroupNo = (int) Math.ceil((double) currentPage / PAGE_GROUP_COUNT);
-        this.startPageOfPageGroup = (currentPageGroupNo - 1) * PAGE_GROUP_COUNT + 1;
-        this.endPageOfPageGroup = Math.min(currentPageGroupNo * PAGE_GROUP_COUNT, totalPage);
-        this.priviousPageGroup = currentPageGroupNo > 1;
-        this.nextPageGroup = currentPageGroupNo < totalPageGroup;
-    }
+  // 전체 페이지 수 = 전체글수 / 페이지당글수 (나머지 있으면 +1)
+  public int getTotalPage() {
+    return count / PAGE_CONTENT_COUNT + (count % PAGE_CONTENT_COUNT != 0 ? 1 : 0);
+  }
+
+  // 전체 그룹 수 (예: 12페이지 → 3그룹: 1~5, 6~10, 11~12)
+  public int getTotalPageGroup() {
+    return getTotalPage() / PAGE_GROUP_COUNT + (getTotalPage() % PAGE_GROUP_COUNT != 0 ? 1 : 0);
+  }
+
+  // 현재 페이지가 속한 그룹 번호 (예: 페이지 7 → 2번째 그룹)
+  public int getCurrentPageGroupNo() {
+    return currentPage / PAGE_GROUP_COUNT + (currentPage % PAGE_GROUP_COUNT != 0 ? 1 : 0);
+  }
+
+  // 현재 그룹의 시작 페이지 (예: 2번째 그룹 → 6)
+  public int getStartPageOfPageGroup() {
+    return (getCurrentPageGroupNo() - 1) * PAGE_GROUP_COUNT + 1;
+  }
+
+  // 현재 그룹의 끝 페이지 (예: 2번째 그룹 → 10, 단 실제 최대값 초과 불가)
+  public int getEndPageOfPageGroup() {
+    return Math.min(getTotalPage(), getCurrentPageGroupNo() * PAGE_GROUP_COUNT);
+  }
+
+  // 이전 그룹 존재 여부 (첫 번째 그룹이면 false)
+  public boolean isPriviousPageGroup() { return getCurrentPageGroupNo() > 1; }
+
+  // 다음 그룹 존재 여부 (마지막 그룹이면 false)
+  public boolean isNextPageGroup() { return getCurrentPageGroupNo() < getTotalPageGroup(); }
 }
 ```
 
@@ -754,7 +854,8 @@ public class SwaggerConfig {
 ### [백엔드] board-mapper.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.spring.mapper.BoardMapper">
 
@@ -783,8 +884,14 @@ public class SwaggerConfig {
     select * from board_comment_view bcv where bcv.bno = #{bno}
   </select>
 
-  <insert id="insertBoard">
-    insert into board(title,content,mid) values(#{title},#{content},#{mid})
+  <!--
+    useGeneratedKeys="true" keyProperty="bno":
+    INSERT 후 MySQL이 생성한 AUTO_INCREMENT 값을 board.bno 필드에 자동으로 넣어준다.
+    덕분에 Controller에서 board.getBno()로 새 글번호를 바로 읽을 수 있다.
+  -->
+  <insert id="insertBoard" useGeneratedKeys="true" keyProperty="bno">
+    insert into board(title, content, mid)
+    values(#{title}, #{content}, #{mid})
   </insert>
 
   <delete id="deleteBoard">
@@ -792,8 +899,8 @@ public class SwaggerConfig {
   </delete>
 
   <update id="updateBoard">
-    update board set title = #{title}, content = #{content},
-    write_update_date = CURRENT_TIMESTAMP where bno = #{bno}
+    update board set title = #{title}, content = #{content}, write_update_date = CURRENT_TIMESTAMP
+    where bno = #{bno}
   </update>
 
   <select id="selectBoardReaction" resultType="boardReq">
@@ -801,9 +908,10 @@ public class SwaggerConfig {
   </select>
 
   <insert id="insertBoardReaction">
-    insert into board_reaction(mid,bno,type) values(#{mid},#{bno},#{type});
+    insert into board_reaction(mid, bno, type) values(#{mid}, #{bno}, #{type});
   </insert>
 
+  <!-- deleteBoardReaction/updateBoardReaction: BoardReactionReq 객체 전체를 받아 id로 처리 -->
   <delete id="deleteBoardReaction">
     DELETE FROM board_reaction WHERE id = #{id}
   </delete>
@@ -869,6 +977,106 @@ public class SwaggerConfig {
     WHERE b.cno = #{cno}
   </select>
 </mapper>
+```
+
+### [백엔드] BoardService.java
+```java
+package com.spring.service;
+
+import java.util.List;
+import org.springframework.stereotype.Service;
+
+import com.spring.dto.BoardCommentDTO;
+import com.spring.dto.BoardDTO;
+import com.spring.dto.BoardReactionReq;
+import com.spring.dto.ReactionCountDTO;
+import com.spring.mapper.BoardMapper;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class BoardService {
+  private final BoardMapper boardMapper;
+
+  public List<BoardDTO> getBoardList(int page, int size) {
+    return boardMapper.selectBoardList(page, size);
+  }
+  public List<BoardDTO> searchBoardList(String keyword, int page, int size) {
+    return boardMapper.searchBoardList(keyword, page, size);
+  }
+  public int boardCount() { return boardMapper.boardCount(); }
+  public BoardDTO selectBoard(int bno) { return boardMapper.selectBoard(bno); }
+  public List<BoardCommentDTO> selectBoardComment(int bno) { return boardMapper.selectBoardComment(bno); }
+  public void deleteBoard(int bno) { boardMapper.deleteBoard(bno); }
+  public void addBoard(BoardDTO board) { boardMapper.insertBoard(board); }  // insertBoard 후 board.bno 자동 설정
+  public void updateBoard(BoardDTO reqBoard) { boardMapper.updateBoard(reqBoard); }
+
+  // 반응 관련: 파라미터가 bno + userId (Long)
+  public BoardReactionReq selectBoardReaction(int bno, Long id) {
+    return boardMapper.selectBoardReaction(bno, id);
+  }
+  public void addBoardReaction(BoardReactionReq req) { boardMapper.insertBoardReaction(req); }
+  public void deleteBoardReaction(BoardReactionReq req) { boardMapper.deleteBoardReaction(req); }
+  public void updateBoardReaction(BoardReactionReq req) { boardMapper.updateBoardReaction(req); }
+  public ReactionCountDTO getBoardReactionCount(int bno) { return boardMapper.selectBoardReactionCount(bno); }
+}
+```
+
+### [백엔드] BoardMapper.java
+```java
+package com.spring.mapper;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import com.spring.dto.BoardCommentDTO;
+import com.spring.dto.BoardDTO;
+import com.spring.dto.BoardReactionReq;
+import com.spring.dto.ReactionCountDTO;
+
+@Mapper
+public interface BoardMapper {
+  List<BoardDTO> selectBoardList(@Param("page") int page, @Param("size") int size);
+  List<BoardDTO> searchBoardList(@Param("keyword") String keyword, @Param("page") int page, @Param("size") int size);
+  int boardCount();
+  BoardDTO selectBoard(int bno);
+  List<BoardCommentDTO> selectBoardComment(int bno);
+  void deleteBoard(int bno);
+  void insertBoard(BoardDTO board);       // useGeneratedKeys → board.bno 자동 세팅
+  void updateBoard(BoardDTO reqBoard);
+  BoardReactionReq selectBoardReaction(@Param("bno") int bno, @Param("id") Long id);
+  void insertBoardReaction(BoardReactionReq reactionReq);
+  void deleteBoardReaction(BoardReactionReq reactionReq);
+  void updateBoardReaction(BoardReactionReq reactionReq);
+  ReactionCountDTO selectBoardReactionCount(int bno);
+}
+```
+
+### [백엔드] BoardCommentMapper.java
+```java
+package com.spring.mapper;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import com.spring.dto.BoardCommentDTO;
+import com.spring.dto.BoardCommentReactionReq;
+import com.spring.dto.ReactionCountDTO;
+
+@Mapper
+public interface BoardCommentMapper {
+  void insertBoardComment(BoardCommentDTO comment);
+  BoardCommentDTO selectBoardComment(int cno);
+  void deleteBoardComment(int cno);
+  void updateBoardComment(BoardCommentDTO reqBoard);
+  BoardCommentReactionReq selectBoardCommentReaction(@Param("cno") int cno, @Param("id") Long id);
+  void insertBoardCommentReaction(BoardCommentReactionReq reactionReq);
+  void deleteBoardCommentReaction(BoardCommentReactionReq reactionReq);
+  void updateBoardCommentReaction(BoardCommentReactionReq reactionReq);
+  ReactionCountDTO selectBoardCommentReactionCount(int cno);
+  void deleteBoardCommentByBno(int bno); // 게시글 삭제 시 해당 게시글 댓글 일괄 삭제용
+}
 ```
 
 ### [백엔드] DTO 클래스들 (필드 목록)
@@ -1007,9 +1215,24 @@ export const postApi = {
   getPage: (page, keyword, size) => axiosInstance.get('/api/posts', {
     params: { page, keyword, size }
   }),
-  getPost: (bno) => axiosInstance.get(`/api/posts/${bno}`),
+  getPost:      (bno)        => axiosInstance.get(`/api/posts/${bno}`),
+  create:       (data)       => axiosInstance.post(`/api/posts`, data),
+  update:       (bno, data)  => axiosInstance.patch(`/api/posts/${bno}`, data),
+  remove:       (bno)        => axiosInstance.delete(`/api/posts/${bno}`),
+  postReaction: (data)       => axiosInstance.post(`/api/posts/reaction`, data),
 };
 ```
+
+### [프론트엔드] src/api/commentApi.js
+```js
+import axiosInstance from "./axiosInstance";
+
+// 미완성 — API 엔드포인트는 /api/comments 기준으로 작성 예정
+const commentApi = {
+  // 추가 예정
+};
+```
+> ※ `commentApi.js`는 현재 스텁 상태. `BoardCommentController`의 엔드포인트(`POST /api/comments`, `DELETE /api/comments/{cno}`, `PATCH /api/comments/{cno}`, `POST /api/comments/reaction`)를 구현할 예정.
 
 ### [프론트엔드] src/context/AuthContext.jsx
 ```jsx
@@ -1060,6 +1283,71 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth는 AuthProvider에서만 사용 가능합니다');
   return ctx;
+};
+```
+
+### [프론트엔드] src/components/QuillEditor.jsx
+```jsx
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
+import { useEffect, useRef } from "react";
+
+// 설치: npm install quill
+export default ({ onChange, defaultValue }) => {
+  const editorRef = useRef(null);          // 에디터 DOM 컨테이너
+  const quillInstance = useRef(null);      // Quill 인스턴스 (리렌더링해도 유지)
+  const onChangeRef = useRef(onChange);    // onChange 최신 참조 유지 (클로저 문제 방지)
+  const initializedRef = useRef(false);   // 수정모드 초기값 1회만 설정 여부
+
+  onChangeRef.current = onChange; // 리렌더링마다 최신 onChange 반영
+
+  // Quill 인스턴스는 최초 1회만 생성 (빈 의존성 배열)
+  useEffect(() => {
+    if (editorRef.current && !quillInstance.current) {
+      quillInstance.current = new Quill(editorRef.current, {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "code-block"],
+            ["link", "image", "video", "formula"],
+            [{ header: 1 }, { header: 2 }],
+            [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+            [{ script: "sub" }, { script: "super" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ direction: "rtl" }],
+            [{ size: ["small", false, "large", "huge"] }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ color: [] }, { background: [] }],
+            [{ font: [] }],
+            [{ align: [] }],
+            ["clean"],
+          ],
+        },
+      });
+
+      // 텍스트 변경 이벤트: HTML을 상위 컴포넌트로 전달
+      quillInstance.current.on("text-change", () => {
+        if (onChangeRef.current) {
+          onChangeRef.current(quillInstance.current.getSemanticHTML());
+        }
+      });
+    }
+  }, []); // 빈 배열: 마운트 시 1회만
+
+  // 수정 모드: API에서 본문을 받아온 뒤 최초 1회만 반영
+  useEffect(() => {
+    if (quillInstance.current && defaultValue && !initializedRef.current) {
+      quillInstance.current.root.innerHTML = defaultValue;
+      initializedRef.current = true;
+    }
+  }, [defaultValue]);
+
+  return (
+    <div style={{ margin: "50px" }}>
+      <div ref={editorRef} style={{ height: "500px" }}></div>
+    </div>
+  );
 };
 ```
 
@@ -1221,75 +1509,198 @@ export default () => {
 ### [프론트엔드] src/pages/PostDetailPage.jsx
 ```jsx
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { postApi } from "../api/postApi";
+import "quill/dist/quill.snow.css";      // Quill 스타일 — content HTML 렌더링에 필요
+import { useAuth } from "../context/AuthContext";
 
 export default () => {
   const { bno } = useParams();
   const [post, setPost] = useState({});
   const [commentList, setCommentList] = useState([]);
+  const { user } = useAuth();             // 로그인 사용자 정보
+  const navigate = useNavigate();
 
   useEffect(() => {
-    postApi.getPost(bno).then(res => {
-      setPost(res.data.board);
-      setCommentList(res.data.commentList);
-    }).catch(err => console.error(err));
+    postApi.getPost(bno).then(reponse => {
+      setPost(reponse.data.board);
+      setCommentList(reponse.data.commentList);
+    }).catch(error => console.log(error));
   }, [bno]);
 
-  return <div className="container post-detail">
-    {!post ? <div>Loading...</div> : (
+  // 게시글 삭제 — 작성자 본인만 가능 (서버에서도 403 반환)
+  const handleDelete = async () => {
+    if (window.confirm('삭제하시겠습니까?')) {
+      try {
+        await postApi.remove(bno);
+        navigate('/');
+      } catch (error) {
+        if (error.response.status === 403) alert('삭제 권한이 없습니다.');
+        else alert('삭제에 실패했습니다.');
+      }
+    }
+  };
+
+  // 좋아요/싫어요 토글 — 서버 응답의 count로 UI 즉시 갱신
+  const handleReaction = async (type) => {
+    await postApi.postReaction({ mid: user.id, bno: post.bno, type })
+      .then(res => {
+        setPost(prev => ({
+          ...prev,
+          blike: res.data.count.likeCount,
+          bhate: res.data.count.dislikeCount
+        }));
+      })
+      .catch(error => console.log(error));
+  };
+
+  // 작성자 본인일 때만 수정/삭제 버튼 표시
+  const isEdit = user && (user.id === post.mid);
+
+  return <div className="post-detail-container">
+    {!post ? <div className="post-loading">현재 게시글 읽어오고 있습니다.</div> :
       <>
-        <h2 className="post-title">{post.title}</h2>
-        <div className="post-meta">
-          <span>작성자: {post.nickname}</span>
-          <span>조회수: {post.bcount}</span>
-          <span>최종 수정일: {post.writeUpdateDate}</span>
+        <h2 className="post-detail-title">{post.title}</h2>
+        <div className="post-detail-meta">
+          <span><span className="meta-label">작성자</span> {post.nickname}</span>
+          <span><span className="meta-label">조회수</span> {post.bcount}</span>
+          <span><span className="meta-label">작성일</span> {post.writeUpdateDate}</span>
         </div>
-        <div className="post-content">{post.content}</div>
-        <div className="post-footer">
-          <button>좋아요 👍 {post.blike}</button>
-          <button>싫어요 👎 {post.bhate}</button>
-          <button>수정</button>
-          <button>삭제</button>
-          <button>목록으로</button>
+
+        {/* Quill HTML을 그대로 렌더링 — ql-container ql-snow 클래스로 Quill 스타일 적용 */}
+        <div className="post-detail-content ql-container ql-snow" style={{ border: 'none' }}>
+          <div dangerouslySetInnerHTML={{ __html: post.content }}></div>
         </div>
-        <div className="comment-area">
-          <h3>댓글 {commentList.length}개</h3>
+
+        <div className="post-detail-footer">
+          <div className="post-footer-group">
+            <button onClick={() => handleReaction('like')}>좋아요 👍 {post.blike}</button>
+            <button onClick={() => handleReaction('dislike')}>싫어요 👎 {post.bhate ?? 0}</button>
+          </div>
+          {isEdit && (
+            <div className="post-footer-group">
+              <button onClick={() => navigate(`/posts/${post.bno}/edit`)}>수정</button>
+              <button onClick={handleDelete}>삭제</button>
+            </div>
+          )}
+        </div>
+
+        <div className="comment-section">
+          <h3>댓글 목록 ({commentList ? commentList.length : 0})</h3>
           <div className="comment-form">
-            <textarea placeholder="댓글을 입력하세요" rows={4} />
-            <button>댓글 작성</button>
+            <textarea placeholder="댓글을 입력해 주세요."></textarea>
+            <button>댓글 등록</button>
           </div>
           <div className="comment-list">
-            {commentList.map(item => (
-              <div className="comment-item" key={item.cno}>
-                <div className="comment-info">
-                  <span>👤 {item.nickname}</span>
-                  <span>📅 {item.cdate}</span>
+            {commentList && commentList.map((item, index) => (
+              <div key={item.cno || index} className="comment-item">
+                <div className="comment-header">
+                  <div className="comment-info">
+                    <span>👤 {item.nickname}</span>
+                    <span>📅 {item.cdate}</span>
+                  </div>
+                  <div className="comment-action">
+                    <button>좋아요 👍</button>
+                    <button>싫어요 👎</button>
+                    <button>수정</button>
+                    <button>삭제</button>
+                  </div>
                 </div>
                 <div className="comment-content">{item.content}</div>
-                <div className="comment-actions">
-                  <button>좋아요 👍</button>
-                  <button>싫어요 👎</button>
-                  <button>수정</button>
-                  <button>삭제</button>
-                </div>
               </div>
             ))}
           </div>
         </div>
       </>
-    )}
-  </div>
+    }
+  </div>;
 }
 ```
 
-### [프론트엔드] src/pages/SignupPage.jsx & PostWritePage.jsx
+### [프론트엔드] src/pages/PostWritePage.jsx (글쓰기 + 수정 통합)
 ```jsx
-// SignupPage.jsx — 미완성 스텁
-export default () => <div className="container"><h2>회원가입 페이지</h2></div>
+import { useEffect, useState } from "react";
+import QuillEditor from "../components/QuillEditor";
+import { useNavigate, useParams } from "react-router-dom";
+import { postApi } from "../api/postApi";
 
-// PostWritePage.jsx — 미완성 스텁
-export default () => <div className="container"><h2>글쓰기</h2></div>
+export default () => {
+  const { bno } = useParams();               // URL에 bno 있으면 수정 모드
+  const isEditorMode = !!bno;               // 수정 모드 여부
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ title: '', content: '' });
+  const [error, setError] = useState('');
+
+  // 수정 모드: 마운트 시 기존 게시글 내용 불러오기
+  useEffect(() => {
+    if (!isEditorMode) return;
+    postApi.getPost(bno)
+      .then(reponse => {
+        setForm(prev => ({
+          ...prev,
+          title: reponse.data.board.title,
+          content: reponse.data.board.content
+        }));
+      })
+      .catch(() => { alert('게시글 정보를 불러오는데 실패했습니다.'); navigate('/'); })
+      .finally(() => setLoading(false));
+  }, [bno, isEditorMode]);
+
+  const onChangePostDetail = (newContent) => {
+    setForm(prev => ({ ...prev, content: newContent }));
+  };
+  const onChangeTitle = (e) => {
+    setForm(prev => ({ ...prev, title: e.target.value }));
+  };
+
+  const handleSubmit = async () => {
+    if (!form.title.trim() || !form.content.trim()) {
+      alert('제목과 내용을 입력해 주세요');
+      return;
+    }
+    try {
+      setLoading(true);
+      if (isEditorMode) {
+        await postApi.update(bno, form);          // PATCH → 204 No Content
+        navigate(`/posts/${bno}`);
+      } else {
+        const res = await postApi.create(form);   // POST → 200 with { board: { bno, ... } }
+        navigate(`/posts/${res.data.board.bno}`); // useGeneratedKeys로 받은 bno로 이동
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return <div className="container">
+    <h2>{isEditorMode ? '게시글 수정' : '게시글 쓰기'}</h2>
+    <div className="post-title">
+      <label>제목</label>
+      <input type="text" placeholder="제목을 입력하세요" onChange={onChangeTitle} value={form.title} />
+    </div>
+    <div className="post-detail">
+      <label>내용</label>
+      {/* key를 bno || "create"로 설정 → 수정/작성 전환 시 QuillEditor 완전 재생성 */}
+      <QuillEditor key={bno || "create"} onChange={onChangePostDetail} defaultValue={form.content} />
+    </div>
+    {error && <div className="error-box">{error}</div>}
+    <div className="post-actions">
+      <button onClick={handleSubmit} disabled={loading}>
+        {loading ? '저장 중.....' : (isEditorMode ? '수정하기' : '글쓰기')}
+      </button>
+      <button onClick={() => navigate(-1)}>취소</button>
+    </div>
+  </div>;
+}
+```
+
+### [프론트엔드] src/pages/SignupPage.jsx (미완성)
+```jsx
+// 현재 스텁 상태 — 회원가입 폼은 미구현
+export default () => <div className="container"><h2>회원가입 페이지</h2></div>
 ```
 
 ---
@@ -1297,80 +1708,169 @@ export default () => <div className="container"><h2>글쓰기</h2></div>
 ## DB 주요 구조 (board.sql 핵심)
 
 ```sql
--- 회원
+-- ① 테이블 생성
 CREATE TABLE board_member (
-  mid BIGINT PRIMARY KEY AUTO_INCREMENT,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  nickname VARCHAR(50),
-  role VARCHAR(20) DEFAULT 'ROLE_USER'
+  id       int         NOT NULL AUTO_INCREMENT,  -- JPA UserEntity의 PK (id)
+  username VARCHAR(20) NOT NULL UNIQUE,
+  password CHAR(255)   NULL,
+  nickname VARCHAR(10) NULL,
+  role     varchar(20) NULL,
+  PRIMARY KEY (id)
 );
 
--- 게시글
 CREATE TABLE board (
-  bno INT PRIMARY KEY AUTO_INCREMENT,
-  title VARCHAR(255) NOT NULL,
-  content TEXT,
-  mid BIGINT,
-  write_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  write_update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  bcount INT DEFAULT 0,
-  FOREIGN KEY (mid) REFERENCES board_member(mid)
+  bno               BIGINT      NOT NULL AUTO_INCREMENT,
+  title             VARCHAR(50) NULL,
+  content           LONGTEXT    NULL,
+  write_date        DATETIME    NULL DEFAULT now(),
+  mid               int         NOT NULL,          -- board_member.id 참조
+  bcount            int         NULL DEFAULT 0,
+  write_update_date DATETIME    NULL DEFAULT now(),
+  PRIMARY KEY (bno)
 );
 
--- 댓글
 CREATE TABLE board_comment (
-  cno INT PRIMARY KEY AUTO_INCREMENT,
-  bno INT, mid BIGINT, content TEXT,
-  cdate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (bno) REFERENCES board(bno),
-  FOREIGN KEY (mid) REFERENCES board_member(mid)
+  cno     BIGINT        NOT NULL AUTO_INCREMENT,
+  content VARCHAR(1000) NULL,
+  cdate   DATETIME      NULL DEFAULT now(),
+  mid     int           NOT NULL,
+  bno     BIGINT        NOT NULL,
+  PRIMARY KEY (cno)
 );
 
--- 게시글 반응 (좋아요/싫어요)
 CREATE TABLE board_reaction (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  mid BIGINT, bno INT,
-  type ENUM('like','dislike'),
-  UNIQUE KEY (mid, bno)
+  id   int    NOT NULL AUTO_INCREMENT,
+  mid  int    NOT NULL,
+  bno  BIGINT NOT NULL,
+  type varchar(10),
+  PRIMARY KEY (id)
 );
 
--- 댓글 반응
 CREATE TABLE board_comment_reaction (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  mid BIGINT, cno INT,
-  type ENUM('like','dislike'),
-  UNIQUE KEY (mid, cno)
+  id   int    NOT NULL AUTO_INCREMENT,
+  mid  int    NOT NULL,
+  cno  BIGINT NOT NULL,
+  type varchar(10),
+  PRIMARY KEY (id)
 );
 
--- Refresh Token
 CREATE TABLE refresh_tokens (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  user_id BIGINT UNIQUE,
-  token VARCHAR(600) UNIQUE,
-  expires_at DATETIME,
-  FOREIGN KEY (user_id) REFERENCES board_member(mid)
+  expires_at datetime(6) NOT NULL,
+  id         int         NOT NULL AUTO_INCREMENT,
+  user_id    int         NOT NULL UNIQUE,
+  token      varchar(600) NOT NULL UNIQUE,
+  PRIMARY KEY (id)
 );
 
--- 뷰 (좋아요/싫어요 집계 포함)
-CREATE VIEW board_view AS
-  SELECT b.*, bm.nickname,
-    COUNT(CASE WHEN br.type='like' THEN 1 END) AS blike,
-    COUNT(CASE WHEN br.type='dislike' THEN 1 END) AS bhate
-  FROM board b
-  JOIN board_member bm ON b.mid = bm.mid
-  LEFT JOIN board_reaction br ON b.bno = br.bno
-  GROUP BY b.bno;
+-- ② 외래키 + CASCADE 설정
+ALTER TABLE board
+  ADD CONSTRAINT FK_board_member_TO_board FOREIGN KEY (mid) REFERENCES board_member(id);
 
-CREATE VIEW board_comment_view AS
-  SELECT bc.*, bm.nickname,
-    COUNT(CASE WHEN bcr.type='like' THEN 1 END) AS clike,
-    COUNT(CASE WHEN bcr.type='dislike' THEN 1 END) AS chate
-  FROM board_comment bc
-  JOIN board_member bm ON bc.mid = bm.mid
-  LEFT JOIN board_comment_reaction bcr ON bc.cno = bcr.cno
-  GROUP BY bc.cno;
+ALTER TABLE board_comment
+  ADD CONSTRAINT FK_board_member_TO_board_comment FOREIGN KEY (mid) REFERENCES board_member(id);
+
+-- 게시글 삭제 시 댓글도 자동 삭제 (ON DELETE CASCADE)
+ALTER TABLE board_comment
+  ADD CONSTRAINT FK_board_TO_board_comment FOREIGN KEY (bno) REFERENCES board(bno) ON DELETE CASCADE;
+
+-- 게시글/댓글 삭제 시 반응도 자동 삭제
+ALTER TABLE board_reaction
+  ADD CONSTRAINT FK_board_TO_board_reaction FOREIGN KEY (bno) REFERENCES board(bno) ON DELETE CASCADE;
+
+ALTER TABLE board_comment_reaction
+  ADD CONSTRAINT FK_board_comment_TO_board_comment_reaction
+    FOREIGN KEY (cno) REFERENCES board_comment(cno) ON DELETE CASCADE;
+
+ALTER TABLE refresh_tokens
+  ADD CONSTRAINT FK_board_member_TO_refresh FOREIGN KEY (user_id) REFERENCES board_member(id);
+
+-- ③ 중복 반응 방지 UNIQUE 제약
+ALTER TABLE board_reaction ADD CONSTRAINT UNIQUE (mid, bno);
+ALTER TABLE board_comment_reaction ADD CONSTRAINT UNIQUE (mid, cno);
+
+-- ④ VIEW 정의 (MySQL 8.0 WITH CTE 문법 사용)
+CREATE OR REPLACE VIEW board_view AS
+WITH board_content_like AS (
+  SELECT bno, count(*) AS blike FROM board_reaction WHERE type = 'like' GROUP BY bno
+),
+board_content_hate AS (
+  SELECT bno, count(*) AS bhate FROM board_reaction WHERE type = 'dislike' GROUP BY bno
+)
+SELECT
+  b.bno, b.title, b.write_date, b.write_update_date,
+  b.content, b.bcount, bm.id AS mid, bm.nickname,
+  IFNULL(bcl.blike, 0) AS blike, IFNULL(bch.bhate, 0) AS bhate
+FROM board b
+LEFT JOIN board_member bm ON b.mid = bm.id
+LEFT JOIN board_content_like bcl ON bcl.bno = b.bno
+LEFT JOIN board_content_hate bch ON bch.bno = b.bno;
+
+CREATE OR REPLACE VIEW board_comment_view AS
+WITH board_comment_like AS (
+  SELECT cno, count(*) AS clike FROM board_comment_reaction WHERE type = 'LIKE' GROUP BY cno
+),
+board_comment_dislike AS (
+  SELECT cno, count(*) AS chate FROM board_comment_reaction WHERE type = 'DISLIKE' GROUP BY cno
+)
+SELECT bc.*, bm.nickname,
+  IFNULL(bcl.clike, 0) AS clike, IFNULL(bch.chate, 0) AS chate
+FROM board_comment bc
+LEFT JOIN board_member bm ON bm.id = bc.mid
+LEFT JOIN board_comment_like bcl ON bc.cno = bcl.cno
+LEFT JOIN board_comment_dislike bch ON bc.cno = bch.cno;
+
+-- ⑤ 페이징 방법 2가지
+-- 방법1: LIMIT + OFFSET (단순)
+SELECT * FROM board_view ORDER BY bno DESC LIMIT 30 OFFSET 0; -- 1페이지
+
+-- 방법2: ROW_NUMBER() (MyBatis XML에서 사용하는 방식)
+SELECT * FROM (
+  SELECT ROW_NUMBER() OVER(ORDER BY b.bno DESC) AS rw, b.*
+  FROM board_view b
+) bv WHERE CEIL(bv.rw / 30) = 1; -- 1페이지
 ```
+
+## 기존 DB FK 마이그레이션 (board-fk-migration.sql)
+
+기존 DB에 CASCADE가 없는 경우 이 파일로 FK를 재설정합니다.
+
+```sql
+USE new_board_db;
+
+-- 기존 FK 삭제 후 CASCADE로 재설정
+ALTER TABLE board_comment DROP FOREIGN KEY fk_comment_board;
+ALTER TABLE board_comment
+  ADD CONSTRAINT FK_board_TO_board_comment
+    FOREIGN KEY (bno) REFERENCES board(bno) ON DELETE CASCADE;
+
+ALTER TABLE board_reaction
+  ADD CONSTRAINT FK_board_TO_board_reaction
+    FOREIGN KEY (bno) REFERENCES board(bno) ON DELETE CASCADE;
+```
+
+---
+
+## 오늘 추가된 핵심 포인트 (2025-06-29)
+
+1. **QuillEditor.jsx** — Quill.js 리치 텍스트 에디터 컴포넌트. `useRef` 3개 패턴(editorRef / quillInstance / onChangeRef)과 `initializedRef`로 수정 모드 초기값 1회 반영 처리.
+2. **PostWritePage.jsx** — 스텁에서 완성 페이지로 전환. `isEditorMode = !!bno`로 글쓰기/수정 분기. `useGeneratedKeys`로 받은 bno로 작성 후 상세 페이지 이동.
+3. **PostDetailPage.jsx** — `dangerouslySetInnerHTML`로 Quill HTML 렌더링, `handleReaction`으로 좋아요/싫어요 토글 후 서버 응답으로 UI 즉시 갱신, `isEdit`로 본인 글만 수정/삭제 버튼 노출.
+4. **postApi.js** — `create`, `update`, `remove`, `postReaction` 추가.
+5. **commentApi.js** — 신규(미완성 스텁). 내일 댓글 CRUD와 함께 구현 예정.
+6. **board-mapper.xml** — `insertBoard`에 `useGeneratedKeys="true" keyProperty="bno"` 추가 → 작성 후 생성된 bno를 Controller에서 바로 응답 가능.
+7. **BoardController/BoardService** — 메서드명 정리(`selectBoardList→getBoardList`, `insertBoard→addBoard` 등), 반응(reaction) 파라미터를 DTO 객체로 통일, 좋아요 응답 포맷 `{ count: { likeCount, dislikeCount } }`.
+8. **PaggingVO.java** — 생성자를 3인자→2인자로 변경, size는 내부 상수(30)로 고정.
+9. **board.sql** — WITH CTE 문법으로 VIEW 재정의, `board_member.id` 컬럼명 확인.
+10. **board-fk-migration.sql** — 기존 DB에 CASCADE FK가 없는 경우 재설정용 마이그레이션 파일.
+
+---
+
+## 내일 진도 예정 (댓글 기능 완성)
+
+- `commentApi.js` 완성: `createComment`, `deleteComment`, `updateComment`, `postCommentReaction`
+- `PostDetailPage.jsx` 댓글 입력폼 연동 (댓글 작성/수정/삭제/좋아요)
+- `BoardCommentController` & `BoardCommentService` 복습 및 활용
+- `deleteBoardCommentByBno` — 게시글 삭제 시 댓글 일괄 처리
 
 ---
 
@@ -1399,3 +1899,292 @@ npm install
 npm start
 # http://localhost:3000
 ```
+
+---
+
+## 기능 추가할 때 프론트↔백 작업 순서 (초보자용 체크리스트)
+
+> "어떤 순서로 파일을 건드려야 할지 모르겠다"는 분들을 위한 가이드.
+> 새 기능(댓글 작성, 좋아요 등)을 추가할 때마다 아래 순서를 따르면 됩니다.
+
+### 전체 흐름 다이어그램
+
+```
+[React 화면 클릭]
+      ↓
+[commentApi.js / postApi.js]  ← ① 프론트 API 파일
+      ↓  (axios HTTP 요청)
+[BoardCommentController.java]  ← ② 백엔드 Controller
+      ↓
+[BoardCommentService.java]     ← ③ 백엔드 Service
+      ↓
+[BoardCommentMapper.java]      ← ④ 백엔드 Mapper 인터페이스
+      ↓
+[board-comment-mapper.xml]     ← ⑤ SQL XML
+      ↓
+[MySQL DB]                     ← ⑥ 실제 데이터
+      ↑ (결과 반환)
+[React useState로 화면 갱신]   ← ⑦ 프론트 상태 업데이트
+```
+
+---
+
+### STEP ① DB 테이블/VIEW 확인 (MySQL)
+
+새 기능에 필요한 컬럼이 있는지 먼저 확인합니다.
+
+```sql
+-- 댓글 기능이라면 이 테이블들이 준비되어 있는지 확인
+DESC board_comment;
+DESC board_comment_reaction;
+SELECT * FROM board_comment_view LIMIT 5;
+```
+
+아직 없으면 `ALTER TABLE` 또는 `CREATE TABLE` 먼저 실행.
+
+---
+
+### STEP ② Mapper 인터페이스에 메서드 선언 (Java)
+
+`BoardCommentMapper.java`에 메서드 시그니처만 추가합니다.
+SQL은 아직 안 써도 됩니다. 인터페이스니까 몸통 없음.
+
+```java
+// 예: 댓글 작성
+void insertBoardComment(BoardCommentDTO comment);
+
+// 예: 댓글 반응 조회
+BoardCommentReactionReq selectBoardCommentReaction(
+    @Param("cno") int cno, @Param("id") Long id);
+```
+
+---
+
+### STEP ③ Mapper XML에 SQL 작성
+
+`board-comment-mapper.xml`에 실제 SQL을 씁니다.
+id는 반드시 Mapper 인터페이스 메서드 이름과 일치해야 합니다.
+
+```xml
+<insert id="insertBoardComment">
+  INSERT INTO board_comment (bno, mid, content)
+  VALUES (#{bno}, #{mid}, #{content})
+</insert>
+
+<select id="selectBoardCommentReaction" resultType="boardCommentReq">
+  SELECT * FROM board_comment_reaction
+  WHERE mid = #{id} AND cno = #{cno}
+</select>
+```
+
+---
+
+### STEP ④ Service에 비즈니스 로직 작성
+
+Mapper를 주입받아 필요한 처리를 합니다.
+단순 CRUD라면 Mapper 호출만 해도 충분합니다.
+
+```java
+// BoardCommentService.java
+public void insertBoardComment(BoardCommentDTO comment) {
+    boardCommentMapper.insertBoardComment(comment);
+}
+
+public BoardCommentReactionReq selectBoardCommentReaction(int cno, Long id) {
+    return boardCommentMapper.selectBoardCommentReaction(cno, id);
+}
+```
+
+---
+
+### STEP ⑤ Controller에 API 엔드포인트 만들기
+
+HTTP 메서드와 URL을 결정합니다.
+RESTful 규칙: 생성=POST, 조회=GET, 수정=PATCH, 삭제=DELETE
+
+```java
+// BoardCommentController.java
+@PostMapping
+public ResponseEntity<?> createComment(
+    @RequestBody BoardCommentDTO comment,
+    @AuthenticationPrincipal UserEntity user   // JWT에서 자동으로 꺼내줌
+) {
+    comment.setMid(user.getId().intValue());
+    boardCommentService.insertBoardComment(comment);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+}
+```
+
+> **팁**: Swagger(`http://localhost:8888/swagger-ui/index.html`)에서 바로 테스트 가능합니다.  
+> Controller가 잘 동작하는지 확인한 뒤 프론트로 넘어가세요.
+
+---
+
+### STEP ⑥ 프론트 API 파일 작성 (JavaScript)
+
+axios로 백엔드 엔드포인트를 호출하는 함수를 추가합니다.
+
+```js
+// commentApi.js
+import axiosInstance from "./axiosInstance";
+
+export const commentApi = {
+  createComment: (data)  => axiosInstance.post('/api/comments', data),
+  deleteComment: (cno)   => axiosInstance.delete(`/api/comments/${cno}`),
+  updateComment: (cno, data) => axiosInstance.patch(`/api/comments/${cno}`, data),
+  postReaction:  (data)  => axiosInstance.post('/api/comments/reaction', data),
+};
+```
+
+---
+
+### STEP ⑦ React 컴포넌트에서 호출 + UI 연결
+
+`useState`로 데이터를 관리하고, 이벤트 핸들러에서 API를 호출합니다.
+
+```jsx
+// PostDetailPage.jsx — 댓글 작성 예시
+import { commentApi } from "../api/commentApi";
+
+const [newComment, setNewComment] = useState('');
+
+const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return;
+    try {
+        await commentApi.createComment({ bno: post.bno, content: newComment });
+        setNewComment('');                     // 입력창 초기화
+        // 댓글 목록 새로 불러오기
+        const res = await postApi.getPost(bno);
+        setCommentList(res.data.commentList);
+    } catch (err) {
+        alert('댓글 작성 실패');
+    }
+};
+
+// JSX
+<textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} />
+<button onClick={handleCommentSubmit}>댓글 등록</button>
+```
+
+---
+
+### 리액트 핵심 개념 3가지 (이것만 이해하면 됩니다)
+
+| 개념 | 언제 쓰나 | 한 줄 설명 |
+|------|-----------|-----------|
+| `useState` | 화면에 보이는 데이터가 바뀔 때 | 값이 바뀌면 화면을 다시 그려줌 |
+| `useEffect` | 컴포넌트가 화면에 나타날 때 (또는 특정 값이 바뀔 때) API 호출 | 의존성 배열의 값이 바뀔 때 실행 |
+| `useRef` | 화면을 다시 그리지 않고 값을 기억할 때, DOM 직접 접근 | 렌더링과 무관하게 값 보존 |
+
+```
+useState  → "이 값이 바뀌면 화면도 바꿔줘"
+useEffect → "이 타이밍에 이 코드를 실행해줘"
+useRef    → "렌더링 없이 이 값/DOM을 기억해줘"
+```
+
+---
+
+## 내일 진도 — 댓글 기능 완성 구현 가이드
+
+### 구현 목표
+- 댓글 작성 (POST /api/comments)
+- 댓글 삭제 (DELETE /api/comments/{cno})
+- 댓글 수정 (PATCH /api/comments/{cno})
+- 댓글 좋아요/싫어요 토글 (POST /api/comments/reaction)
+
+### 댓글 작성 전체 흐름
+
+```
+[PostDetailPage.jsx]
+  댓글 textarea 입력
+  → "댓글 등록" 버튼 클릭
+  → commentApi.createComment({ bno, content })
+  → POST /api/comments  (JWT 토큰 자동 첨부)
+  → BoardCommentController.createComment()
+  → comment.setMid(user.getId())  // 로그인 사용자 ID 세팅
+  → BoardCommentService.insertBoardComment(comment)
+  → BoardCommentMapper.insertBoardComment(comment)
+  → INSERT INTO board_comment ...
+  → 201 Created 응답
+  → 프론트: 댓글 목록 재조회 후 화면 갱신
+```
+
+### 댓글 좋아요/싫어요 토글 알고리즘
+
+게시글 좋아요와 똑같은 패턴입니다. 토글 3가지 경우:
+
+```
+기존 반응 없음   → INSERT (새로 추가)
+같은 타입 클릭   → DELETE (취소)
+다른 타입 클릭   → UPDATE (변경)
+```
+
+```java
+// BoardCommentController.java — reaction 엔드포인트
+@PostMapping("/reaction")
+public ResponseEntity<Map<String,Object>> reaction(
+    @RequestBody BoardCommentReactionReq req,
+    @AuthenticationPrincipal UserEntity user
+) {
+    Map<String, Object> map = new HashMap<>();
+    BoardCommentReactionReq existing =
+        boardCommentService.selectBoardCommentReaction(req.getCno(), user.getId());
+
+    if (existing == null) {
+        req.setMid(user.getId().intValue());
+        boardCommentService.insertBoardCommentReaction(req);
+    } else {
+        req.setId(existing.getId());
+        if (req.getType().equals(existing.getType()))
+            boardCommentService.deleteBoardCommentReaction(req);
+        else
+            boardCommentService.updateBoardCommentReaction(req);
+    }
+
+    ReactionCountDTO count = boardCommentService.selectBoardCommentReactionCount(req.getCno());
+    map.put("count", count);
+    return ResponseEntity.ok(map);
+}
+```
+
+### 댓글 수정 UX 패턴
+
+수정 버튼 클릭 → 해당 댓글을 textarea로 전환 → 저장 클릭 → PATCH 요청
+
+```jsx
+// 수정 중인 댓글 번호를 state로 관리
+const [editingCno, setEditingCno] = useState(null);
+const [editContent, setEditContent] = useState('');
+
+// 수정 저장
+const handleCommentUpdate = async (cno) => {
+    await commentApi.updateComment(cno, { content: editContent });
+    setEditingCno(null);   // 수정 모드 종료
+    // 목록 재조회
+};
+
+// JSX — 수정 모드 분기
+{editingCno === item.cno ? (
+    <>
+        <textarea value={editContent} onChange={e => setEditContent(e.target.value)} />
+        <button onClick={() => handleCommentUpdate(item.cno)}>저장</button>
+        <button onClick={() => setEditingCno(null)}>취소</button>
+    </>
+) : (
+    <div>{item.content}</div>
+)}
+```
+
+### 오늘 배운 패턴과 비교
+
+| 오늘 (게시글) | 내일 (댓글) |
+|--------------|------------|
+| `postApi.create(form)` | `commentApi.createComment({bno, content})` |
+| `postApi.remove(bno)` | `commentApi.deleteComment(cno)` |
+| `postApi.update(bno, form)` | `commentApi.updateComment(cno, {content})` |
+| `postApi.postReaction(data)` | `commentApi.postReaction(data)` |
+| `BoardController` | `BoardCommentController` |
+| `BoardService` | `BoardCommentService` |
+| `board_reaction` 테이블 | `board_comment_reaction` 테이블 |
+
+> 구조가 완전히 동일합니다. 오늘 게시글 기능을 이해했다면 댓글도 같은 패턴입니다.

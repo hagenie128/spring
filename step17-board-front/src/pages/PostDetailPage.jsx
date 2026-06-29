@@ -7,17 +7,17 @@ import { useAuth } from "../context/AuthContext";
 
 export default () => {
   const { bno } = useParams();
-  const [post, setPost] = useState({});
+  const [post, setPost] = useState(null);
   const [commentList, setCommentList] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  console.log(bno);
   useEffect(() => {
+    // 수업 포인트:
+    // 상세 페이지는 URL 파라미터 bno로 게시글/댓글을 함께 조회한다.
     postApi.getPost(bno).then(reponse => {
       setPost(reponse.data.board);
       setCommentList(reponse.data.commentList);
-      console.log(reponse.data);
     }).catch(error => {
       console.log(error);
     });
@@ -41,14 +41,12 @@ export default () => {
     }
   }
 
-  const handleEdit = () => {
-    navigate(`/posts/create?${bno}`);
-  }
-
   const handleReaction = async (type) => {
+    // 수업 포인트:
+    // 좋아요/싫어요는 현재 로그인 회원 기준으로 토글 처리되고,
+    // 응답으로 받은 count 값으로 화면 숫자만 즉시 갱신한다.
     await postApi.postReaction({mid: user.id, bno: post.bno, type: type})
     .then(res => {
-      console.log(res.data);
       setPost(prev => ({...prev, blike: res.data.count.likeCount, 
         bhate: res.data.count.dislikeCount}));
     })

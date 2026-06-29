@@ -41,8 +41,9 @@ const [content, setContent] = useState("");
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  await postApi.create({ title, content });
-  navigate("/");
+  const res = await postApi.create({ title, content });
+  // 수업 기본: navigate("/");
+  // 오늘 수업 심화: navigate(`/posts/${res.data.board.bno}`);
 };
 ```
 

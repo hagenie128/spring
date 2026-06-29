@@ -64,10 +64,49 @@ export const postApi = {
 
 ```
 읽기(R):  useEffect → api.get → setState → map/render
-쓰기(C):  form onSubmit → api.post → navigate
-수정(U):  기존 load → form → api.patch → navigate
-삭제(D):  confirm → api.delete → navigate
+쓰기(C):  form onSubmit → api.post → navigate(상세 또는 목록)
+수정(U):  기존 load → form → api.patch → navigate(URL의 bno)
+삭제(D):  window.confirm → api.delete → navigate
 ```
+
+---
+
+## 오늘 수업 추가 (Quill + 글번호)
+
+### 등록 후 이동
+
+```javascript
+const res = await postApi.create(form);
+navigate(`/posts/${res.data.board.bno}`);  // board 안의 bno!
+```
+
+백엔드 `board-mapper.xml`:
+
+```xml
+<insert id="insertBoard" useGeneratedKeys="true" keyProperty="bno">
+```
+
+### 수정 후 이동
+
+```javascript
+await postApi.update(bno, form);
+navigate(`/posts/${bno}`);  // PATCH는 204 → URL bno 사용
+```
+
+### Quill state
+
+```javascript
+// ❌ setForm({ ...form, content })  — 제목 사라짐
+// ✅ setForm(prev => ({ ...prev, content: html }))
+```
+
+### QuillEditor
+
+- 인스턴스 생성: `useEffect([])` **1회**
+- 초기 본문 반영: **1회만**
+- 상세 출력: `dangerouslySetInnerHTML`
+
+자세히: [step12-quill-write](step12-quill-write/) · [step13-reaction-owner](step13-reaction-owner/)
 
 ---
 
