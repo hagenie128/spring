@@ -4,6 +4,7 @@ import { postApi } from "../api/postApi";
 import "quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import DOMPurify from "dompurify";
 
 export default () => {
   const { bno } = useParams();
@@ -68,7 +69,7 @@ export default () => {
             <span className="meta-item"><span className="meta-label">작성일</span> {post.writeUpdateDate}</span>
           </div>
           <div className="post-detail-content ql-container ql-snow" style={{ border: 'none' }}>
-            <div dangerouslySetInnerHTML={{ __html: post.content }}></div>
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}></div>
           </div>
           <div className="post-detail-footer">
             <div className="post-footer-group">
