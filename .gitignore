@@ -1,5 +1,20 @@
 .metadata/
 
+# Local assistant/tool state
+.claude/
+.cursor/
+.agents/
+
+# Root-level accidental Node install
+/node_modules/
+/package.json
+/package-lock.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
 # Java / Spring build output
 target/
 build/
@@ -11,12 +26,15 @@ out/
 .project
 .settings/
 .idea/
+.vscode/
 *.iml
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
+.cache/
+coverage/
 
 # OS files
 .DS_Store

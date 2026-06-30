@@ -16,5 +16,5 @@ export const postApi = {
   addComment: (data) => axiosInstance.post(`/api/comments`, data),
   deleteComment: (cno) => axiosInstance.delete(`/api/comments/${cno}`),
   updateComment: (data) => axiosInstance.patch(`/api/comments/${data.cno}`, { content: data.content }),
-  CommentReaction: (data) => axiosInstance.post(`/api/posts/reaction`, data),
+  postCommentReaction: (data) => axiosInstance.post(`/api/comments/reaction`, data),
 };

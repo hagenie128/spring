@@ -150,6 +150,10 @@ public class BoardCommentController {
 
       @AuthenticationPrincipal UserEntity userEntity) {
 
+    if (userEntity == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
     Map<String, Object> map = new HashMap<>();
 
     BoardCommentReactionReq req = boardCommentService.selectBoardCommentReaction(reactionReq.getCno(),

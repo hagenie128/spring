@@ -1,0 +1,267 @@
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* 헤더 */
+.app-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.app-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a3a5c;
+  letter-spacing: -0.02em;
+}
+
+.app-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* 검색 영역 */
+.search-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 24px rgba(26, 58, 92, 0.08);
+  border: 1px solid #e8eef4;
+}
+
+.search-section h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-row--half {
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.form-row--half > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.search-form label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.search-form input,
+.search-form select {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  background: #fff;
+}
+
+.search-form select:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.search-form input:focus,
+.search-form select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.search-btn {
+  margin-top: 0.25rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.search-btn:active {
+  transform: translateY(0);
+}
+
+/* 결과 영역 */
+.results-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.25rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.status-message {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+
+.status-message.loading {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.status-message.error {
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.status-message.empty {
+  color: #94a3b8;
+  background: #f8fafc;
+  border: 1px dashed #e2e8f0;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 카드 그리드 */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+.tour-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e8eef4;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tour-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+.tour-card__body {
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.tour-card__info {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.5rem;
+  align-items: start;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-row dt {
+  margin: 0;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.info-row dd {
+  margin: 0;
+  color: #334155;
+  word-break: break-all;
+}
+
+.info-image {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  border: 1px solid #e2e8f0;
+}
+
+.info-empty {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .form-row--half {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+}

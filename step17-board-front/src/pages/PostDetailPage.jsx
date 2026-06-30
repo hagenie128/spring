@@ -47,9 +47,11 @@ const PostDetailPage = () => {
   }
 
   const handleReaction = async (type) => {
-    // 수업 포인트:
-    // 좋아요/싫어요는 현재 로그인 회원 기준으로 토글 처리되고,
-    // 응답으로 받은 count 값으로 화면 숫자만 즉시 갱신한다.
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
     await postApi.postReaction({ mid: user.id, bno: post.bno, type: type })
       .then(res => {
         setPost(prev => ({
@@ -63,20 +65,21 @@ const PostDetailPage = () => {
   }
 
   const handleCommentReaction = async (type, cno) => {
-    await postApi.CommentReaction({ cno: cno, type: type })
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    await postApi.postCommentReaction({ type: type, cno: cno })
       .then(res => {
-        setCommentList(commentList.map(comment => {
-          if (cno == comment.cno) {
-            return {
-              ...comment, clike: res.data.count.likeCount,
-              chate: res.data.count.dislikeCount
-            }
+        setCommentList(prev => prev.map(comment => {
+          if (cno === comment.cno) {
+            return { ...comment, clike: res.data.count.likeCount, chate: res.data.count.dislikeCount };
           }
+          return comment;
         }));
       })
-      .catch(error => {
-        console.log(error);
-      });
+      .catch(err => console.log(err))
   }
 
 
@@ -101,11 +104,14 @@ const PostDetailPage = () => {
 
 
   const handleUpdateComment = async (cno) => {
-    await postApi.updateComment(cno, { content: commentEditContent })
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    await postApi.updateComment({ cno, content: commentEditContent })
       .then(res => {
-        console.log(res.status);
-        console.log(res.data);
-        console.log(commentList);
+        setCommentList(res.data.commentList);
         setCommentEditMode(null);
       }).catch(err => console.log(err))
   }
@@ -126,10 +132,10 @@ const PostDetailPage = () => {
           <div className="post-detail-footer">
             <div className="post-footer-group">
               <button className="btn btn-success-outline" onClick={
-                () => handleReaction('like')}>좋아요 👍<span className="like-count">
+                () => handleReaction('LIKE')}>좋아요 👍<span className="like-count">
                   {post.blike}</span></button>
               <button className="btn btn-danger-outline" onClick={
-                () => handleReaction('dislike')}>싫어요 👎<span className="dislike-count">
+                () => handleReaction('DISLIKE')}>싫어요 👎<span className="dislike-count">
                   {post.bhate ? post.bhate : 0}</span></button>
             </div>
             {isEdit && (
@@ -170,10 +176,8 @@ const PostDetailPage = () => {
                         <span>📅 {item.cdate}</span>
                       </div>
                       <div className="comment-action">
-                        <button className="btn-comment-action" onClick={
-                          () => handleCommentReaction('like', item.cno)}>좋아요 👍<span>{item.clike}</span></button>
-                        <button className="btn-comment-action" onClick={
-                          () => handleCommentReaction('dislike', item.cno)}>싫어요 👎<span>{item.chate}</span></button>
+                        <button className="btn-comment-action" onClick={() => handleCommentReaction('LIKE', item.cno)}>좋아요 👍<span>{item.clike}</span></button>
+                        <button className="btn-comment-action" onClick={() => handleCommentReaction('DISLIKE', item.cno)}>싫어요 👎<span>{item.chate}</span></button>
                         {user && user.id === item.mid &&
                           <>
                             <button className="btn-comment-action" onClick={() => { setCommentEditMode(item.cno) }}>수정</button>

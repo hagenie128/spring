@@ -10,13 +10,12 @@
   "java.compile.nullAnalysis.mode": "disabled",
   "java.jdt.ls.lombokSupport.enabled": true,
   "java.symbols.includeGeneratedCode": true,
-  "java.project.sourcePaths": [
-    "car-crup-jpa/src/main/java/com/spring/dto"
-  ],
-  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.configuration.updateBuildConfiguration": "automatic",
   "java.import.gradle.enabled": true,
   "java.import.exclusions": [
-    "**/quest/**/bin/**",
+    "**/quest/**",
+    "**/step15-security-basic/**",
+    "**/step16-security-oauth2-back/**",
     "**/node_modules/**",
     "**/.npm-cache/**"
   ],
