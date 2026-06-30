@@ -15,6 +15,10 @@
     SELECT * FROM board_comment_view WHERE cno = #{cno}
   </select>
 
+  <select id="selectBoardCommentList" resultType="comment">
+    SELECT * FROM board_comment_view WHERE bno = #{bno}
+  </select>
+
   <delete id="deleteBoardComment">
     DELETE FROM board_comment WHERE cno = #{cno}
   </delete>

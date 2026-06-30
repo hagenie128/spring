@@ -1,5 +1,7 @@
 package com.spring.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.spring.dto.BoardCommentDTO;
@@ -22,6 +24,10 @@ public class BoardCommentService {
     return boardCommentMapper.selectBoardComment(cno);
   }
 
+  public List<BoardCommentDTO> selectBoardCommentList(int bno) {
+    return boardCommentMapper.selectBoardCommentList(bno);
+  }
+
   public void deleteBoardComment(int cno) {
     boardCommentMapper.deleteBoardComment(cno);
   }
@@ -31,7 +37,7 @@ public class BoardCommentService {
   }
 
   public BoardCommentReactionReq selectBoardCommentReaction(int cno, Long id) {
-    return boardCommentMapper.selectBoardCommentReaction(cno,id);
+    return boardCommentMapper.selectBoardCommentReaction(cno, id);
   }
 
   public void addBoardCommentReaction(BoardCommentReactionReq reactionReq) {

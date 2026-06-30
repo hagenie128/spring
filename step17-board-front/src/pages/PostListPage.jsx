@@ -2,13 +2,16 @@ import { useCallback, useEffect, useState } from "react"
 import { postApi } from "../api/postApi";
 import PaggingBar from "../components/PaggingBar";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default () => {
   const [posts, setPosts] = useState([]);
   const [pagging, setPagging] = useState({});
+  const { loading } = useAuth();
 
   // 게시글 첫번째 페이지 로드해서 출력
   useEffect(() => {
+    if (loading) return;
     postApi.getPage(1, '', 20)
     .then(response => {
         setPosts(response.data.list);
@@ -16,7 +19,7 @@ export default () => {
         console.log(response.data);
       }
     )
-  },[]);
+  },[loading]);
   // 페이지 번호에 해당하는 게시글 조회
   const fetchPostData = useCallback((pageNo) => {
     postApi.getPage(pageNo, '', 20)

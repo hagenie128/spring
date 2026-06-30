@@ -66,6 +66,9 @@ public class AuthController {
   
   @GetMapping("/me")
   public ResponseEntity<Map<String,Object>> me(@AuthenticationPrincipal UserEntity currentUser) {
+      if (currentUser == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
       // 엔티티 전체를 반환하면 password 해시까지 노출될 수 있으므로 필요한 공개 필드만 골라 응답한다.
       return ResponseEntity.ok(Map.of(
         "id",  currentUser.getId(),

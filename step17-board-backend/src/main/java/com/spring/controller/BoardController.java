@@ -1,8 +1,9 @@
 package com.spring.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -102,7 +103,7 @@ public class BoardController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     } 
 
-    if(board.getMid() != userEntity.getId()){
+    if (userEntity == null || !Objects.equals(board.getMid(), userEntity.getId())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(map);
     }
     boardService.deleteBoard(bno);
@@ -119,7 +120,7 @@ public class BoardController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     } 
 
-    if(board.getMid() != userEntity.getId()){
+    if (userEntity == null || !Objects.equals(board.getMid(), userEntity.getId())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
     reqBoard.setBno(bno);

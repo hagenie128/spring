@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -20,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.spring.security.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -48,17 +50,35 @@ public class SecurityConfig {
     http
         .csrf(crsf -> crsf.disable())
         .cors(cors -> cors.configurationSource(corsConfigrationSource()))
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint((request, response, authException) -> {
+              response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            })
+            .accessDeniedHandler((request, response, accessDeniedException) -> {
+              response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            }))
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
             .requestMatchers("/swagger-ui.html").permitAll()
             .requestMatchers("/swagger-ui/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/**").permitAll()
             .anyRequest().authenticated())
         // 필터 추가
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
+  }
+
+  /**
+   * @Component 필터가 서블릿 필터로 한 번 더 등록되는 것을 막는다.
+   * SecurityFilterChain 안에서만 JWT 필터가 실행되도록 한다.
+   */
+  @Bean
+  public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(JwtAuthenticationFilter filter) {
+    FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
   }
 
   @Bean
@@ -70,7 +90,8 @@ public class SecurityConfig {
     config.setAllowedOrigins(List.of("http://localhost:3000"));
     // 브라우저가 사용할 수 있는 HTTP 메서드와 요청 헤더를 허용한다.
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("*"));
+    // allowCredentials(true)일 때 allowedHeaders("*")는 사용할 수 없다.
+    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
     // 쿠키나 Authorization 같은 인증 정보를 포함한 교차 출처 요청을 허용한다.
     config.setAllowCredentials(true);
     // OPTIONS 사전 요청(Preflight)의 결과를 브라우저가 1시간 동안 재사용한다.

@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom"
 import { postApi } from "../api/postApi";
 import "quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DOMPurify from "dompurify";
 
-export default () => {
+const PostDetailPage = () => {
   const { bno } = useParams();
   const [post, setPost] = useState(null);
   const [commentList, setCommentList] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const commentForm = useRef(null);
+  //댓글 수정 위한 상태값
+  const [commentEditMode, setCommentEditMode] = useState(null);
+  const [commentEditContent, setCommentEditContent] = useState('');
 
   useEffect(() => {
     // 수업 포인트:
@@ -46,17 +50,65 @@ export default () => {
     // 수업 포인트:
     // 좋아요/싫어요는 현재 로그인 회원 기준으로 토글 처리되고,
     // 응답으로 받은 count 값으로 화면 숫자만 즉시 갱신한다.
-    await postApi.postReaction({mid: user.id, bno: post.bno, type: type})
-    .then(res => {
-      setPost(prev => ({...prev, blike: res.data.count.likeCount, 
-        bhate: res.data.count.dislikeCount}));
-    })
-    .catch(error => {
-      console.log(error);
-    });
+    await postApi.postReaction({ mid: user.id, bno: post.bno, type: type })
+      .then(res => {
+        setPost(prev => ({
+          ...prev, blike: res.data.count.likeCount,
+          bhate: res.data.count.dislikeCount
+        }));
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
-  const isEdit = user && (user.id === post.mid);
+  const handleCommentReaction = async (type, cno) => {
+    await postApi.CommentReaction({ cno: cno, type: type })
+      .then(res => {
+        setCommentList(commentList.map(comment => {
+          if (cno == comment.cno) {
+            return {
+              ...comment, clike: res.data.count.likeCount,
+              chate: res.data.count.dislikeCount
+            }
+          }
+        }));
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+
+  const isEdit = user && post && (user.id === post.mid);
+
+  const handleAddComment = async () => {
+    await postApi.addComment({ bno: post.bno, content: commentForm.current.value })
+      .then(res => {
+        console.log(res.status);
+        setCommentList(res.data.commentList);
+      }).catch(err => console.log(err))
+  }
+
+  const handleDeleteComment = async (cno) => {
+    console.log(cno);
+    await postApi.deleteComment(cno)
+      .then(res => {
+        console.log(res.status);
+        setCommentList(res.data.commentList);
+      }).catch(err => console.log(err))
+  }
+
+
+  const handleUpdateComment = async (cno) => {
+    await postApi.updateComment(cno, { content: commentEditContent })
+      .then(res => {
+        console.log(res.status);
+        console.log(res.data);
+        console.log(commentList);
+        setCommentEditMode(null);
+      }).catch(err => console.log(err))
+  }
 
   return <div className="post-detail-container">
     {
@@ -89,29 +141,58 @@ export default () => {
           </div>
           <div className="comment-section">
             <h3 className="comment-title">댓글 목록 ({commentList ? commentList.length : 0})</h3>
-            <div className="comment-form">
-              <textarea className="comment-textarea" placeholder="댓글을 입력해 주세요."></textarea>
-              <button className="comment-submit-btn">댓글<br />등록</button>
-            </div>
+            {
+              user ?
+                <div className="comment-form">
+                  <textarea className="comment-textarea" placeholder="댓글을 입력해 주세요." ref={commentForm}></textarea>
+                  <button className="comment-submit-btn" onClick={handleAddComment}>댓글<br />등록</button>
+                </div>
+                :
+                <div className="message-box">
+                  <Link to={"/login"} className="nav-link" style={{ textAlign: 'center' }}>
+                    댓글을 작성하시려면 로그인하세요
+                  </Link>
+                </div>
+            }
             <div className="comment-list">
               {commentList && commentList.map((item, index) => <div key={item.cno || index} className="comment-item">
-                <div className="comment-header">
-                  <div className="comment-info">
-                    <span>👤 {item.nickname}</span>
-                    <span>📅 {item.cdate}</span>
+                {item.cno === commentEditMode ?
+                  <div className="comment-form">
+                    <textarea className="comment-textarea" placeholder="댓글을 입력해 주세요." onChange={(e) => setCommentEditContent(e.target.value)} defaultValue={item.content}></textarea>
+                    <button className="comment-submit-btn" onClick={() => { handleUpdateComment(item.cno) }}>수정</button>
+                    <button className="comment-submit-btn" onClick={() => { setCommentEditMode(null) }}>취소</button>
                   </div>
-                  <div className="comment-action">
-                    <button className="btn-comment-action">좋아요 👍</button>
-                    <button className="btn-comment-action">싫어요 👎</button>
-                    <button className="btn-comment-action">수정</button>
-                    <button className="btn-comment-action btn-comment-danger">삭제</button>
-                  </div>
-                </div>
-                <div className="comment-content">{item.content}</div>
+                  :
+                  <>
+                    <div className="comment-header">
+                      <div className="comment-info">
+                        <span>👤 {item.nickname}</span>
+                        <span>📅 {item.cdate}</span>
+                      </div>
+                      <div className="comment-action">
+                        <button className="btn-comment-action" onClick={
+                          () => handleCommentReaction('like', item.cno)}>좋아요 👍<span>{item.clike}</span></button>
+                        <button className="btn-comment-action" onClick={
+                          () => handleCommentReaction('dislike', item.cno)}>싫어요 👎<span>{item.chate}</span></button>
+                        {user && user.id === item.mid &&
+                          <>
+                            <button className="btn-comment-action" onClick={() => { setCommentEditMode(item.cno) }}>수정</button>
+                            <button className="btn-comment-action btn-comment-danger" onClick={() => handleDeleteComment(item.cno)}>삭제</button>
+                          </>
+                        }
+                      </div>
+                    </div>
+                    <div className="comment-content">{item.content}</div>
+                  </>
+                }
+
+
               </div>)}
             </div>
           </div>
         </>
     }
-  </div>
+  </div >
 }
+
+export default PostDetailPage;
