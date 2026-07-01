@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.mapper.StudentMapper">
+<resultMap type="com.spring.dto.StudentDTO" id="student">
+    <id property="sid" column="student_id" />
+    <result property="sno" column="student_no" />
+    <result property="sname" column="student_name" />
+    <result property="did" column="dept_id" />
+    <result property="dname" column="dname" />
+    <result property="grade" column="grade" />
+    <result property="phone" column="phone" />
+    <result property="email" column="email" />
+    <result property="createdAt" column="created_at" />
+    <result property="updatedAt" column="updated_at" />
+</resultMap>
+<select id="findAllStudents" resultMap="student">
+    SELECT s.*, d.dept_name AS dname
+    FROM student s
+    JOIN department d ON s.dept_id = d.dept_id
+ORDER BY s.student_id DESC
+</select>
+
+<select id="searchStudents" resultMap="student">
+    SELECT s.*, d.dept_name AS dname
+    FROM student s
+    JOIN department d ON s.dept_id = d.dept_id
+<where>
+    <if test="type == 'sname' and keyword != null and keyword != ''">
+        s.student_name LIKE CONCAT('%', #{keyword}, '%')
+    </if>
+    <if test="type == 'dname' and keyword != null and keyword != ''">
+        d.dept_name LIKE CONCAT('%', #{keyword}, '%')
+    </if>
+</where>
+ORDER BY s.student_id DESC
+</select>
+
+<select id="findAllDepartments" resultType="com.spring.dto.DepartmentDTO">
+    SELECT dept_id AS did, dept_name AS dname, office_location AS location, phone
+    FROM department
+</select>
+
+<select id="findById" resultMap="student">
+    SELECT s.*, d.dept_name AS dname
+    FROM student s
+    JOIN department d ON s.dept_id = d.dept_id
+    WHERE s.student_id = #{sid}
+</select>
+
+<insert id="insertStudent">
+    INSERT INTO student (student_no, student_name, dept_id, grade, phone, email)
+    VALUES (#{sno}, #{sname}, #{did}, #{grade}, #{phone}, #{email})
+</insert>
+
+<update id="updateStudent">
+    UPDATE student SET student_no = #{sno}, student_name = #{sname}, dept_id = #{did}, grade = #{grade}, phone = #{phone}, email = #{email} WHERE student_id = #{sid}
+</update>
+
+<delete id="deleteStudent">
+    DELETE FROM student WHERE student_id = #{id}
+</delete>
+
+</mapper>
+
+
+
+
+

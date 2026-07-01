@@ -1,0 +1,63 @@
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title th:text="${student.sid != null ? '학생 수정' : '학생 등록'}"></title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+    <body>
+        <main class="page-shell narrow">
+            <section class="page-header">
+                <div>
+                    <p class="eyebrow">Student Management</p>
+                    <h1 th:text="${student.sid != null ? '학생 수정' : '학생 등록'}"></h1>
+                </div>
+                <a class="btn btn-ghost" th:href="@{/students/list}">목록</a>
+            </section>
+
+            <p class="alert" th:if="${message}" th:text="${message}"></p>
+
+            <form class="student-form" th:action="${student.sid != null ? '/students/update' : '/students/create'}" method="post">
+                <input type="hidden" name="sid" th:value="${student.sid}">
+
+                <label>
+                    <span>학번</span>
+                    <input type="text" name="sno" placeholder="예: 20240011" th:value="${student.sno}" th:readonly="${student.sid != null}" required>
+                </label>
+
+                <label>
+                    <span>이름</span>
+                    <input type="text" name="sname" placeholder="학생 이름" th:value="${student.sname}" required>
+                </label>
+
+                <label>
+                    <span>학과</span>
+                    <select name="did" required>
+                        <option value="">학과 선택</option>
+                        <option th:each="dept : ${departments}" th:value="${dept.did}" th:text="${dept.dname}" th:selected="${student.did == dept.did}"></option>
+                    </select>
+                </label>
+
+                <label>
+                    <span>학년</span>
+                    <input type="number" name="grade" min="1" max="4" placeholder="1-4" th:value="${student.grade}" required>
+                </label>
+
+                <label>
+                    <span>전화번호</span>
+                    <input type="tel" name="phone" placeholder="010-0000-0000" th:value="${student.phone}" pattern="010-?[0-9]{4}-?[0-9]{4}" title="010-0000-0000 또는 01000000000 형식으로 입력하세요." required>
+                </label>
+
+                <label>
+                    <span>이메일</span>
+                    <input type="email" name="email" placeholder="name@example.com" th:value="${student.email}" title="example@example.com 형식으로 입력하세요." required>
+                </label>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit" th:text="${student.sid != null ? '수정 저장' : '등록'}"></button>
+                    <a class="btn btn-ghost" th:href="@{/students/list}">취소</a>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

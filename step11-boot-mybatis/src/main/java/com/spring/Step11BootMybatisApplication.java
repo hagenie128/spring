@@ -1,5 +1,6 @@
 package com.spring;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 3. @ComponentScan: 현재 패키지와 하위 패키지에서 @Component, @Service, @Repository, @Controller 등을 찾아 Bean으로 등록
  */
 @SpringBootApplication
+@MapperScan("com.spring.mapper")
 public class Step11BootMybatisApplication {
 
 	/**

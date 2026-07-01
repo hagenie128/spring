@@ -1,0 +1,69 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생 목록</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <main class="page-shell">
+        <section class="page-header">
+            <div>
+                <p class="eyebrow">Student Management</p>
+                <h1>학생 목록</h1>
+            </div>
+            <a class="btn btn-primary" th:href="@{/students/create}">학생 등록</a>
+        </section>
+
+        <section class="toolbar">
+            <form class="search-form" th:action="@{/students/list}" method="get">
+                <select name="type" aria-label="검색 조건">
+                    <option value="sname" th:selected="${type == null or type == 'sname'}">이름</option>
+                    <option value="dname" th:selected="${type == 'dname'}">학과명</option>
+                </select>
+                <input type="text" name="keyword" placeholder="검색어 입력" th:value="${keyword}">
+                <button class="btn btn-dark" type="submit">검색</button>
+                <a class="btn btn-ghost" th:href="@{/students/list}">초기화</a>
+            </form>
+        </section>
+
+        <section class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>학번</th>
+                        <th>이름</th>
+                        <th>학과명</th>
+                        <th>학년</th>
+                        <th>전화번호</th>
+                        <th>이메일</th>
+                        <th>등록일</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="st : ${students}">
+                        <td th:text="${st.sno}"></td>
+                        <td class="strong" th:text="${st.sname}"></td>
+                        <td th:text="${st.dname}"></td>
+                        <td th:text="|${st.grade}학년|"></td>
+                        <td th:text="${st.phone}"></td>
+                        <td th:text="${st.email}"></td>
+                        <td th:text="${#temporals.format(st.createdAt, 'yyyy-MM-dd')}"></td>
+                        <td class="actions">
+                            <a class="link-edit" th:href="@{/students/edit/{id}(id=${st.sid})}">수정</a>
+                            <a class="link-delete" th:href="@{/students/delete/{id}(id=${st.sid})}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(students)}">
+                        <td class="empty" colspan="8">조회된 학생이 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+
+</html>
