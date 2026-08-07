@@ -3,8 +3,16 @@
   "java.configuration.runtimes": [
     {
       "name": "JavaSE-21",
-      "path": "C:\\java\\zulu21.50.19-ca-jdk21.0.11-win_x64",
+      "path": "C:\\Program Files\\Zulu\\zulu-21",
       "default": true
+    },
+    {
+      "name": "JavaSE-25",
+      "path": "C:\\Program Files\\Zulu\\zulu-25"
+    },
+    {
+      "name": "JavaSE-26",
+      "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-26.0.1.8-hotspot"
     }
   ],
   "java.compile.nullAnalysis.mode": "disabled",
